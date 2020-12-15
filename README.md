@@ -14,7 +14,7 @@ Creating a new expression with the tool allows for generation of:
 Have fun! <3
 
 # Installation and use
-- Copy into a new folder in your *Packages* folder in your Unity project's *root* folder.
+- Download the release and unzip into your *Packages* folder in your Unity project's *root* folder.
 - Open a scene containing a VRChat SDK3 avatar
 - Access the tool by opening the window from *Expression Utility* menu in the Unity toolbar.
 - Select the appropriate animator (usually GestureFX)

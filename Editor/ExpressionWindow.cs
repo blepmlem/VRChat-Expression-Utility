@@ -233,7 +233,7 @@ public class ExpressionWindow : EditorWindow
 
 			var state = stateMachine.AddState(instance.Name);
 			state.motion = animation;
-			var entry = stateMachine.AddEntryTransition(state);
+			var entry = stateMachine.AddAnyStateTransition(state);
 			entry.conditions = new[] {CreateCondition(true)};
 			var exit = state.AddExitTransition(false);
 			exit.conditions = new[] {CreateCondition(false)};

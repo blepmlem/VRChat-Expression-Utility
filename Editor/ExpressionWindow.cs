@@ -253,7 +253,10 @@ public class ExpressionWindow : EditorWindow
 			{
 				name = builder.ParameterName,
 				defaultWeight = 1f,
-				stateMachine = new AnimatorStateMachine()
+				stateMachine = new AnimatorStateMachine
+				{
+					name = builder.ParameterName,
+				}
 			};
 
 			AnimatorControllerParameterType type = builder.ParameterType == VRCExpressionParameters.ValueType.Int ? AnimatorControllerParameterType.Int : AnimatorControllerParameterType.Float;
@@ -281,11 +284,13 @@ public class ExpressionWindow : EditorWindow
 				}
 			}
 			
+			
 			var stateMachine = instance.Layer.stateMachine;
 			var empty = stateMachine.AddState("Empty");
 			stateMachine.defaultState = empty;
 
 			var state = stateMachine.AddState(instance.Name);
+			state.name = instance.Name;
 			state.motion = animation;
 			var entry = stateMachine.AddAnyStateTransition(state);
 			entry.conditions = new[] {CreateCondition(true)};
@@ -319,8 +324,49 @@ public class ExpressionWindow : EditorWindow
 				};
 				builder.Menu.controls.Add(control);
 			}
-
+			
+			SetDirty(stateMachine, builder.Controller, builder.Menu, _avatarDescriptor.expressionParameters, _avatarDescriptor.gameObject, state, exit, entry, empty);
+			AddObjectToAsset(instance.Controller, stateMachine, state, entry, exit, empty);
+			AssetDatabase.Refresh();
 			return instance;
+		}
+
+		private static void AddObjectToAsset(Object asset, params Object[] objs)
+		{
+			var path = AssetDatabase.GetAssetPath(asset);
+			if (path == "")
+			{
+				return;
+			}
+			
+			foreach (var o in objs)
+			{
+				if (o == null)
+				{
+					continue;
+				}
+
+				o.hideFlags = HideFlags.HideInHierarchy;
+				EditorUtility.SetDirty(o);
+				AssetDatabase.AddObjectToAsset(o, path);
+			}
+			
+			
+			AssetDatabase.SaveAssets();
+		}
+		
+		private static void SetDirty(params Object[] objs)
+		{
+			foreach (var o in objs)
+			{
+				if (o == null)
+				{
+					continue;
+				}
+				EditorUtility.SetDirty(o);
+			}
+
+			AssetDatabase.SaveAssets();
 		}
 		
 		public void Delete()
@@ -348,6 +394,8 @@ public class ExpressionWindow : EditorWindow
 				Menu.controls.Remove(Menu.controls.First(c => c.name == Name));
 			}
 
+			SetDirty(Controller, Menu, _avatarDescriptor.expressionParameters);
+			
 			if (AnimationClip != null)
 			{
 				if (EditorUtility.DisplayDialog("Remove Animation?", "Do you also want to remove the animation associated with this expression?", "Yes!", "Nah"))

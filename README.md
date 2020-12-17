@@ -3,6 +3,8 @@ This tool allows you to skip some of the tedious work when setting up new expres
 
 This tool can automatically generate everything you need for a rudimentary toggle expression with a click of a button. From there you can always modify the output to fit other needs.
 
+![expr](https://user-images.githubusercontent.com/76069764/102503110-ae0c5480-407f-11eb-8715-6559964ebfa1.png)
+
 Creating a new expression with the tool allows for generation of:
 - VRChat Menu Controllers
 - VRChat Parameters

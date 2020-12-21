@@ -184,7 +184,9 @@ public class ExpressionWindow : EditorWindow
 
 		EditorGUILayout.Space();
 		EditorGUILayout.LabelField("Create new Expression", EditorStyles.boldLabel);
+		EditorGUI.BeginDisabledGroup(true);
 		expressionBuilder.ParameterType = (VRCExpressionParameters.ValueType) EditorGUILayout.EnumPopup("Type", expressionBuilder.ParameterType);
+		EditorGUI.EndDisabledGroup();
 		expressionBuilder.ParameterName = EditorGUILayout.TextField("Name", expressionBuilder.ParameterName);
 		expressionBuilder.Menu = EditorGUILayout.ObjectField("Menu", expressionBuilder.Menu, typeof(VRCExpressionsMenu), false) as VRCExpressionsMenu;
 		expressionBuilder.CreateAnimation = EditorGUILayout.Toggle("Create Animation", expressionBuilder.CreateAnimation);

@@ -3,12 +3,20 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
+using UnityEngine.Networking;
 using VRC.SDK3.Avatars.Components;
 using VRC.SDK3.Avatars.ScriptableObjects;
+using System.Web;
+using ICSharpCode.SharpZipLib.Zip;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Object = UnityEngine.Object;
+using Version = System.Version;
 
 public class ExpressionWindow : EditorWindow
 {
@@ -36,6 +44,8 @@ public class ExpressionWindow : EditorWindow
 	
 	[SerializeField]
 	private GUIStyle _helpStyle;
+
+	private Updater _updater;
 
 
 	[Serializable]
@@ -65,16 +75,17 @@ public class ExpressionWindow : EditorWindow
 		}
 	}
 
-	private void OnEnable()
+	private async void OnEnable()
 	{
 		_avatarDescriptor = Object.FindObjectOfType<VRCAvatarDescriptor>();
 		this.minSize = new Vector2(600, 600);
+		_updater = await Updater.Create();
 	}
 
 	private void OnGUI()
 	{
-		GUILayout.BeginScrollView(_scroll);
-		
+		DrawUpdate();
+		_scroll = GUILayout.BeginScrollView(_scroll);
 		GUILayout.BeginHorizontal();
 		GUILayout.BeginVertical();
 		if (DrawInit())
@@ -88,6 +99,40 @@ public class ExpressionWindow : EditorWindow
 		GUILayout.EndScrollView();
 	}
 
+	private void DrawUpdate()
+	{
+		if (_updater != null && _updater.HasNewerVersion)
+		{
+			var originalColor = GUI.color;
+			var color = Color.green + Color.white * 0.5f;
+			
+			var txtUpdating = $"Updating...\nThis window will close when complete!";
+			var txtUpdate = $"Update available!\n<b>New version: {_updater.LatestVersion}</b>";
+			
+			GUILayout.BeginHorizontal("box", GUILayout.Height(30));
+			EditorGUILayout.LabelField(_updater.IsUpdating ? txtUpdating : txtUpdate, _helpStyle, GUILayout.ExpandHeight(true));
+
+			GUI.color = originalColor;
+			if (!_updater.IsUpdating)
+			{
+				if (GUILayout.Button("Github", GUILayout.ExpandHeight(true)))
+				{
+					_updater.OpenGitHub();
+				}
+			
+				GUI.color = color;
+				if (GUILayout.Button("Install", GUILayout.ExpandHeight(true)))
+				{
+					_updater.Update(Close);
+				}	
+			}
+
+			GUI.color = originalColor;
+			GUILayout.EndHorizontal();
+
+		}
+	}
+
 	private void DrawHelp()
 	{
 		string txt = "";
@@ -97,7 +142,8 @@ public class ExpressionWindow : EditorWindow
 		}
 		else if (expressionBuilder == null || expressionBuilder.Controller == null)
 		{
-			txt = $"Welcome! \n\nTo create a new Expression, you should select one of the Animators to the right that you want to put a new Expression on. To do so, click the <b>Select</b> button for that Animator. \n\nMost of the time you'll want to use your FX Animator. If the layer you want to use is empty, you will need to select your avatar and set up the Playable Layer (Animator) you want in your Avatar Descriptor in the inspector.\n\n";
+			var version = _updater != null ? $"Version {_updater.CurrentVersion}\n\n" : "";
+			txt = $"{version}Welcome! \n\nTo create a new Expression, you should select one of the Animators to the right that you want to put a new Expression on. To do so, click the <b>Select</b> button for that Animator. \n\nMost of the time you'll want to use your FX Animator. If the layer you want to use is empty, you will need to select your avatar and set up the Playable Layer (Animator) you want in your Avatar Descriptor in the inspector.\n\n";
 		}
 		else
 		{
@@ -434,4 +480,145 @@ public class ExpressionWindow : EditorWindow
 	}
 
 	private const string FOLDER_PREF = "VRCExpressionUtilityAnimationFolder";
+
+	internal class Updater
+	{
+		private const string URL = "https://api.github.com/repos/blepmlem/VRChat-Expression-Utility/releases/latest";
+
+		private const string GITHUB = "https://github.com/blepmlem/VRChat-Expression-Utility";
+
+		private const string GITHUB_RELEASES = GITHUB + "/releases";
+		
+		private const string PACKAGE_PATH = "Packages/com.uwu.vrc-expression-utility/package.json";
+		
+		private string _latestVersionPath;
+
+		public Version LatestVersion { get; private set; }
+
+		public Version CurrentVersion { get; private set; }
+
+		public bool IsUpdating { get; private set; }
+
+		public bool HasNewerVersion
+		{
+			get
+			{
+				if (CurrentVersion == null || LatestVersion == null)
+				{
+					return false;
+				}
+
+				return LatestVersion > CurrentVersion;
+			}
+		}
+
+		public void OpenGitHub()
+		{
+			Application.OpenURL(GITHUB_RELEASES);
+		}
+
+		public static async Task<Updater> Create()
+		{
+			var updater = new Updater();
+			updater._latestVersionPath = await updater.GetLatestVersionPath();
+
+			if (string.IsNullOrEmpty(updater._latestVersionPath))
+			{
+				return null;
+			}
+			
+			var version = Regex.Match(updater._latestVersionPath,"(?<=download/)(.*)(?=/)");
+			updater.LatestVersion = new Version(version.Value);
+			
+			dynamic obj = JObject.Parse(File.ReadAllText(PACKAGE_PATH));
+			var v = obj["version"];
+			updater.CurrentVersion = new Version(v.ToString());
+
+			return updater;
+		}
+		
+		public async Task Update(Action OnComplete = null)
+		{
+			if (!HasNewerVersion || string.IsNullOrEmpty(_latestVersionPath))
+			{
+				return;
+			}
+
+			IsUpdating = true;
+			var tcs = new TaskCompletionSource<bool>();
+			var http = UnityWebRequest.Get(_latestVersionPath);
+			var req = http.SendWebRequest();
+			req.completed += operation =>
+			{
+				if (http.isHttpError || http.isNetworkError)
+				{
+					tcs.TrySetResult(false);
+				}
+				else
+				{
+					try
+					{
+						var data = req.webRequest.downloadHandler.data;
+
+						if (data != null)
+						{
+							var stream = new MemoryStream(data);
+							var file = new FastZip();
+							file.ExtractZip(stream, "Packages", FastZip.Overwrite.Always, null, null, null, true, true);
+							AssetDatabase.Refresh();
+							tcs.TrySetResult(true);
+						}
+					}
+					catch (Exception e)
+					{
+						tcs.TrySetResult(false);
+					}
+				}
+				http.Dispose();
+			};
+
+			await tcs.Task;
+			OnComplete?.Invoke();
+		}
+		
+		public async Task<string> GetLatestVersionPath()
+		{
+			var tcs = new TaskCompletionSource<string>();
+            
+			var http = UnityWebRequest.Get(URL);
+			var req = http.SendWebRequest();
+			req.completed += operation =>
+			{
+				if (http.isHttpError || http.isNetworkError)
+				{
+					tcs.SetResult(null);
+				}
+				else
+				{
+					try
+					{
+						var txt = req.webRequest.downloadHandler.text;
+						dynamic obj = JsonConvert.DeserializeObject(txt);
+						var assets = obj?.assets as JArray;
+						if (assets != null)
+						{
+							foreach (JToken jToken in assets)
+							{
+								var o = jToken.FirstOrDefault(j => (j as JProperty)?.Name == "browser_download_url");
+								var result = o?.Children().FirstOrDefault();
+								tcs.SetResult(result?.Value<string>());
+							}
+						}
+					}
+					catch (Exception e)
+					{
+						tcs.SetResult(null);
+					}
+				}
+				http.Dispose();
+			};
+
+			return await tcs.Task;
+		}
+	}
 }

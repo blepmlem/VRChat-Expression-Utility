@@ -2,7 +2,7 @@
   "name": "com.uwu.vrc-expression-utility",
   "displayName": "VRC Expression Utility",
   "description": "VRC Expression Utility",
-  "version": "1.0.4",
+  "version": "1.1.0",
   "author": {
     "name": "blep",
     "url": ""
@@ -14,5 +14,8 @@
     "vrc",
     "toggle",
     "expression"
-  ]
+  ],
+  "dependencies": {
+    "com.unity.nuget.newtonsoft-json": "2.0.0"
+  }
 }

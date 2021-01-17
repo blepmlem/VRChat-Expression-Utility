@@ -190,6 +190,9 @@ namespace ExpresionUtility
 			
 			EditorGUILayout.BeginVertical("box");
 			EditorGUILayout.BeginHorizontal();
+			
+			EditorGUI.BeginDisabledGroup(!_experimentalFeatures);
+			
 			var types = Enum.GetNames(typeof(ExpressionDefinition.ExpressionType));
 			for (int i = 0; i < types.Length; i++)
 			{
@@ -201,32 +204,40 @@ namespace ExpresionUtility
 			}
 			EditorGUILayout.EndHorizontal();
 			
-			EditorGUI.BeginDisabledGroup(!_experimentalFeatures);
 			_expressionDefinition.ParameterType = (VRCExpressionParameters.ValueType) EditorGUILayout.EnumPopup("Type", (ExpressionDefinition.ValueType) _expressionDefinition.ParameterType);
 			EditorGUI.EndDisabledGroup();
-			_expressionDefinition.ParameterName = EditorGUILayout.TextField("Name", _expressionDefinition.ParameterName);
-			_expressionDefinition.Menu = EditorGUILayout.ObjectField("Menu", _expressionDefinition.Menu, typeof(VRCExpressionsMenu), false) as VRCExpressionsMenu;
-			_expressionDefinition.CreateAnimation = EditorGUILayout.Toggle("Create Animation", _expressionDefinition.CreateAnimation);
-			EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(_expressionDefinition.ParameterName));
-			if (GUILayout.Button("CREATE", EditorStyles.miniButton, GUILayout.Width(70)))
+
+			if (_expressionDefinition.Type == ExpressionDefinition.ExpressionType.Toggle)
 			{
-				var expression = Expression.Create(_expressionDefinition);
-				if(_expressionDefinition.CreateAnimation)
+				_expressionDefinition.ParameterName = EditorGUILayout.TextField("Name", _expressionDefinition.ParameterName);
+				_expressionDefinition.Menu = EditorGUILayout.ObjectField("Menu", _expressionDefinition.Menu, typeof(VRCExpressionsMenu), false) as VRCExpressionsMenu;
+				_expressionDefinition.CreateAnimation = EditorGUILayout.Toggle("Create Animation", _expressionDefinition.CreateAnimation);
+				EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(_expressionDefinition.ParameterName));
+				if (GUILayout.Button("CREATE", EditorStyles.miniButton, GUILayout.Width(70)))
 				{
-					var anim = AvatarDescriptor.gameObject.GetComponent<Animator>();
-					if (anim != null)
+					var expression = Expression.Create(_expressionDefinition);
+					if(_expressionDefinition.CreateAnimation)
 					{
-						anim.runtimeAnimatorController = _expressionDefinition.Controller;
-						Selection.activeGameObject = AvatarDescriptor.gameObject;
+						var anim = AvatarDescriptor.gameObject.GetComponent<Animator>();
+						if (anim != null)
+						{
+							anim.runtimeAnimatorController = _expressionDefinition.Controller;
+							Selection.activeGameObject = AvatarDescriptor.gameObject;
+						}
+						else
+						{
+							AssetDatabase.OpenAsset(expression.AnimationClip);
+						}
 					}
-					else
-					{
-						AssetDatabase.OpenAsset(expression.AnimationClip);
-					}
+					_expressionDefinition = new ExpressionDefinition(_expressionDefinition.Controller);
 				}
-				_expressionDefinition = new ExpressionDefinition(_expressionDefinition.Controller);
+				EditorGUI.EndDisabledGroup();
 			}
-			EditorGUI.EndDisabledGroup();
+			else
+			{
+				EditorGUILayout.LabelField("Broken. Go back.", EditorStyles.boldLabel);
+			}
+
 			EditorGUILayout.EndVertical();
 			
 			EditorGUILayout.Space();
@@ -234,11 +245,7 @@ namespace ExpresionUtility
 			foreach (AnimatorControllerLayer animatorControllerLayer in _expressionDefinition.Controller.layers)
 			{
 				var expression = new Expression(_expressionDefinition.Controller, animatorControllerLayer.name);
-				// if (expression.Menu == null)
-				// {
-				// 	continue;
-				// }
-			
+
 				using (new GUILayout.HorizontalScope("box"))
 				{
 					if (GUILayout.Button("DELETE", EditorStyles.miniButton, GUILayout.Width(60)))

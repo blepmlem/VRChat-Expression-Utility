@@ -11,7 +11,7 @@ namespace ExpresionUtility
 	{
 		public enum ExpressionType
 		{
-			Toggle = 1,
+			Toggle,
 			BlendTree,
 		}
 		

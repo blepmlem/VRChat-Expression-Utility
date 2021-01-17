@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
+using VRC.Core;
 using VRC.SDK3.Avatars.Components;
 using VRC.SDK3.Avatars.ScriptableObjects;
 using Object = UnityEngine.Object;
@@ -40,9 +41,13 @@ namespace ExpresionUtility
 		
 		[SerializeField]
 		private GUIStyle _buttonDown;
+
+		[SerializeField]
+		private bool _experimentalFeatures;
+		
 		
 		private Updater _updater;
-
+		
 
 		private async void OnEnable()
 		{
@@ -62,6 +67,8 @@ namespace ExpresionUtility
 				DrawLayers();
 				DrawAnimationBuilder();
 			}
+			GUILayout.FlexibleSpace();
+			_experimentalFeatures = EditorGUILayout.ToggleLeft("Experimental Features", _experimentalFeatures);
 			GUILayout.EndVertical();
 			DrawHelp();
 			GUILayout.EndHorizontal();
@@ -105,18 +112,18 @@ namespace ExpresionUtility
 		private void DrawHelp()
 		{
 			string txt;
+			var version = _updater != null ? $"Version {_updater.CurrentVersion}\n\n" : "";
 			if (AvatarDescriptor == null)
 			{
-				txt = $"Please open this window in a scene containing an avatar with a {nameof(VRCAvatarDescriptor)} component on it! You can also manually drag your avatar prefab into this slot instead.";
+				txt = $"{version}Please open this window in a scene containing an avatar with a {nameof(VRCAvatarDescriptor)} component on it! You can also manually drag your avatar prefab into this slot instead.";
 			}
 			else if (_expressionDefinition == null || _expressionDefinition.Controller == null)
 			{
-				var version = _updater != null ? $"Version {_updater.CurrentVersion}\n\n" : "";
 				txt = $"{version}Welcome! \n\nTo create a new Expression, you should select one of the Animators to the right that you want to put a new Expression on. To do so, click the <b>Select</b> button for that Animator. \n\nMost of the time you'll want to use your FX Animator. If the layer you want to use is empty, you will need to select your avatar and set up the Playable Layer (Animator) you want in your Avatar Descriptor in the inspector.\n\n";
 			}
 			else
 			{
-				txt = $"You're ready to make an Expression! \n\nNow you can see which Layers this Animator has. \n\nTo add a new Expression you simply put in a new Expression name under <b>Create New Expression</b> and select which menu you want to put it in. This name will be used to create new Layers, Transitions, Menu Controls, And a new empty animation if wanted! \n\nAfter this is done, you will need to take the animation associated with this expression and set up what it will actually do. \n\nThe system will select your avatar and put in the Animator you used so you quickly can set up an animation! \n\nAs soon as that is done, you can upload your avatar and test it! \n\nHave fun <3";
+				txt = $"{version}You're ready to make an Expression! \n\nNow you can see which Layers this Animator has. \n\nTo add a new Expression you simply put in a new Expression name under <b>Create New Expression</b> and select which menu you want to put it in. This name will be used to create new Layers, Transitions, Menu Controls, And a new empty animation if wanted! \n\nAfter this is done, you will need to take the animation associated with this expression and set up what it will actually do. \n\nThe system will select your avatar and put in the Animator you used so you quickly can set up an animation! \n\nAs soon as that is done, you can upload your avatar and test it! \n\nHave fun <3";
 			}
 		
 			GUILayout.BeginVertical("box", GUILayout.ExpandHeight(true), GUILayout.Width(200));
@@ -194,8 +201,8 @@ namespace ExpresionUtility
 			}
 			EditorGUILayout.EndHorizontal();
 			
-			EditorGUI.BeginDisabledGroup(true);
-			_expressionDefinition.ParameterType = (VRCExpressionParameters.ValueType) EditorGUILayout.EnumPopup("Type", _expressionDefinition.ParameterType);
+			EditorGUI.BeginDisabledGroup(!_experimentalFeatures);
+			_expressionDefinition.ParameterType = (VRCExpressionParameters.ValueType) EditorGUILayout.EnumPopup("Type", (ExpressionDefinition.ValueType) _expressionDefinition.ParameterType);
 			EditorGUI.EndDisabledGroup();
 			_expressionDefinition.ParameterName = EditorGUILayout.TextField("Name", _expressionDefinition.ParameterName);
 			_expressionDefinition.Menu = EditorGUILayout.ObjectField("Menu", _expressionDefinition.Menu, typeof(VRCExpressionsMenu), false) as VRCExpressionsMenu;

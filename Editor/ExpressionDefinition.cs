@@ -61,5 +61,12 @@ namespace ExpresionUtility
 		{
 			Controller = controller;
 		}
+
+		public enum ValueType
+		{
+			Int,
+			Float,
+			Bool,
+		}
 	}
 }

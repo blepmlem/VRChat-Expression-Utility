@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
+using VRC.Core;
 using VRC.SDK3.Avatars.ScriptableObjects;
 using Object = UnityEngine.Object;
 
@@ -36,12 +37,25 @@ namespace ExpresionUtility
 		
 		public static Expression Create(ExpressionDefinition definition)
 		{
-			AnimatorCondition CreateCondition(bool isEntry)
+			AnimatorCondition CreateCondition(bool isEntry, AnimatorControllerParameterType t)
 			{
 				var condition = new AnimatorCondition();
-				condition.mode = AnimatorConditionMode.Equals;
+				switch (t)
+				{
+					case AnimatorControllerParameterType.Float:
+						condition.mode = isEntry ? AnimatorConditionMode.Greater : AnimatorConditionMode.Less;
+						condition.threshold = isEntry ? .99f : 0.1f;
+						break;
+					case AnimatorControllerParameterType.Int:
+						condition.mode = AnimatorConditionMode.Equals;
+						condition.threshold = isEntry ? 1 : 0;
+						break;
+					case AnimatorControllerParameterType.Bool:
+						condition.mode = AnimatorConditionMode.If;
+						break;
+				}
+				
 				condition.parameter = definition.ParameterName;
-				condition.threshold = isEntry ? 1 : 0;
 				return condition;
 			}
 			
@@ -55,8 +69,15 @@ namespace ExpresionUtility
 				}
 			};
 
-			AnimatorControllerParameterType type = definition.ParameterType == VRCExpressionParameters.ValueType.Int ? AnimatorControllerParameterType.Int : AnimatorControllerParameterType.Float;
-			
+			AnimatorControllerParameterType type = AnimatorControllerParameterType.Int;
+
+			switch ((ExpressionDefinition.ValueType) definition.ParameterType)
+			{
+				case ExpressionDefinition.ValueType.Int: type = AnimatorControllerParameterType.Int; break;
+				case ExpressionDefinition.ValueType.Float: type = AnimatorControllerParameterType.Float; break;
+				case ExpressionDefinition.ValueType.Bool: type = AnimatorControllerParameterType.Bool; break;
+			}
+
 			definition.Controller.AddLayer(layer);
 			definition.Controller.AddParameter(definition.ParameterName, type);
 
@@ -89,9 +110,9 @@ namespace ExpresionUtility
 			state.name = instance.Name;
 			state.motion = animation;
 			var entry = stateMachine.AddAnyStateTransition(state);
-			entry.conditions = new[] {CreateCondition(true)};
+			entry.conditions = new[] {CreateCondition(true, type)};
 			var exit = state.AddExitTransition(false);
-			exit.conditions = new[] {CreateCondition(false)};
+			exit.conditions = new[] {CreateCondition(false, type)};
 			
 			var parameters = ExpressionWindow.AvatarDescriptor.expressionParameters.parameters;
 			if (parameters.All(p => p.name != definition.ParameterName))

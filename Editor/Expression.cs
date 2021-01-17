@@ -34,37 +34,37 @@ namespace ExpresionUtility
 			Controller = controller;
 		}
 		
-		public static Expression Create(ExpressionBuilder builder)
+		public static Expression Create(ExpressionDefinition definition)
 		{
 			AnimatorCondition CreateCondition(bool isEntry)
 			{
 				var condition = new AnimatorCondition();
 				condition.mode = AnimatorConditionMode.Equals;
-				condition.parameter = builder.ParameterName;
+				condition.parameter = definition.ParameterName;
 				condition.threshold = isEntry ? 1 : 0;
 				return condition;
 			}
 			
 			var layer = new AnimatorControllerLayer
 			{
-				name = builder.ParameterName,
+				name = definition.ParameterName,
 				defaultWeight = 1f,
 				stateMachine = new AnimatorStateMachine
 				{
-					name = builder.ParameterName,
+					name = definition.ParameterName,
 				}
 			};
 
-			AnimatorControllerParameterType type = builder.ParameterType == VRCExpressionParameters.ValueType.Int ? AnimatorControllerParameterType.Int : AnimatorControllerParameterType.Float;
+			AnimatorControllerParameterType type = definition.ParameterType == VRCExpressionParameters.ValueType.Int ? AnimatorControllerParameterType.Int : AnimatorControllerParameterType.Float;
 			
-			builder.Controller.AddLayer(layer);
-			builder.Controller.AddParameter(builder.ParameterName, type);
+			definition.Controller.AddLayer(layer);
+			definition.Controller.AddParameter(definition.ParameterName, type);
 
-			var instance = new Expression(builder.Controller, builder.ParameterName);
+			var instance = new Expression(definition.Controller, definition.ParameterName);
 
 			AnimationClip animation = null;
 			
-			if(builder.CreateAnimation)
+			if(definition.CreateAnimation)
 			{
 				animation = new AnimationClip()
 				{
@@ -94,7 +94,7 @@ namespace ExpresionUtility
 			exit.conditions = new[] {CreateCondition(false)};
 			
 			var parameters = ExpressionWindow.AvatarDescriptor.expressionParameters.parameters;
-			if (parameters.All(p => p.name != builder.ParameterName))
+			if (parameters.All(p => p.name != definition.ParameterName))
 			{
 				for (var i = 0; i < parameters.Length; i++)
 				{
@@ -102,26 +102,26 @@ namespace ExpresionUtility
 					{
 						parameters[i] = new VRCExpressionParameters.Parameter
 						{
-							name = builder.ParameterName,
-							valueType = builder.ParameterType,
+							name = definition.ParameterName,
+							valueType = definition.ParameterType,
 						};
 						break;
 					}
 				}
 			}
 
-			if (builder.Menu != null)
+			if (definition.Menu != null)
 			{
 				var control = new VRCExpressionsMenu.Control
 				{
-					name = ObjectNames.NicifyVariableName(builder.ParameterName),
-					parameter = new VRCExpressionsMenu.Control.Parameter{name = builder.ParameterName},
+					name = ObjectNames.NicifyVariableName(definition.ParameterName),
+					parameter = new VRCExpressionsMenu.Control.Parameter{name = definition.ParameterName},
 					type = VRCExpressionsMenu.Control.ControlType.Toggle,
 				};
-				builder.Menu.controls.Add(control);
+				definition.Menu.controls.Add(control);
 			}
 			
-			SetDirty(stateMachine, builder.Controller, builder.Menu, ExpressionWindow.AvatarDescriptor.expressionParameters, ExpressionWindow.AvatarDescriptor.gameObject, state, exit, entry, empty);
+			SetDirty(stateMachine, definition.Controller, definition.Menu, ExpressionWindow.AvatarDescriptor.expressionParameters, ExpressionWindow.AvatarDescriptor.gameObject, state, exit, entry, empty);
 			AddObjectToAsset(instance.Controller, stateMachine, state, entry, exit, empty);
 			AssetDatabase.Refresh();
 			return instance;

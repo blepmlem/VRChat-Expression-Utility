@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.Animations;
@@ -32,11 +33,14 @@ namespace ExpresionUtility
 		private Vector2 _scroll;
 
 		[SerializeField]
-		private ExpressionBuilder _expressionBuilder;
+		private ExpressionDefinition _expressionDefinition;
 	
 		[SerializeField]
 		private GUIStyle _helpStyle;
-
+		
+		[SerializeField]
+		private GUIStyle _buttonDown;
+		
 		private Updater _updater;
 
 
@@ -105,7 +109,7 @@ namespace ExpresionUtility
 			{
 				txt = $"Please open this window in a scene containing an avatar with a {nameof(VRCAvatarDescriptor)} component on it! You can also manually drag your avatar prefab into this slot instead.";
 			}
-			else if (_expressionBuilder == null || _expressionBuilder.Controller == null)
+			else if (_expressionDefinition == null || _expressionDefinition.Controller == null)
 			{
 				var version = _updater != null ? $"Version {_updater.CurrentVersion}\n\n" : "";
 				txt = $"{version}Welcome! \n\nTo create a new Expression, you should select one of the Animators to the right that you want to put a new Expression on. To do so, click the <b>Select</b> button for that Animator. \n\nMost of the time you'll want to use your FX Animator. If the layer you want to use is empty, you will need to select your avatar and set up the Playable Layer (Animator) you want in your Avatar Descriptor in the inspector.\n\n";
@@ -126,7 +130,13 @@ namespace ExpresionUtility
 			{
 				_helpStyle = new GUIStyle("Label") {richText = true, wordWrap = true, stretchHeight = true, stretchWidth = true};
 			}
-		
+
+			if (_buttonDown == null)
+			{
+				_buttonDown = new GUIStyle(EditorStyles.toolbarButton) {richText = true, wordWrap = true, stretchHeight = true, stretchWidth = true};
+				_buttonDown.normal = _buttonDown.active;
+			}
+			
 			AvatarDescriptor = EditorGUILayout.ObjectField("Active Avatar", AvatarDescriptor, typeof(VRCAvatarDescriptor), true) as VRCAvatarDescriptor;
 
 			var folder = EditorGUILayout.ObjectField("Animations Folder", AnimationsFolder, typeof(DefaultAsset), false) as DefaultAsset;
@@ -150,28 +160,73 @@ namespace ExpresionUtility
 			{
 				if (DrawCreateAnimButton(layer))
 				{
-					_expressionBuilder = new ExpressionBuilder(layer);
+					_expressionDefinition = new ExpressionDefinition(layer);
 				}
 			}
 		}
 
 		private void DrawAnimationBuilder()
 		{
-			if (_expressionBuilder == null || _expressionBuilder.Controller == null)
+			if (_expressionDefinition == null || _expressionDefinition.Controller == null)
 			{
 				return;
 			}
 		
 			EditorGUILayout.Space();
 			EditorGUILayout.BeginVertical("box");
-			EditorGUILayout.LabelField(_expressionBuilder.Controller.name,EditorStyles.boldLabel);
+			EditorGUILayout.LabelField(_expressionDefinition.Controller.name,EditorStyles.boldLabel);
 		
 			EditorGUILayout.Space();
 			Expression toDelete = null;
 
-			foreach (AnimatorControllerLayer animatorControllerLayer in _expressionBuilder.Controller.layers)
+			EditorGUILayout.LabelField(" -Create new Expression- ", EditorStyles.boldLabel);
+			
+			EditorGUILayout.BeginVertical("box");
+			EditorGUILayout.BeginHorizontal();
+			var types = Enum.GetNames(typeof(ExpressionDefinition.ExpressionType));
+			for (int i = 0; i < types.Length; i++)
 			{
-				var expression = new Expression(_expressionBuilder.Controller, animatorControllerLayer.name);
+				bool isClicked = _expressionDefinition.Type == (ExpressionDefinition.ExpressionType)i;
+				if (GUILayout.Button(types[i], isClicked ? _buttonDown : EditorStyles.toolbarButton, GUILayout.ExpandWidth(true)))
+				{
+					_expressionDefinition.Type = (ExpressionDefinition.ExpressionType) i;
+				}	
+			}
+			EditorGUILayout.EndHorizontal();
+			
+			EditorGUI.BeginDisabledGroup(true);
+			_expressionDefinition.ParameterType = (VRCExpressionParameters.ValueType) EditorGUILayout.EnumPopup("Type", _expressionDefinition.ParameterType);
+			EditorGUI.EndDisabledGroup();
+			_expressionDefinition.ParameterName = EditorGUILayout.TextField("Name", _expressionDefinition.ParameterName);
+			_expressionDefinition.Menu = EditorGUILayout.ObjectField("Menu", _expressionDefinition.Menu, typeof(VRCExpressionsMenu), false) as VRCExpressionsMenu;
+			_expressionDefinition.CreateAnimation = EditorGUILayout.Toggle("Create Animation", _expressionDefinition.CreateAnimation);
+			EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(_expressionDefinition.ParameterName));
+			if (GUILayout.Button("CREATE", EditorStyles.miniButton, GUILayout.Width(70)))
+			{
+				var expression = Expression.Create(_expressionDefinition);
+				if(_expressionDefinition.CreateAnimation)
+				{
+					var anim = AvatarDescriptor.gameObject.GetComponent<Animator>();
+					if (anim != null)
+					{
+						anim.runtimeAnimatorController = _expressionDefinition.Controller;
+						Selection.activeGameObject = AvatarDescriptor.gameObject;
+					}
+					else
+					{
+						AssetDatabase.OpenAsset(expression.AnimationClip);
+					}
+				}
+				_expressionDefinition = new ExpressionDefinition(_expressionDefinition.Controller);
+			}
+			EditorGUI.EndDisabledGroup();
+			EditorGUILayout.EndVertical();
+			
+			EditorGUILayout.Space();
+			EditorGUILayout.LabelField(" -Current Animation Layers- ", EditorStyles.boldLabel);
+			foreach (AnimatorControllerLayer animatorControllerLayer in _expressionDefinition.Controller.layers)
+			{
+				var expression = new Expression(_expressionDefinition.Controller, animatorControllerLayer.name);
 				// if (expression.Menu == null)
 				// {
 				// 	continue;
@@ -192,36 +247,6 @@ namespace ExpresionUtility
 			}
 
 			toDelete?.Delete();
-
-			EditorGUILayout.Space();
-			EditorGUILayout.LabelField("Create new Expression", EditorStyles.boldLabel);
-			EditorGUI.BeginDisabledGroup(true);
-			_expressionBuilder.ParameterType = (VRCExpressionParameters.ValueType) EditorGUILayout.EnumPopup("Type", _expressionBuilder.ParameterType);
-			EditorGUI.EndDisabledGroup();
-			_expressionBuilder.ParameterName = EditorGUILayout.TextField("Name", _expressionBuilder.ParameterName);
-			_expressionBuilder.Menu = EditorGUILayout.ObjectField("Menu", _expressionBuilder.Menu, typeof(VRCExpressionsMenu), false) as VRCExpressionsMenu;
-			_expressionBuilder.CreateAnimation = EditorGUILayout.Toggle("Create Animation", _expressionBuilder.CreateAnimation);
-			EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(_expressionBuilder.ParameterName));
-			if (GUILayout.Button("CREATE", EditorStyles.miniButton, GUILayout.Width(70)))
-			{
-				var expression = Expression.Create(_expressionBuilder);
-				if(_expressionBuilder.CreateAnimation)
-				{
-					var anim = AvatarDescriptor.gameObject.GetComponent<Animator>();
-					if (anim != null)
-					{
-						anim.runtimeAnimatorController = _expressionBuilder.Controller;
-						Selection.activeGameObject = AvatarDescriptor.gameObject;
-					}
-					else
-					{
-						AssetDatabase.OpenAsset(expression.AnimationClip);
-					}
-				}
-				_expressionBuilder = new ExpressionBuilder(_expressionBuilder.Controller);
-			}
-			EditorGUI.EndDisabledGroup();
-
 
 			EditorGUILayout.EndVertical();
 		}

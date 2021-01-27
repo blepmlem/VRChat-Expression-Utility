@@ -51,7 +51,7 @@ namespace ExpresionUtility
 						condition.threshold = isEntry ? 1 : 0;
 						break;
 					case AnimatorControllerParameterType.Bool:
-						condition.mode = AnimatorConditionMode.If;
+						condition.mode = isEntry ? AnimatorConditionMode.If : AnimatorConditionMode.IfNot;
 						break;
 				}
 				
@@ -71,11 +71,11 @@ namespace ExpresionUtility
 
 			AnimatorControllerParameterType type = AnimatorControllerParameterType.Int;
 
-			switch ((ExpressionDefinition.ValueType) definition.ParameterType)
+			switch (definition.ParameterType)
 			{
-				case ExpressionDefinition.ValueType.Int: type = AnimatorControllerParameterType.Int; break;
-				case ExpressionDefinition.ValueType.Float: type = AnimatorControllerParameterType.Float; break;
-				case ExpressionDefinition.ValueType.Bool: type = AnimatorControllerParameterType.Bool; break;
+				case VRCExpressionParameters.ValueType.Int: type = AnimatorControllerParameterType.Int; break;
+				case VRCExpressionParameters.ValueType.Float: type = AnimatorControllerParameterType.Float; break;
+				case VRCExpressionParameters.ValueType.Bool: type = AnimatorControllerParameterType.Bool; break;
 			}
 
 			definition.Controller.AddLayer(layer);

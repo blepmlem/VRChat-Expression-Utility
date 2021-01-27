@@ -204,7 +204,7 @@ namespace ExpresionUtility
 			}
 			EditorGUILayout.EndHorizontal();
 			
-			_expressionDefinition.ParameterType = (VRCExpressionParameters.ValueType) EditorGUILayout.EnumPopup("Type", (ExpressionDefinition.ValueType) _expressionDefinition.ParameterType);
+			_expressionDefinition.ParameterType = (VRCExpressionParameters.ValueType) EditorGUILayout.EnumPopup("Type",  _expressionDefinition.ParameterType);
 			EditorGUI.EndDisabledGroup();
 
 			if (_expressionDefinition.Type == ExpressionDefinition.ExpressionType.Toggle)

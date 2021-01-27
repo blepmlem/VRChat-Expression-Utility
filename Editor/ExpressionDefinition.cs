@@ -52,7 +52,7 @@ namespace ExpresionUtility
 		public VRCExpressionsMenu Menu { get; set; }
 
 		[field: SerializeField]
-		public VRCExpressionParameters.ValueType ParameterType { get; set; } = VRCExpressionParameters.ValueType.Int;
+		public VRCExpressionParameters.ValueType ParameterType { get; set; } = VRCExpressionParameters.ValueType.Bool;
 		public ExpressionDefinition(VRCAvatarDescriptor.CustomAnimLayer layer)
 		{
 			Controller = layer.animatorController as AnimatorController;
@@ -60,13 +60,6 @@ namespace ExpresionUtility
 		public ExpressionDefinition(AnimatorController controller)
 		{
 			Controller = controller;
-		}
-
-		public enum ValueType
-		{
-			Int,
-			Float,
-			Bool,
 		}
 	}
 }

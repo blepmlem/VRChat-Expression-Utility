@@ -113,23 +113,22 @@ namespace ExpresionUtility
 			entry.conditions = new[] {CreateCondition(true, type)};
 			var exit = state.AddExitTransition(false);
 			exit.conditions = new[] {CreateCondition(false, type)};
-			
-			var parameters = ExpressionWindow.AvatarDescriptor.expressionParameters.parameters;
-			if (parameters.All(p => p.name != definition.ParameterName))
+
+			var expPara = ExpressionWindow.AvatarDescriptor.expressionParameters;
+			var parameter = expPara.FindParameter(definition.ParameterName);
+
+			if (parameter == null)
 			{
-				for (var i = 0; i < parameters.Length; i++)
+				var list = expPara.parameters.Where(e => e != null && !string.IsNullOrEmpty(e.name)).ToList();
+				parameter = new VRCExpressionParameters.Parameter
 				{
-					if (string.IsNullOrEmpty(parameters[i]?.name))
-					{
-						parameters[i] = new VRCExpressionParameters.Parameter
-						{
-							name = definition.ParameterName,
-							valueType = definition.ParameterType,
-						};
-						break;
-					}
-				}
+					name = definition.ParameterName
+				};
+				list.Add(parameter);
+				expPara.parameters = list.ToArray();
 			}
+			
+			parameter.valueType = definition.ParameterType;
 
 			if (definition.Menu != null)
 			{
@@ -196,15 +195,10 @@ namespace ExpresionUtility
 			{
 				Controller.RemoveParameter(ParameterIndex);
 			}
-
-			var parameters = ExpressionWindow.AvatarDescriptor.expressionParameters.parameters;
-			for (var i = 0; i < parameters.Length; i++)
-			{
-				if (parameters[i].name == Name)
-				{
-					parameters[i] = new VRCExpressionParameters.Parameter();
-				}
-			}
+			
+			var expPara = ExpressionWindow.AvatarDescriptor.expressionParameters;
+			var list = expPara.parameters.ToList().Where(p => p != null && p.name != Name);
+			expPara.parameters = list.ToArray();
 			
 			if (Menu != null)
 			{
@@ -223,5 +217,7 @@ namespace ExpresionUtility
 				}
 			}
 		}
+
+		public static bool Exists(string expressionDefinitionParameterName) => ExpressionWindow.AvatarDescriptor.expressionParameters.FindParameter(expressionDefinitionParameterName) != null;
 	}
 }

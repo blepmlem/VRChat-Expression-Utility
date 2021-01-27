@@ -212,7 +212,8 @@ namespace ExpresionUtility
 				_expressionDefinition.ParameterName = EditorGUILayout.TextField("Name", _expressionDefinition.ParameterName);
 				_expressionDefinition.Menu = EditorGUILayout.ObjectField("Menu", _expressionDefinition.Menu, typeof(VRCExpressionsMenu), false) as VRCExpressionsMenu;
 				_expressionDefinition.CreateAnimation = EditorGUILayout.Toggle("Create Animation", _expressionDefinition.CreateAnimation);
-				EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(_expressionDefinition.ParameterName));
+				
+				EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(_expressionDefinition.ParameterName) || Expression.Exists(_expressionDefinition.ParameterName));
 				if (GUILayout.Button("CREATE", EditorStyles.miniButton, GUILayout.Width(70)))
 				{
 					var expression = Expression.Create(_expressionDefinition);

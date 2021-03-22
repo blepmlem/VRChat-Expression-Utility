@@ -92,13 +92,30 @@ namespace ExpresionUtility
 					name = instance.Name,
 				};
 
-				if (ExpressionWindow.AnimationsFolder != null)
+				if (ExpressionWindow.AnimationsFolder == null)
 				{
-					var path = AssetDatabase.GetAssetPath(ExpressionWindow.AnimationsFolder);
-					Directory.CreateDirectory($"{path}/{instance.Controller.name}");
-					AssetDatabase.CreateAsset(animation, $"{path}/{instance.Controller.name}/{instance.Name}.anim");
-					AssetDatabase.Refresh();
+					var folderPath = EditorPrefs.GetString(ExpressionWindow.FOLDER_PREF, ExpressionWindow.DEFAULT_ANIMATION_FOLDER_PATH);
+					if (string.IsNullOrEmpty(folderPath))
+					{
+						folderPath = ExpressionWindow.DEFAULT_ANIMATION_FOLDER_PATH;
+					}
+
+					DefaultAsset asset = null;
+					while (asset == null)
+					{
+						var folder = EditorUtility.OpenFolderPanel("Select where to save animations", folderPath, "");
+						folder = $"Assets/{folder.Replace($"{Application.dataPath}/", "")}";
+						asset = AssetDatabase.LoadAssetAtPath(folder, typeof(DefaultAsset)) as DefaultAsset;
+					}
+
+					ExpressionWindow.AnimationsFolder = asset;
 				}
+				
+				var path = AssetDatabase.GetAssetPath(ExpressionWindow.AnimationsFolder);
+				Directory.CreateDirectory($"{path}/{instance.Controller.name}");
+				AssetDatabase.CreateAsset(animation, $"{path}/{instance.Controller.name}/{instance.Name}.anim");
+				AssetDatabase.Refresh();
+				
 			}
 			
 			

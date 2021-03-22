@@ -19,15 +19,8 @@ namespace ExpresionUtility
 
 		public static DefaultAsset AnimationsFolder
 		{
-			get => AssetDatabase.LoadAssetAtPath(EditorPrefs.GetString(FOLDER_PREF, "Assets/Animations"), typeof(DefaultAsset)) as DefaultAsset;
-			set
-			{
-				if (value == null)
-				{
-					return;
-				}
-				EditorPrefs.SetString(FOLDER_PREF, AssetDatabase.GetAssetPath(value));
-			}
+			get => AssetDatabase.LoadAssetAtPath(EditorPrefs.GetString(FOLDER_PREF, DEFAULT_ANIMATION_FOLDER_PATH), typeof(DefaultAsset)) as DefaultAsset;
+			set => EditorPrefs.SetString(FOLDER_PREF, AssetDatabase.GetAssetPath(value));
 		}
 
 		[SerializeField]
@@ -286,6 +279,7 @@ namespace ExpresionUtility
 		[MenuItem("Expression Utility/Open Window")]
 		public static void GetWindow() => EditorWindow.GetWindow(typeof(ExpressionWindow));
 
-		private const string FOLDER_PREF = "VRCExpressionUtilityAnimationFolder";
+		public const string FOLDER_PREF = "VRCExpressionUtilityAnimationFolder";
+		public const string DEFAULT_ANIMATION_FOLDER_PATH = "Assets/Animations";
 	}
 }

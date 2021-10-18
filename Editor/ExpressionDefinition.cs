@@ -44,8 +44,7 @@ namespace ExpresionUtility
 		
 		[field:SerializeField]
 		public string ParameterName { get; set; }
-
-		[field: SerializeField]
+		
 		public string PuppetSecondaryParameterName => $"{ParameterName}_Toggle";
 		
 		[field:SerializeField]

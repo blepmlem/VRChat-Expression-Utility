@@ -128,7 +128,14 @@ namespace ExpresionUtility
 		{
 			if (_helpStyle == null)
 			{
-				_helpStyle = new GUIStyle("Label") {richText = true, wordWrap = true, stretchHeight = true, stretchWidth = true};
+				_helpStyle = new GUIStyle("Label")
+				{
+					richText = true,
+					wordWrap = true,
+					stretchHeight = true,
+					stretchWidth = true,
+					alignment = TextAnchor.UpperLeft,
+				};
 			}
 
 			if (_buttonDown == null)

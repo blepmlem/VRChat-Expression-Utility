@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using ICSharpCode.SharpZipLib.Zip;
+using ICSharpCodeRenamedToAvoidConflictWithOldSDKs.SharpZipLib.Zip;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEditor;

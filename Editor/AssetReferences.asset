@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 190094eb54854032a64287f5ad450cf5, type: 3}
+  m_Name: AssetReferences
+  m_EditorClassIdentifier: 
+  _definitionData:
+  - Name: Generic Toggle
+    Description: "Creates a toggle that needs to be customized afterwards. \nYou
+      animate the exact outcome of the toggle!"
+    Icon: {fileID: -8204150473280056172, guid: 0000000000000000d000000000000000, type: 0}
+    Asset: {fileID: 11500000, guid: 4392f53dc05309f429f14d123c201729, type: 3}
+  - Name: Item Toggle
+    Description: A fully finished toggle for turning an item on your avatar on or
+      off.
+    Icon: {fileID: -8204150473280056172, guid: 0000000000000000d000000000000000, type: 0}
+    Asset: {fileID: 11500000, guid: 7954c90080604ebe9bd33ba5e15cca63, type: 3}
+  - Name: Texture Atlas Slider
+    Description: Add multiple images together in one and control which image is shown
+      somewhere on your avatar.
+    Icon: {fileID: -8204150473280056172, guid: 0000000000000000d000000000000000, type: 0}
+    Asset: {fileID: 11500000, guid: 436f6da9efcc4b459975b9bdd79c6860, type: 3}
+  _miniAvatar: {fileID: 9197481963319205126, guid: a38f02644114c3e40ae93feea8f74473,
+    type: 3}
+  _avatarSelectorButton: {fileID: 9197481963319205126, guid: 3a6620e1239272c4aafcf3db86a956e1,
+    type: 3}
+  _expressionDefinitionPreviewButton: {fileID: 9197481963319205126, guid: dd01fea312dc1b949ae7020a324a0c50,
+    type: 3}
+  _uiAssetsFolder: {fileID: 102900000, guid: 69d7fd3d511f35942ae36e419c2b9174, type: 3}
+  _mainWindow: {fileID: 9197481963319205126, guid: 5c53d2060dd8e46438f7229dafc53385,
+    type: 3}

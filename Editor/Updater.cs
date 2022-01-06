@@ -11,7 +11,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using Version = System.Version;
 
-namespace ExpresionUtility
+namespace ExpressionUtility
 {
 	internal class Updater
 	{
@@ -24,6 +24,7 @@ namespace ExpresionUtility
 		private const string PACKAGE_PATH = "Packages/com.uwu.vrc-expression-utility/package.json";
 	
 		private string _latestVersionPath;
+		private TaskCompletionSource<string> _latestVersionTcs;
 
 		public Version LatestVersion { get; private set; }
 
@@ -44,10 +45,7 @@ namespace ExpresionUtility
 			}
 		}
 
-		public void OpenGitHub()
-		{
-			Application.OpenURL(GITHUB_RELEASES);
-		}
+		public void OpenGitHub() => Application.OpenURL(GITHUB_RELEASES);
 
 		public static async Task<Updater> Create()
 		{
@@ -113,17 +111,21 @@ namespace ExpresionUtility
 			OnComplete?.Invoke();
 		}
 
-		private async Task<string> GetLatestVersionPath()
+		private Task<string> GetLatestVersionPath()
 		{
-			var tcs = new TaskCompletionSource<string>();
-        
+			if (_latestVersionTcs != null)
+			{
+				return _latestVersionTcs.Task;
+			}
+			
+			_latestVersionTcs = new TaskCompletionSource<string>();
 			var http = UnityWebRequest.Get(URL);
 			var req = http.SendWebRequest();
 			req.completed += operation =>
 			{
 				if (http.isHttpError || http.isNetworkError)
 				{
-					tcs.SetResult(null);
+					_latestVersionTcs.SetResult(null);
 				}
 				else
 				{
@@ -152,12 +154,12 @@ namespace ExpresionUtility
 						// ignored
 					}
 
-					tcs.TrySetResult(output);
+					_latestVersionTcs.TrySetResult(output);
 				}
 				http.Dispose();
 			};
 
-			return await tcs.Task;
+			return _latestVersionTcs.Task;
 		}
 	}
 }

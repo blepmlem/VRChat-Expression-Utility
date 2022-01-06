@@ -1,0 +1,66 @@
+.info-box {
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    border-top-left-radius: 3px;
+    border-bottom-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    opacity: 1;
+    border-left-color: rgb(229, 156, 57);
+    border-right-color: rgb(229, 156, 57);
+    border-top-color: rgb(229, 156, 57);
+    border-bottom-color: rgb(229, 156, 57);
+    margin-left: 5px;
+    margin-right: 5px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.footer-toolbar-button {
+    padding-top: 2px;
+    padding-bottom: 0;
+    -unity-text-align: middle-center;
+    font-size: 24px;
+    -unity-font-style: bold;
+    padding-right: 40px;
+    padding-left: 40px;
+}
+
+.header-button {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    margin-right: 0;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    flex-grow: 1;
+    margin-left: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.avatar-mini {
+    flex-direction: row;
+    flex-shrink: 1;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+    margin-left: 0;
+    margin-right: 0;
+    padding-right: 0;
+    padding-left: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+}

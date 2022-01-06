@@ -1,0 +1,23 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:VisualElement style="flex-grow: 1;">
+        <ui:ScrollView show-horizontal-scroller="false" show-vertical-scroller="true" name="expression-buttons" style="flex-grow: 1;" />
+    </ui:VisualElement>
+    <uie:ObjectField label="Active animator" name="active-animator" />
+    <ui:Foldout text="All animators" value="false" name="avatar-animators">
+        <uie:ObjectField label="Base" name="animator-base">
+            <ui:Button text="Select" />
+        </uie:ObjectField>
+        <uie:ObjectField label="Additive" name="animator-additive">
+            <ui:Button text="Select" />
+        </uie:ObjectField>
+        <uie:ObjectField label="Gesture" name="animator-gesture">
+            <ui:Button text="Select" />
+        </uie:ObjectField>
+        <uie:ObjectField label="Action" name="animator-action">
+            <ui:Button text="Select" />
+        </uie:ObjectField>
+        <uie:ObjectField label="FX" name="animator-fx">
+            <ui:Button text="Select" />
+        </uie:ObjectField>
+    </ui:Foldout>
+</ui:UXML>

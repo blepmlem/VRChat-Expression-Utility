@@ -1,11 +1,13 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 using VRC.Core;
+using VRC.SDK3.Avatars.Components;
 
 namespace ExpressionUtility
 {
@@ -149,7 +151,37 @@ namespace ExpressionUtility
 			
 			return await _avatarTSC.Task;
 		}
+
+		public static VisualElement InstantiateTemplate(this VisualTreeAsset template, VisualElement target)
+		{
+			template.CloneTree(target);
+			return target.Children().Last();
+		}
 		
+		public static T InstantiateTemplate<T>(this VisualTreeAsset template, VisualElement target) where T : VisualElement => InstantiateTemplate(template, target) as T;
+
+		public static bool OwnsAnimator(this VRCAvatarDescriptor descriptor, RuntimeAnimatorController animator)
+		{
+			foreach (var layer in descriptor.baseAnimationLayers)
+			{
+				if (!layer.isDefault && layer.animatorController == animator)
+				{
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		public static void Display(this VisualElement element, bool shouldDisplay)
+		{
+			if (element == null)
+			{
+				return;
+			}
+			element.style.display = shouldDisplay ? DisplayStyle.Flex : DisplayStyle.None;
+		}
+
 		public static void Log(this string msg, [CallerFilePath] string filePath = null)
 		{
 			var source = Path.GetFileNameWithoutExtension(filePath);

@@ -82,16 +82,8 @@ namespace ExpressionUtility
 		
 		public DefaultAsset AnimationsFolder
 		{
-			get
-			{
-				if (_controller == null)
-				{
-					return null;
-				}
-				
-				return AssetDatabase.LoadAssetAtPath(EditorPrefs.GetString($"{FOLDER_PREF}_{_controller.name}", DEFAULT_ANIMATION_FOLDER_PATH), typeof(DefaultAsset)) as DefaultAsset;
-			}
-			set => EditorPrefs.SetString(FOLDER_PREF, AssetDatabase.GetAssetPath(value));
+			get => AssetDatabase.LoadAssetAtPath(EditorPrefs.GetString($"{FOLDER_PREF}", DEFAULT_ANIMATION_FOLDER_PATH), typeof(DefaultAsset)) as DefaultAsset;
+			set => EditorPrefs.SetString($"{FOLDER_PREF}", AssetDatabase.GetAssetPath(value));
 		}
 
 		public GameObject GameObject => _avatarInfo?.IsValid ?? false ? _avatarInfo.VrcAvatarDescriptor.gameObject : null;

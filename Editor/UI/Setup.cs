@@ -1,40 +1,93 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Object = UnityEngine.Object;
 
 namespace ExpressionUtility.UI
 {
 	internal class Setup : IExpressionUI
 	{
-			
+		private UIController _controller;
+		private ScrollView _scrollView;
+		private ObjectField _folderField;
+		private Messages _messages;
 		public void OnEnter(UIController controller, IExpressionUI previousUI)
 		{
+			var expressionInfo = controller.ExpressionInfo;
 			foreach (var ob in controller.ContentFrame.Query<ObjectField>().Build().ToList())
 			{
-				var avatarAnimatorObjField = new AvatarAnimatorObjField(ob, controller.ExpressionInfo);
+				var avatarAnimatorObjField = new AvatarAnimatorObjField(ob, expressionInfo);
 			}
 
+			_controller = controller;
+			_messages = controller.Messages;
+			_scrollView = controller.ContentFrame.Q<ScrollView>("expression-buttons");
 			foreach (var type in TypeCache.GetTypesDerivedFrom<IExpressionDefinition>())
 			{
 				if (controller.AssetsReferences.ExpressionDefinitionAssets.TryGetValue(type, out var result))
 				{
-					var scrollView = controller.ContentFrame.Q<ScrollView>("expression-buttons");
+					var btn = controller.AssetsReferences.ExpressionDefinitionPreviewButton.InstantiateTemplate<Button>(_scrollView.contentContainer);
 
-					controller.AssetsReferences.ExpressionDefinitionPreviewButton.CloneTree(scrollView.contentContainer);
-					
-					var btn = scrollView.contentContainer.Children().Last() as Button;
-					
 					btn.Q<Label>("header").text = ObjectNames.NicifyVariableName(result.Name);
 					btn.Q<Label>("description").text = result.Description;
 					btn.Q("thumbnail").style.backgroundImage = result.Icon;
 					btn.clickable = new Clickable(() => controller.SetFrame(type));
 				}
 			}
+
+			_folderField = controller.ContentFrame.Q<ObjectField>("animation-folder");
+			_folderField.objectType = typeof(DefaultAsset);
+			_folderField.value = expressionInfo.AnimationsFolder;
+			
+			_folderField.SetEnabled(true);
+			_folderField.Q(null, "unity-object-field__selector").style.display = DisplayStyle.Flex;
+			_folderField.Q(null, "unity-object-field-display__label").style.display = DisplayStyle.Flex;
+			
+			_folderField.RegisterValueChangedCallback(e => ErrorValidate());
+			
+			expressionInfo.DataWasUpdated += e => ErrorValidate();
+			ErrorValidate();
+		}
+		
+		private void ErrorValidate()
+		{
+			var expressionInfo = _controller.ExpressionInfo;
+			bool hasErrors = false;
+			if (_messages.SetActive(_folderField.value == null, "specify-animation-folder"))
+			{
+				hasErrors = true;
+			}
+			else
+			{
+				var path = AssetDatabase.GetAssetPath(_folderField.value);
+				if (_messages.SetActive(!Directory.Exists(path), "animation-folder-invalid"))
+				{
+					hasErrors = true;
+				}
+				else
+				{
+					expressionInfo.AnimationsFolder = _folderField.value as DefaultAsset;
+				}
+			}
+
+			var controllerLayers = expressionInfo.AvatarDescriptor.baseAnimationLayers;
+
+			var invalidAnimator = expressionInfo.Controller == null;
+			hasErrors |= _messages.SetActive(invalidAnimator, "select-valid-animator");
+			var noValidAnim = controllerLayers.All(a => a.animatorController == null || a.isDefault);
+			_messages.SetActive(noValidAnim, "no-valid-animators");
+			hasErrors |= noValidAnim;
+
+			var notFxLayer = !invalidAnimator && expressionInfo.Controller != controllerLayers.LastOrDefault().animatorController;
+			_messages.SetActive(notFxLayer, "not-fx-layer");
+			
+			_scrollView.SetEnabled(!hasErrors);
 		}
 
 		public void OnExit(IExpressionUI nextUI)
@@ -44,16 +97,20 @@ namespace ExpressionUtility.UI
 
 		private class AvatarAnimatorObjField
 		{
+			private readonly ObjectField _objectField;
+			private readonly Button _button;
+			private readonly ExpressionInfo _expressionInfo;
+
 			public AvatarAnimatorObjField(ObjectField objectField, ExpressionInfo controllerExpressionInfo)
 			{
-				ObjectField = objectField;
+				_objectField = objectField;
 				objectField.objectType = typeof(AnimatorController);
-				Button = objectField.Q<Button>(null, "unity-button");
-				if (Button != null)
+				_button = objectField.Q<Button>(null, "unity-button");
+				if (_button != null)
 				{
-					Button.clickable.clicked += OnClicked;
+					_button.clickable.clicked += OnClicked;
 				}
-				ExpressionInfo = controllerExpressionInfo;
+				_expressionInfo = controllerExpressionInfo;
 				CleanObjectField(objectField);
 
 				switch (objectField.name)
@@ -61,47 +118,50 @@ namespace ExpressionUtility.UI
 					case "active-animator":
 						controllerExpressionInfo.DataWasUpdated += UpdateActiveAnimator;
 						UpdateActiveAnimator(controllerExpressionInfo);
+						_objectField.SetEnabled(false);
 						break;
 					case "animator-base":
-						ObjectField.value = controllerExpressionInfo.AvatarDescriptor.baseAnimationLayers[0].animatorController;
+						_objectField.value = controllerExpressionInfo.AvatarDescriptor.baseAnimationLayers[0].animatorController;
+						_objectField.SetEnabled(_objectField.value != null);
 						break;
 					case "animator-additive":
-						ObjectField.value = controllerExpressionInfo.AvatarDescriptor.baseAnimationLayers[1].animatorController;
+						_objectField.value = controllerExpressionInfo.AvatarDescriptor.baseAnimationLayers[1].animatorController;
+						_objectField.SetEnabled(_objectField.value != null);
 						break;
 					case "animator-gesture":
-						ObjectField.value = controllerExpressionInfo.AvatarDescriptor.baseAnimationLayers[2].animatorController;
+						_objectField.value = controllerExpressionInfo.AvatarDescriptor.baseAnimationLayers[2].animatorController;
+						_objectField.SetEnabled(_objectField.value != null);
 						break;
 					case "animator-action":
-						ObjectField.value = controllerExpressionInfo.AvatarDescriptor.baseAnimationLayers[3].animatorController;
+						_objectField.value = controllerExpressionInfo.AvatarDescriptor.baseAnimationLayers[3].animatorController;
+						_objectField.SetEnabled(_objectField.value != null);
 						break;
 					case "animator-fx":
-						ObjectField.value = controllerExpressionInfo.AvatarDescriptor.baseAnimationLayers[4].animatorController;
+						_objectField.value = controllerExpressionInfo.AvatarDescriptor.baseAnimationLayers[4].animatorController;
+						_objectField.SetEnabled(_objectField.value != null);
 						break;
 				}
-				
-				ObjectField.SetEnabled(ObjectField.value != null);
 			}
 
 			private void UpdateActiveAnimator(ExpressionInfo obj)
 			{
-				if (ObjectField != null)
+				if (_objectField != null)
 				{
-					ObjectField.value = obj.Controller;
+					var value = obj.Controller;
+					if (value != null && obj.AvatarDescriptor.OwnsAnimator(value))
+					{
+						_objectField.value = obj.Controller;
+					}
 				}
 			}
 
-			private void OnClicked() => ExpressionInfo.Controller = ObjectField.value as AnimatorController;
+			private void OnClicked() => _expressionInfo.Controller = _objectField.value as AnimatorController;
 
-			private ObjectField ObjectField { get; }
-			private Button Button { get; }
-			
-			private ExpressionInfo ExpressionInfo { get; }
-			
+
 			private void CleanObjectField(ObjectField ob)
 			{
-				ob.Q(null, "unity-object-field__selector").style.display = DisplayStyle.None;
-				// ob.Q(null, "unity-label").style.display = DisplayStyle.None;
-				ob.Q(null, "unity-object-field-display__label").style.display = DisplayStyle.Flex;
+				ob.Q(null, "unity-object-field__selector").Display(false);
+				ob.Q(null, "unity-object-field-display__label").Display(true);
 			}
 		}
 	}

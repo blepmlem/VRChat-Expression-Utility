@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using ExpressionUtility.UI;
 using UnityEditor;
@@ -39,7 +38,8 @@ namespace ExpressionUtility
 			createAnimation.RegisterValueChangedCallback(evt => ExpressionInfo.CreateAnimations = evt.newValue);
 			finishButton.clickable = new Clickable(OnFinishClicked);
 			nameField.RegisterValueChangedCallback(e => ExpressionInfo.ExpressionName = e.newValue);
-
+			ErrorValidate();
+			
 			void OnFinishClicked()
 			{
 				Build();
@@ -58,19 +58,19 @@ namespace ExpressionUtility
 
 			if (string.IsNullOrEmpty(ExpressionName))
 			{
-				_controller.SetInfo($"Give your expression a name! This name will be used as the name for the expression itself, its layer, and the VRC parameter");
+				// _controller.Information.SetInfo($"Give your expression a name! This name will be used as the name for the expression itself, its layer, and the VRC parameter");
 			}
 			if (Menu == null)
 			{
-				_controller.SetInfo($"Pick which menu or submenu to put the expression");
+				// _controller.Information.SetInfo($"Pick which menu or submenu to put the expression");
 			}
 			else if (inUse)
 			{
-				_controller.SetError($"The name {ExpressionName} is already in use!");
+				// _controller.Information.SetError($"The name {ExpressionName} is already in use!");
 			}
 			else
 			{
-				_controller.SetInfo($"Give your expression a name, and ");
+				// _controller.Information.SetInfo($"Give your expression a name, and ");
 			}
 		}
 

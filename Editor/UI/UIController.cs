@@ -35,6 +35,7 @@ namespace ExpressionUtility.UI
 			}
 			AvatarCache.AvatarWasUpdated += OnAvatarWasUpdated;
 			UpdateMiniAvatar(ExpressionInfo);
+			Messages = new Messages(this, Root);
 		}
 
 		private void OnAvatarWasUpdated(AvatarCache.AvatarInfo info)
@@ -59,6 +60,7 @@ namespace ExpressionUtility.UI
 		private IExpressionUI ActiveContent { get; set; }
 		private VisualElement Root { get; }
 		private ToolbarBreadcrumbs Breadcrumbs { get; } = new ToolbarBreadcrumbs();
+		public Messages Messages { get; }
 		public VisualElement ContentFrame { get; }
 		public AssetReferences AssetsReferences { get; }
 		public AvatarCache AvatarCache { get; } = new AvatarCache();
@@ -68,7 +70,7 @@ namespace ExpressionUtility.UI
 		private void UpdateMiniAvatar(ExpressionInfo info)
 		{
 			var element = Root.Q("avatar-mini");
-			element.style.display = (info.AvatarInfo?.IsValid ?? false) ? DisplayStyle.Flex : DisplayStyle.None;
+			element.Display(info.AvatarInfo?.IsValid ?? false);
 			
 			element.Q("thumbnail").style.backgroundImage = info.AvatarInfo?.Thumbnail;
 			var ob = element.Q<ObjectField>("object-field");
@@ -80,37 +82,11 @@ namespace ExpressionUtility.UI
 				ob.value = info.AvatarDescriptor.gameObject;
 			}
 
-			ob.Q(null, "unity-object-field__selector").style.display = DisplayStyle.None;
-			ob.Q(null, "unity-object-field-display__label").style.display = DisplayStyle.Flex;
+			ob.Q(null, "unity-object-field__selector").Display(false);
+			ob.Q(null, "unity-object-field-display__label").Display(true);
 		}
 
-		public void ClearInfo() => SetInfo(null);
-		public void SetInfo(string text) => SetInfoBox(text, new Color(0.219f, 0.588f, 0.898f), AssetsReferences.InfoIcon);
-		public void SetWarn(string text) => SetInfoBox(text, new Color(0.898f, 0.588f, 0.219f), AssetsReferences.WarningIcon);
-		public void SetError(string text) => SetInfoBox(text, new Color(0.898f, 0.219f, 0.325f), AssetsReferences.ErrorIcon);
 
-		private void SetInfoBox(string text, Color color, Texture2D texture)
-		{
-			var box = Root.Q("info-box");
-			if (box == null)
-			{
-				return;
-			}
-
-			if (string.IsNullOrEmpty(text))
-			{
-				box.style.display = DisplayStyle.None;
-				return;
-			}
-			
-			box.style.display = DisplayStyle.Flex;
-			box.BorderColor(color);
-			
-			var icon = box.Q("icon");
-			icon.style.backgroundImage = texture;
-			var label = box.Q<Label>("text");
-			label.text = text;
-		}
 		
 		public void SetFrame<T>() where T : IExpressionUI => SetFrame(typeof(T));
 
@@ -121,7 +97,7 @@ namespace ExpressionUtility.UI
 				return;
 			}
 
-			ClearInfo();
+			 Messages.Clear();
 			if (!AssetsReferences.UIAssets.TryGetValue(type, out (IExpressionUI ui, VisualTreeAsset treeAsset) assets))
 			{
 				$"Failed to find assets for {type}".LogError();

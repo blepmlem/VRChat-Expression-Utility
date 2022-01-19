@@ -16,18 +16,52 @@ MonoBehaviour:
   - Name: Generic Toggle
     Description: "Creates a toggle that needs to be customized afterwards. \nYou
       animate the exact outcome of the toggle!"
-    Icon: {fileID: -8204150473280056172, guid: 0000000000000000d000000000000000, type: 0}
+    Icon: {fileID: 2800000, guid: afda9a460433adf45ac45fc281946df0, type: 3}
     Asset: {fileID: 11500000, guid: 4392f53dc05309f429f14d123c201729, type: 3}
   - Name: Item Toggle
     Description: A fully finished toggle for turning an item on your avatar on or
       off.
-    Icon: {fileID: -8204150473280056172, guid: 0000000000000000d000000000000000, type: 0}
+    Icon: {fileID: 2800000, guid: 1a41363445caaa84ab4867a6b97608d7, type: 3}
     Asset: {fileID: 11500000, guid: 7954c90080604ebe9bd33ba5e15cca63, type: 3}
   - Name: Texture Atlas Slider
     Description: Add multiple images together in one and control which image is shown
       somewhere on your avatar.
-    Icon: {fileID: -8204150473280056172, guid: 0000000000000000d000000000000000, type: 0}
+    Icon: {fileID: 2800000, guid: 7a8560aef8babe8428eed4cf12a3c3db, type: 3}
     Asset: {fileID: 11500000, guid: 436f6da9efcc4b459975b9bdd79c6860, type: 3}
+  _messages:
+  - Identifier: give-expr-name
+    MessageType: 1
+    Text: Give your expression a name! This name will be used as the name for the
+      expression itself, its layer, and the VRC parameter
+  - Identifier: expr-in-use
+    MessageType: 3
+    Text: The expression name is already in use!
+  - Identifier: pick-menu
+    MessageType: 1
+    Text: Pick which menu or submenu to put the expression
+  - Identifier: scene-empty
+    MessageType: 2
+    Text: Please open a scene containing a VRChat avatar, or add one to the scene!
+  - Identifier: select-avatar
+    MessageType: 1
+    Text: Select which avatar to modify!
+  - Identifier: specify-animation-folder
+    MessageType: 3
+    Text: Please specify a folder for where created animations should go
+  - Identifier: animation-folder-invalid
+    MessageType: 3
+    Text: The current animation folder is not a valid folder
+  - Identifier: no-valid-animators
+    MessageType: 3
+    Text: This avatar has no valid animators. Please set up your animators in the
+      AvatarDescriptor on the avatar GameObject
+  - Identifier: select-valid-animator
+    MessageType: 3
+    Text: Please select a valid animator to be used for the expression
+  - Identifier: not-fx-layer
+    MessageType: 2
+    Text: You have not chosen the FX layer. This is usually a mistake unless you
+      know what you are doing
   _miniAvatar: {fileID: 9197481963319205126, guid: a38f02644114c3e40ae93feea8f74473,
     type: 3}
   _avatarSelectorButton: {fileID: 9197481963319205126, guid: 3a6620e1239272c4aafcf3db86a956e1,
@@ -37,3 +71,8 @@ MonoBehaviour:
   _uiAssetsFolder: {fileID: 102900000, guid: 69d7fd3d511f35942ae36e419c2b9174, type: 3}
   _mainWindow: {fileID: 9197481963319205126, guid: 5c53d2060dd8e46438f7229dafc53385,
     type: 3}
+  _infoBox: {fileID: 9197481963319205126, guid: a3d666f4b9845ae4ea5c5d8b2bf6d7ce,
+    type: 3}
+  _infoIcon: {fileID: 0}
+  _warningIcon: {fileID: 0}
+  _errorIcon: {fileID: 0}

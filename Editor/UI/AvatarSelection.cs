@@ -17,11 +17,12 @@ namespace ExpressionUtility.UI
 	{
 		private Dictionary<AvatarCache.AvatarInfo, VisualElement> _buttons = new Dictionary<AvatarCache.AvatarInfo, VisualElement>();
 		private UIController _controller;
-		
+		private Messages _messages;
+
 		public void OnEnter(UIController controller, IExpressionUI previousUI)
 		{
 			_controller = controller;
-			
+			_messages = controller.Messages;
 			if (controller.AvatarCache.AvatarCount == 1 && controller.ExpressionInfo.AvatarDescriptor != null && previousUI is Intro)
 			{
 				controller.SetFrame<Setup>();
@@ -35,14 +36,8 @@ namespace ExpressionUtility.UI
 
 		private void UpdateInfo()
 		{
-			if (_buttons.Any())
-			{
-				_controller.SetInfo("Select which avatar to modify!");
-			}
-			else
-			{
-				_controller.SetWarn("Please open a scene containing a VRChat avatar, or add one to the scene!");
-			}
+			_messages.SetActive(_buttons.Any(),"select-avatar");
+			_messages.SetActive(!_buttons.Any(), "scene-empty");
 		}
 		
 		private void OnAvatarWasUpdated(AvatarCache.AvatarInfo info)
@@ -93,8 +88,7 @@ namespace ExpressionUtility.UI
 			if(!_buttons.TryGetValue(info, out var element))
 			{
 				var frame = _controller.ContentFrame.Q("avatars");
-				_controller.AssetsReferences.AvatarSelectorButton.CloneTree(frame);
-				element = frame.Children().Last();
+				element = _controller.AssetsReferences.AvatarSelectorButton.InstantiateTemplate(frame);
 			}
 
 			void Clicked() => AvatarClicked(info);
@@ -111,9 +105,9 @@ namespace ExpressionUtility.UI
 			ob.allowSceneObjects = true;
 			ob.SetEnabled(false);
 			ob.value = info.VrcAvatarDescriptor.gameObject;
-			ob.Q(null, "unity-object-field__selector").style.display = DisplayStyle.None;
-			ob.Q(null, "unity-label").style.display = DisplayStyle.None;
-			ob.Q(null, "unity-object-field-display__label").style.display = DisplayStyle.Flex;
+			ob.Q(null, "unity-object-field__selector").Display(false);
+			ob.Q(null, "unity-label").Display(false);
+			ob.Q(null, "unity-object-field-display__label").Display(true);
 		}
 
 		private void AvatarClicked(AvatarCache.AvatarInfo info)

@@ -26,6 +26,9 @@ namespace ExpressionUtility.UI
 		private List<ExpressionDefinitionData> _definitionData;
 		
 		[SerializeField]
+		private List<Message> _messages;
+		
+		[SerializeField]
 		private VisualTreeAsset _miniAvatar;
 
 		[SerializeField]
@@ -41,17 +44,21 @@ namespace ExpressionUtility.UI
 		private VisualTreeAsset _mainWindow;
 		
 		[SerializeField]
+		private VisualTreeAsset _infoBox;
+		
+		[SerializeField]
 		private Texture2D _infoIcon;
 		[SerializeField]
 		private Texture2D _warningIcon;
 		[SerializeField]
 		private Texture2D _errorIcon;
 		public VisualTreeAsset MiniAvatar => _miniAvatar;
+		public VisualTreeAsset InfoBox => _infoBox;
 		public VisualTreeAsset AvatarSelectorButton => _avatarSelectorButton;
 		public VisualTreeAsset ExpressionDefinitionPreviewButton => _expressionDefinitionPreviewButton;
 		public Dictionary<Type, (IExpressionUI ui, VisualTreeAsset treeAsset)> UIAssets {get; private set; }
 		public Dictionary<Type, ExpressionDefinitionData> ExpressionDefinitionAssets { get; private set; }
-		
+		public List<Message> Messages => _messages;
 		public VisualTreeAsset MainWindow => _mainWindow;
 
 		public Texture2D InfoIcon => _infoIcon != null ? _infoIcon :  EditorGUIUtility.IconContent("console.infoicon@2x").image as Texture2D;

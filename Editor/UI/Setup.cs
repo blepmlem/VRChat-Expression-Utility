@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,6 +8,7 @@ using UnityEditor.Animations;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
+using VRC.SDK3.Avatars.ScriptableObjects;
 using Object = UnityEngine.Object;
 
 namespace ExpressionUtility.UI
@@ -46,15 +48,56 @@ namespace ExpressionUtility.UI
 			_folderField.value = expressionInfo.AnimationsFolder;
 			
 			_folderField.SetEnabled(true);
-			_folderField.Q(null, "unity-object-field__selector").style.display = DisplayStyle.Flex;
-			_folderField.Q(null, "unity-object-field-display__label").style.display = DisplayStyle.Flex;
+			_folderField.Q(null, "unity-object-field__selector").Display(true);
+			_folderField.Q(null, "unity-object-field-display__label").Display(true);
 			
-			_folderField.RegisterValueChangedCallback(e => ErrorValidate());
-			
+			_folderField.RegisterValueChangedCallback(e => expressionInfo.AnimationsFolder = e.newValue as DefaultAsset);
+
+			var menuSelection = BuildMenuSelection(controller);
+			menuSelection.RegisterValueChangedCallback(e => _controller.ExpressionInfo.Menu = e.newValue);
 			expressionInfo.DataWasUpdated += e => ErrorValidate();
 			ErrorValidate();
 		}
-		
+
+		private PopupField<VRCExpressionsMenu> BuildMenuSelection(UIController controller)
+		{
+			VRCExpressionsMenu menu = controller.ExpressionInfo.AvatarDescriptor.expressionsMenu;
+			if (menu == null)
+			{
+				//TODO
+				return null;
+			}
+			
+			IEnumerable<VRCExpressionsMenu> GetAllMenus(VRCExpressionsMenu m)
+			{
+				yield return m;
+				foreach (VRCExpressionsMenu vrcExpressionsMenu in m.controls.Where(mControl => mControl.type == VRCExpressionsMenu.Control.ControlType.SubMenu && mControl.subMenu != null).SelectMany(mControl => GetAllMenus(mControl.subMenu)))
+				{
+					yield return vrcExpressionsMenu;
+				}
+			}
+
+			string PrettifyName(VRCExpressionsMenu arg) => arg.name;
+
+			var menus = GetAllMenus(menu).ToList();
+			var menuSelector = new PopupField<VRCExpressionsMenu>(menus, menu, PrettifyName, PrettifyName);
+			menuSelector.label = "Expressions menu";
+			var holder = controller.ContentFrame.Q("menu-selection");
+			
+			holder.Add(menuSelector);
+
+			var targetMenu = controller.ExpressionInfo.Menu;
+			if (targetMenu != null && menus.Contains(targetMenu))
+			{
+				menuSelector.value = targetMenu;
+			}
+			
+			controller.ExpressionInfo.Menu = menuSelector.value;
+			return menuSelector;
+		}
+
+
+
 		private void ErrorValidate()
 		{
 			var expressionInfo = _controller.ExpressionInfo;
@@ -69,10 +112,6 @@ namespace ExpressionUtility.UI
 				if (_messages.SetActive(!Directory.Exists(path), "animation-folder-invalid"))
 				{
 					hasErrors = true;
-				}
-				else
-				{
-					expressionInfo.AnimationsFolder = _folderField.value as DefaultAsset;
 				}
 			}
 

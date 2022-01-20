@@ -60,7 +60,7 @@ MonoBehaviour:
     Text: Please select a valid animator to be used for the expression
   - Identifier: not-fx-layer
     MessageType: 2
-    Text: You have not chosen the FX layer. This is usually a mistake unless you
+    Text: You have not chosen the FX Animator. This is usually a mistake unless you
       know what you are doing
   _miniAvatar: {fileID: 9197481963319205126, guid: a38f02644114c3e40ae93feea8f74473,
     type: 3}

@@ -2,6 +2,7 @@
     <ui:VisualElement style="flex-grow: 1;">
         <ui:ScrollView show-horizontal-scroller="false" show-vertical-scroller="true" name="expression-buttons" style="flex-grow: 1;" />
     </ui:VisualElement>
+    <ui:VisualElement name="menu-selection" />
     <uie:ObjectField label="Animations folder" name="animation-folder" allow-scene-objects="false" />
     <uie:ObjectField label="Active animator" name="active-animator" />
     <ui:Foldout text="All animators" value="false" name="avatar-animators">

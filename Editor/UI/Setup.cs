@@ -92,7 +92,10 @@ namespace ExpressionUtility.UI
 				menuSelector.value = targetMenu;
 			}
 			
-			controller.ExpressionInfo.Menu = menuSelector.value;
+			if(controller.ExpressionInfo.Menu != menuSelector.value)
+			{
+				controller.ExpressionInfo.Menu = menuSelector.value;
+			}
 			return menuSelector;
 		}
 

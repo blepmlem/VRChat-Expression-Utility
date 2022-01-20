@@ -22,8 +22,7 @@ namespace ExpressionUtility
 		private AnimatorController Controller => ExpressionInfo.Controller;
 		private VRCAvatarDescriptor AvatarDescriptor => ExpressionInfo.AvatarDescriptor;
 		private List<Object> DirtyAssets { get; } = new List<Object>();
-
-
+		
 		public void OnEnter(UIController controller, IExpressionUI previousUI)
 		{
 			_controller = controller;
@@ -39,7 +38,8 @@ namespace ExpressionUtility
 			finishButton.clickable = new Clickable(OnFinishClicked);
 			nameField.RegisterValueChangedCallback(e => ExpressionInfo.ExpressionName = e.newValue);
 			ErrorValidate();
-			
+
+			ExpressionInfo.DataWasUpdated += e =>ErrorValidate();
 			void OnFinishClicked()
 			{
 				Build();
@@ -53,25 +53,12 @@ namespace ExpressionUtility
 			bool layerNameExists = Controller.layers.Any(l => l.name.Equals(ExpressionName, StringComparison.InvariantCultureIgnoreCase));
 			bool parameterExists = AvatarDescriptor.expressionParameters.parameters.Any(p => p.name.Equals(ExpressionName, StringComparison.InvariantCultureIgnoreCase));
 
-			bool inUse = layerNameExists || parameterExists;
-			finishButton.SetEnabled(!inUse && !string.IsNullOrEmpty(ExpressionName));
+			bool isEmpty = string.IsNullOrEmpty(ExpressionName);
+			bool inUse = !isEmpty && (layerNameExists || parameterExists);
+			finishButton?.SetEnabled(!inUse && !string.IsNullOrEmpty(ExpressionName));
 
-			if (string.IsNullOrEmpty(ExpressionName))
-			{
-				// _controller.Information.SetInfo($"Give your expression a name! This name will be used as the name for the expression itself, its layer, and the VRC parameter");
-			}
-			if (Menu == null)
-			{
-				// _controller.Information.SetInfo($"Pick which menu or submenu to put the expression");
-			}
-			else if (inUse)
-			{
-				// _controller.Information.SetError($"The name {ExpressionName} is already in use!");
-			}
-			else
-			{
-				// _controller.Information.SetInfo($"Give your expression a name, and ");
-			}
+			_controller.Messages.SetActive(isEmpty, "give-expr-name");
+			_controller.Messages.SetActive(inUse, "expr-in-use");
 		}
 
 		public void OnExit(IExpressionUI nextUI)
@@ -81,27 +68,29 @@ namespace ExpressionUtility
 		
 		public void Build()
 		{
-			AnimatorControllerLayer layer = AddLayer(Controller, ExpressionName);
-			Controller.AddParameter(ExpressionName, AnimatorControllerParameterType.Bool);
+			var expName = ExpressionName;
+			AnimatorControllerLayer layer = AddLayer(Controller, expName);
+			Controller.AddParameter(expName, AnimatorControllerParameterType.Bool);
 			
 			AnimatorStateMachine stateMachine = layer.stateMachine;
 			var empty = AddState(stateMachine, "Empty", isDefault: true);
 			
-			AnimatorState toggleState = AddState(stateMachine, ExpressionName);
+			AnimatorState toggleState = AddState(stateMachine, expName);
 
 			if (ExpressionInfo.CreateAnimations)
 			{
-				// var animationClip = CreateAnimation(AnimExpressionName);
+				var animationClip = CreateAnimation(ExpressionInfo.AnimationsFolder, expName);
+				toggleState.motion = animationClip;
 			}
 			
 			AnimatorStateTransition anyStateTransition = stateMachine.AddAnyStateTransition(toggleState);
-			anyStateTransition.AddCondition(AnimatorConditionMode.If, 1, ExpressionName);
+			anyStateTransition.AddCondition(AnimatorConditionMode.If, 1, expName);
 
 			AnimatorStateTransition exitTransition = toggleState.AddExitTransition(false);
-			exitTransition.AddCondition(AnimatorConditionMode.IfNot, 0, ExpressionName);
+			exitTransition.AddCondition(AnimatorConditionMode.IfNot, 0, expName);
 
-			AddVRCExpressionsParameter(AvatarDescriptor, ExpressionName);
-			AddVRCExpressionsMenuControl(Menu, ExpressionName);
+			AddVRCExpressionsParameter(AvatarDescriptor, expName);
+			AddVRCExpressionsMenuControl(Menu, expName);
 
 			DirtyAssets.SetDirty();
 			Controller.AddObjectsToAsset(stateMachine, toggleState, anyStateTransition, exitTransition, empty);
@@ -114,7 +103,7 @@ namespace ExpressionUtility
 			var control = new VRCExpressionsMenu.Control
 			{
 				name = ObjectNames.NicifyVariableName(parameterName),
-				parameter = new VRCExpressionsMenu.Control.Parameter{name = parameterName},
+				parameter = new Parameter{name = parameterName},
 				type = ControlType.Toggle,
 			};
 			
@@ -178,10 +167,11 @@ namespace ExpressionUtility
 			return layer;
 		}
 
-		private AnimationClip CreateAnimation(string animationFolder, string name)
+		private AnimationClip CreateAnimation(DefaultAsset animationFolder, string name)
 		{
+			var folderPath = AssetDatabase.GetAssetPath(animationFolder);
 			var animation = new AnimationClip { name = name };
-			AssetDatabase.CreateAsset(animation, $"{animationFolder}/{Controller.name}/{name}.anim");
+			AssetDatabase.CreateAsset(animation, $"{folderPath}/{name}.anim");
 			DirtyAssets.Add(animation);
 			return animation;
 		}

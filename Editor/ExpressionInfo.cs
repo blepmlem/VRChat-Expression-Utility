@@ -74,7 +74,7 @@ namespace ExpressionUtility
 			get => EditorPrefs.GetBool($"{CREATE_ANIMATIONS}", true);
 			set 
 			{ 
-				EditorPrefs.SetBool($"EXPRUTIL_CreateAnimations", value); 
+				EditorPrefs.SetBool($"{CREATE_ANIMATIONS}", value); 
 				DataWasUpdated?.Invoke(this);
 			}
 		}

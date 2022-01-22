@@ -62,6 +62,10 @@ MonoBehaviour:
     MessageType: 2
     Text: You have not chosen the FX Animator. This is usually a mistake unless you
       know what you are doing
+  - Identifier: item-not-child-of-avatar
+    MessageType: 3
+    Text: The selected object is not part of the active avatar. The object you want
+      to toggle needs to be added to the hierarchy of your avatar.
   _miniAvatar: {fileID: 9197481963319205126, guid: a38f02644114c3e40ae93feea8f74473,
     type: 3}
   _avatarSelectorButton: {fileID: 9197481963319205126, guid: 3a6620e1239272c4aafcf3db86a956e1,

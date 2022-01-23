@@ -27,8 +27,7 @@ namespace ExpressionUtility.UI
 			Root.Q<Toolbar>("navigation").Add(Breadcrumbs);;
 			AssetsReferences.MiniAvatar.CloneTree(Root.Q("header"));
 
-			ExpressionInfo = new ExpressionInfo();
-			ExpressionInfo.DataWasUpdated += UpdateMiniAvatar;
+			ExpressionInfo = new ExpressionInfo(UpdateMiniAvatar);
 			if (AvatarCache.GetAllAvatarInfo().Count() == 1)
 			{
 				ExpressionInfo.SetInfo(AvatarCache.GetAllAvatarInfo().First());
@@ -97,7 +96,7 @@ namespace ExpressionUtility.UI
 				return;
 			}
 
-			 Messages.Clear();
+			Messages.Clear();
 			if (!AssetsReferences.UIAssets.TryGetValue(type, out (IExpressionUI ui, VisualTreeAsset treeAsset) assets))
 			{
 				$"Failed to find assets for {type}".LogError();

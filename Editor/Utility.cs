@@ -162,6 +162,11 @@ namespace ExpressionUtility
 
 		public static bool OwnsAnimator(this VRCAvatarDescriptor descriptor, RuntimeAnimatorController animator)
 		{
+			if (animator == null)
+			{
+				return false;
+			}
+				
 			foreach (var layer in descriptor.baseAnimationLayers)
 			{
 				if (!layer.isDefault && layer.animatorController == animator)
@@ -171,6 +176,13 @@ namespace ExpressionUtility
 			}
 
 			return false;
+		}
+
+		public static void Replace(this VisualElement root, VisualElement oldElement, VisualElement newElement)
+		{
+			var index = root.IndexOf(oldElement);
+			root.Insert(index, newElement);
+			root.Remove(oldElement);
 		}
 
 		public static void Display(this VisualElement element, bool shouldDisplay)

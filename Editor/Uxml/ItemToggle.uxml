@@ -1,7 +1,6 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
-    <ui:TextField label="Toggle Name" name="name" text="Toggle Name" />
     <uie:ObjectField label="Object to be toggled" name="expression-object" />
     <ui:Toggle label="State when active" name="expression-active-state" value="true" />
     <ui:VisualElement name="padding" style="flex-grow: 1;" />
-    <ui:Button text="Button" name="button-finish" />
+    <ui:Button text="Build expression!" name="button-finish" />
 </ui:UXML>

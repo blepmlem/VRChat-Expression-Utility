@@ -8,6 +8,7 @@ using UnityEditor.Animations;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
+using VRC.SDK3.Avatars.Components;
 using VRC.SDK3.Avatars.ScriptableObjects;
 using Object = UnityEngine.Object;
 
@@ -16,25 +17,126 @@ namespace ExpressionUtility.UI
 	internal class Setup : IExpressionUI
 	{
 		private UIController _controller;
-		private ScrollView _scrollView;
-		private ObjectField _folderField;
 		private Messages _messages;
+		private ScrollView _expressionScrollView;
+		private ObjectField _folderField;
+		private TextField _nameField;
+
 		public void OnEnter(UIController controller, IExpressionUI previousUI)
 		{
-			var expressionInfo = controller.ExpressionInfo;
-			foreach (var ob in controller.ContentFrame.Query<ObjectField>().Build().ToList())
-			{
-				var avatarAnimatorObjField = new AvatarAnimatorObjField(ob, expressionInfo);
-			}
-
 			_controller = controller;
 			_messages = controller.Messages;
-			_scrollView = controller.ContentFrame.Q<ScrollView>("expression-buttons");
+			_expressionScrollView = controller.ContentFrame.Q<ScrollView>("expression-buttons");
+			_folderField = controller.ContentFrame.Q<ObjectField>("animation-folder");
+			_nameField = controller.ContentFrame.Q<TextField>("expression-name"); 
+				
+			BuildNameSelection(controller);
+			BuildExpressionSelection(controller);
+			BuildAnimatorSelection(controller);
+			BuildAnimationFolderSelection(controller);
+			BuildMenuSelection(controller);
+			ErrorValidate();
+		}
+
+		private void BuildNameSelection(UIController controller)
+		{
+			var nameField = controller.ContentFrame.Q<TextField>("expression-name");
+			nameField.RegisterValueChangedCallback(e => SetName(e.newValue));
+			
+			SetName(controller.ExpressionInfo.ExpressionName);
+			void SetName(string name)
+			{
+				nameField.SetValueWithoutNotify(name);
+				if (controller.ExpressionInfo.ExpressionName != name)
+				{
+					controller.ExpressionInfo.ExpressionName = name;
+				}
+
+				ErrorValidate();
+			}
+		}
+
+		private void BuildAnimationFolderSelection(UIController controller)
+		{
+			var animFolder = controller.ContentFrame.Q<ObjectField>("animation-folder");
+			animFolder.objectType = typeof(DefaultAsset);
+			animFolder.SetEnabled(true);
+			animFolder.Q(null, "unity-object-field__selector").Display(true);
+			animFolder.Q(null, "unity-object-field-display__label").Display(true);
+			animFolder.RegisterValueChangedCallback(e => SetFolder(e.newValue as DefaultAsset));
+			SetFolder(controller.ExpressionInfo.AnimationsFolder);
+			
+			void SetFolder(DefaultAsset folder)
+			{
+				animFolder.SetValueWithoutNotify(folder);
+				if (controller.ExpressionInfo.AnimationsFolder != folder)
+				{
+					controller.ExpressionInfo.AnimationsFolder = folder;
+				}
+
+				ErrorValidate();
+			}
+		}
+
+		private void BuildAnimatorSelection(UIController controller)
+		{
+			var animatorLayers = controller.ExpressionInfo.AvatarDescriptor.baseAnimationLayers;
+			var animatorsHolder = controller.ContentFrame.Q<Foldout>("avatar-animators");
+			var activeAnimator = controller.ContentFrame.Q<ObjectField>("active-animator");
+			
+			void CleanObjectField(ObjectField field)
+			{
+				field.objectType = typeof(AnimatorController);
+				field.Q(null, "unity-object-field__selector").Display(false);
+				field.Q(null, "unity-object-field-display__label").Display(true);
+			}
+
+			CleanObjectField(activeAnimator);
+			foreach (var objectField in animatorsHolder.Query<ObjectField>().Build().ToList())
+			{
+				CleanObjectField(objectField);
+				switch (objectField.name)
+				{
+					case "animator-base": objectField.value = animatorLayers[0].animatorController; break;
+					case "animator-additive": objectField.value = animatorLayers[1].animatorController; break;
+					case "animator-gesture": objectField.value = animatorLayers[2].animatorController; break;
+					case "animator-action": objectField.value = animatorLayers[3].animatorController; break;
+					case "animator-fx": objectField.value = animatorLayers[4].animatorController; break;
+				}
+				objectField.SetEnabled(objectField.value != null);
+				var button = objectField.Q<Button>(null, "unity-button");
+				button.clickable.clicked += () => SetAnimator(objectField.value as AnimatorController);
+			}
+
+			SetAnimator(controller.ExpressionInfo.Controller);
+
+			void SetAnimator(AnimatorController obj)
+			{
+				if (!controller.ExpressionInfo.AvatarDescriptor.OwnsAnimator(obj))
+				{
+					var last = animatorLayers.Last();
+					obj = !last.isDefault && last.animatorController != null ? last.animatorController as AnimatorController: null;
+				}
+				
+				activeAnimator.SetValueWithoutNotify(obj);
+				if (controller.ExpressionInfo.Controller != obj)
+				{
+					controller.ExpressionInfo.Controller = obj;
+				}
+
+				animatorsHolder.value = obj == null;
+				ErrorValidate();
+			}
+		}
+		
+		private void BuildExpressionSelection(UIController controller)
+		{
+			var scroll = controller.ContentFrame.Q<ScrollView>("expression-buttons");
 			foreach (var type in TypeCache.GetTypesDerivedFrom<IExpressionDefinition>())
 			{
 				if (controller.AssetsReferences.ExpressionDefinitionAssets.TryGetValue(type, out var result))
 				{
-					var btn = controller.AssetsReferences.ExpressionDefinitionPreviewButton.InstantiateTemplate<Button>(_scrollView.contentContainer);
+					var btn = controller.AssetsReferences.ExpressionDefinitionPreviewButton.InstantiateTemplate<Button>(scroll.contentContainer);
 
 					btn.Q<Label>("header").text = ObjectNames.NicifyVariableName(result.Name);
 					btn.Q<Label>("description").text = result.Description;
@@ -42,30 +144,16 @@ namespace ExpressionUtility.UI
 					btn.clickable = new Clickable(() => controller.SetFrame(type));
 				}
 			}
-
-			_folderField = controller.ContentFrame.Q<ObjectField>("animation-folder");
-			_folderField.objectType = typeof(DefaultAsset);
-			_folderField.value = expressionInfo.AnimationsFolder;
-			
-			_folderField.SetEnabled(true);
-			_folderField.Q(null, "unity-object-field__selector").Display(true);
-			_folderField.Q(null, "unity-object-field-display__label").Display(true);
-			
-			_folderField.RegisterValueChangedCallback(e => expressionInfo.AnimationsFolder = e.newValue as DefaultAsset);
-
-			var menuSelection = BuildMenuSelection(controller);
-			menuSelection.RegisterValueChangedCallback(e => _controller.ExpressionInfo.Menu = e.newValue);
-			expressionInfo.DataWasUpdated += e => ErrorValidate();
-			ErrorValidate();
 		}
 
-		private PopupField<VRCExpressionsMenu> BuildMenuSelection(UIController controller)
+		private void BuildMenuSelection(UIController controller)
 		{
 			VRCExpressionsMenu menu = controller.ExpressionInfo.AvatarDescriptor.expressionsMenu;
+
 			if (menu == null)
 			{
-				//TODO
-				return null;
+				ErrorValidate();
+				return;
 			}
 			
 			IEnumerable<VRCExpressionsMenu> GetAllMenus(VRCExpressionsMenu m)
@@ -80,131 +168,65 @@ namespace ExpressionUtility.UI
 			string PrettifyName(VRCExpressionsMenu arg) => arg.name;
 
 			var menus = GetAllMenus(menu).ToList();
-			var menuSelector = new PopupField<VRCExpressionsMenu>(menus, menu, PrettifyName, PrettifyName);
-			menuSelector.label = "Expressions menu";
-			var holder = controller.ContentFrame.Q("menu-selection");
-			
-			holder.Add(menuSelector);
+			var menuSelector = new PopupField<VRCExpressionsMenu>(menus, menu, PrettifyName, PrettifyName)
+			{
+				label = "Expression menu",
+			};
 
-			var targetMenu = controller.ExpressionInfo.Menu;
-			if (targetMenu != null && menus.Contains(targetMenu))
-			{
-				menuSelector.value = targetMenu;
-			}
+			var placeholder = controller.ContentFrame.Q("menu-selection");
+			controller.ContentFrame.Replace(placeholder, menuSelector);
 			
-			if(controller.ExpressionInfo.Menu != menuSelector.value)
+			menuSelector.RegisterValueChangedCallback(e => SetMenu(e.newValue));
+			SetMenu(controller.ExpressionInfo.Menu);
+
+			void SetMenu(VRCExpressionsMenu obj)
 			{
-				controller.ExpressionInfo.Menu = menuSelector.value;
+				if (obj == null || !menus.Contains(obj))
+				{
+					obj = menus.FirstOrDefault();
+				}
+				
+				menuSelector.SetValueWithoutNotify(obj);
+				if (controller.ExpressionInfo.Menu != obj)
+				{
+					controller.ExpressionInfo.Menu = obj;
+				}
+				ErrorValidate();
 			}
-			return menuSelector;
 		}
-
-
-
+		
 		private void ErrorValidate()
 		{
 			var expressionInfo = _controller.ExpressionInfo;
-			bool hasErrors = false;
-			if (_messages.SetActive(_folderField.value == null, "specify-animation-folder"))
-			{
-				hasErrors = true;
-			}
-			else
-			{
-				var path = AssetDatabase.GetAssetPath(_folderField.value);
-				if (_messages.SetActive(!Directory.Exists(path), "animation-folder-invalid"))
-				{
-					hasErrors = true;
-				}
-			}
-
 			var controllerLayers = expressionInfo.AvatarDescriptor.baseAnimationLayers;
-
-			var invalidAnimator = expressionInfo.Controller == null;
-			hasErrors |= _messages.SetActive(invalidAnimator, "select-valid-animator");
-			var noValidAnim = controllerLayers.All(a => a.animatorController == null || a.isDefault);
-			_messages.SetActive(noValidAnim, "no-valid-animators");
-			hasErrors |= noValidAnim;
-
-			var notFxLayer = !invalidAnimator && expressionInfo.Controller != controllerLayers.LastOrDefault().animatorController;
-			_messages.SetActive(notFxLayer, "not-fx-layer");
 			
-			_scrollView.SetEnabled(!hasErrors);
+			bool folderEmpty = _folderField.value == null;
+			bool invalidFolder = !folderEmpty && !Directory.Exists(AssetDatabase.GetAssetPath(_folderField.value));
+			bool missingRootMenu = !expressionInfo.AvatarDescriptor.expressionsMenu;
+			bool invalidAnimator = expressionInfo.Controller == null;
+			bool noValidAnim = controllerLayers.All(a => a.animatorController == null || a.isDefault);
+			bool notFxLayer = !invalidAnimator && expressionInfo.Controller != controllerLayers.LastOrDefault().animatorController;
+			bool layerNameExists = expressionInfo.Controller.layers.Any(l => l.name.Equals(expressionInfo.ExpressionName, StringComparison.InvariantCultureIgnoreCase));
+			bool parameterExists = expressionInfo.AvatarDescriptor.expressionParameters.parameters.Any(p => p.name.Equals(expressionInfo.ExpressionName, StringComparison.InvariantCultureIgnoreCase));
+			bool nameEmpty = string.IsNullOrEmpty(expressionInfo.ExpressionName);
+			bool inUse = !nameEmpty && (layerNameExists || parameterExists);
+
+			_messages.SetActive(nameEmpty, "give-expr-name");
+			_messages.SetActive(inUse, "expr-in-use");
+			_messages.SetActive(invalidAnimator, "select-valid-animator");
+			_messages.SetActive(noValidAnim, "no-valid-animators");
+			_messages.SetActive(notFxLayer, "not-fx-layer");
+			_messages.SetActive(missingRootMenu, "missing-root-menu");
+			_messages.SetActive(folderEmpty, "specify-animation-folder");
+			_messages.SetActive(invalidFolder, "animation-folder-invalid");
+				
+			bool hasErrors = invalidAnimator || noValidAnim || notFxLayer || nameEmpty || inUse;
+			_expressionScrollView.SetEnabled(!hasErrors);
 		}
 
 		public void OnExit(IExpressionUI nextUI)
 		{
 			
-		}
-
-		private class AvatarAnimatorObjField
-		{
-			private readonly ObjectField _objectField;
-			private readonly Button _button;
-			private readonly ExpressionInfo _expressionInfo;
-
-			public AvatarAnimatorObjField(ObjectField objectField, ExpressionInfo controllerExpressionInfo)
-			{
-				_objectField = objectField;
-				objectField.objectType = typeof(AnimatorController);
-				_button = objectField.Q<Button>(null, "unity-button");
-				if (_button != null)
-				{
-					_button.clickable.clicked += OnClicked;
-				}
-				_expressionInfo = controllerExpressionInfo;
-				CleanObjectField(objectField);
-
-				switch (objectField.name)
-				{
-					case "active-animator":
-						controllerExpressionInfo.DataWasUpdated += UpdateActiveAnimator;
-						UpdateActiveAnimator(controllerExpressionInfo);
-						_objectField.SetEnabled(false);
-						break;
-					case "animator-base":
-						_objectField.value = controllerExpressionInfo.AvatarDescriptor.baseAnimationLayers[0].animatorController;
-						_objectField.SetEnabled(_objectField.value != null);
-						break;
-					case "animator-additive":
-						_objectField.value = controllerExpressionInfo.AvatarDescriptor.baseAnimationLayers[1].animatorController;
-						_objectField.SetEnabled(_objectField.value != null);
-						break;
-					case "animator-gesture":
-						_objectField.value = controllerExpressionInfo.AvatarDescriptor.baseAnimationLayers[2].animatorController;
-						_objectField.SetEnabled(_objectField.value != null);
-						break;
-					case "animator-action":
-						_objectField.value = controllerExpressionInfo.AvatarDescriptor.baseAnimationLayers[3].animatorController;
-						_objectField.SetEnabled(_objectField.value != null);
-						break;
-					case "animator-fx":
-						_objectField.value = controllerExpressionInfo.AvatarDescriptor.baseAnimationLayers[4].animatorController;
-						_objectField.SetEnabled(_objectField.value != null);
-						break;
-				}
-			}
-
-			private void UpdateActiveAnimator(ExpressionInfo obj)
-			{
-				if (_objectField != null)
-				{
-					var value = obj.Controller;
-					if (value != null && obj.AvatarDescriptor.OwnsAnimator(value))
-					{
-						_objectField.value = obj.Controller;
-					}
-				}
-			}
-
-			private void OnClicked() => _expressionInfo.Controller = _objectField.value as AnimatorController;
-
-
-			private void CleanObjectField(ObjectField ob)
-			{
-				ob.Q(null, "unity-object-field__selector").Display(false);
-				ob.Q(null, "unity-object-field-display__label").Display(true);
-			}
 		}
 	}
 }

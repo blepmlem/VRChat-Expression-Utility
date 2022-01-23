@@ -65,7 +65,15 @@ MonoBehaviour:
   - Identifier: item-not-child-of-avatar
     MessageType: 3
     Text: The selected object is not part of the active avatar. The object you want
-      to toggle needs to be added to the hierarchy of your avatar.
+      to toggle needs to be added to the hierarchy of your avatar
+  - Identifier: missing-root-menu
+    MessageType: 3
+    Text: Your avatar is missing a main menu! Before continuing, you will need to
+      drag a menu object into the "menu" slot found on the top level of your avatar's
+      GameObject
+  - Identifier: item-object-is-null
+    MessageType: 1
+    Text: Select the object to be toggled
   _miniAvatar: {fileID: 9197481963319205126, guid: a38f02644114c3e40ae93feea8f74473,
     type: 3}
   _avatarSelectorButton: {fileID: 9197481963319205126, guid: 3a6620e1239272c4aafcf3db86a956e1,

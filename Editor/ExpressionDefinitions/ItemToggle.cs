@@ -16,24 +16,19 @@ namespace ExpressionUtility
 	{
 		private UIController _controller;
 		private ExpressionInfo _expressionInfo;
+		private Transform _expressionObject;
 		private readonly List<Object> _dirtyAssets = new List<Object>();
-		
+
 		public void OnEnter(UIController controller, IExpressionUI previousUI)
 		{
 			_controller = controller;
 			_expressionInfo = controller.ExpressionInfo;
-			
-			var nameField = controller.ContentFrame.Q<TextField>("name");
+
 			var finishButton = controller.ContentFrame.Q<Button>("button-finish");
-			var expressionObject = controller.ContentFrame.Q<ObjectField>("expression-object");
 
-			expressionObject.objectType = typeof(Transform);
-			expressionObject.RegisterValueChangedCallback(OnExpressionObjectChanged);
-			
+			BuildExpressionObjectSelection(controller);
+
 			finishButton.clickable = new Clickable(OnFinishClicked);
-			nameField.value = _expressionInfo.ExpressionName;
-
-			nameField.RegisterValueChangedCallback(e => _expressionInfo.ExpressionName = e.newValue);
 
 			void OnFinishClicked()
 			{
@@ -41,22 +36,34 @@ namespace ExpressionUtility
 				controller.SetFrame<Finish>();
 			}
 			
-			finishButton.SetEnabled(false);
+			ErrorValidate();
 		}
 
-		private void OnExpressionObjectChanged(ChangeEvent<Object> evt)
+		private void BuildExpressionObjectSelection(UIController controller)
 		{
-			var value = evt.newValue as Transform;
-			var finishButton = _controller.ContentFrame.Q<Button>("button-finish");
-			if (value == null)
+			var expressionObject = controller.ContentFrame.Q<ObjectField>("expression-object");
+			expressionObject.objectType = typeof(Transform);
+			expressionObject.RegisterValueChangedCallback(e => SetObject(e.newValue as Transform));
+			
+			void SetObject(Transform value)
 			{
-				finishButton.SetEnabled(false);
-				return;
+				_expressionObject = value;
+				ErrorValidate();
 			}
+		}
 
-			bool isChildOfAvatar = _expressionInfo.AvatarDescriptor.GetComponentsInChildren<Transform>(true).Any(t => t == value);
-			_controller.Messages.SetActive(!isChildOfAvatar, "item-not-child-of-avatar");
-			finishButton.SetEnabled(isChildOfAvatar);
+		private void ErrorValidate()
+		{
+			var finishButton = _controller.ContentFrame.Q<Button>("button-finish");
+			
+			bool isNotChild = _expressionObject != null && !_expressionInfo.AvatarDescriptor.GetComponentsInChildren<Transform>(true).Any(t => t == _expressionObject);
+			bool isNull = _expressionObject == null;
+			
+			_controller.Messages.SetActive(isNotChild, "item-not-child-of-avatar");
+			_controller.Messages.SetActive(isNull, "item-object-is-null");
+			
+			bool hasErrors = isNull || isNotChild;
+			finishButton.SetEnabled(!hasErrors);
 		}
 
 		public void OnExit(IExpressionUI nextUI)

@@ -5,11 +5,5 @@
             <uie:Toolbar name="navigation" style="justify-content: flex-start; border-left-width: 0; border-right-width: 0; border-top-width: 1px; border-bottom-width: 1px;" />
         </ui:VisualElement>
         <ui:VisualElement name="content-frame" style="flex-grow: 1; padding-left: 10px; padding-right: 10px; padding-top: 10px; padding-bottom: 10px;" />
-        <uie:Toolbar name="info-box" class="info-box" style="flex-grow: 0; height: auto; align-items: center; display: none;">
-            <ui:VisualElement name="icon" style="min-width: 16px; min-height: 16px;" />
-            <ui:VisualElement style="flex-grow: 1; padding-left: 3px;">
-                <ui:Label name="text" style="-unity-text-align: upper-left; flex-grow: 1;" />
-            </ui:VisualElement>
-        </uie:Toolbar>
     </ui:VisualElement>
 </ui:UXML>

@@ -219,7 +219,7 @@ namespace ExpressionUtility.UI
 			_messages.SetActive(folderEmpty, "specify-animation-folder");
 			_messages.SetActive(invalidFolder, "animation-folder-invalid");
 				
-			bool hasErrors = invalidAnimator || noValidAnim || nameEmpty || inUse;
+			bool hasErrors = invalidAnimator || noValidAnim || nameEmpty || inUse || folderEmpty || invalidFolder || missingRootMenu;
 			_expressionScrollView.SetEnabled(!hasErrors);
 		}
 

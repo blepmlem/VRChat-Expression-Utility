@@ -6,7 +6,7 @@
     </ui:VisualElement>
     <uie:ObjectField label="Animations folder" name="animation-folder" allow-scene-objects="false" />
     <uie:ObjectField label="Active animator" name="active-animator" />
-    <ui:Foldout text="All animators" value="false" name="avatar-animators">
+    <ui:Foldout text="All animators" value="false" name="avatar-animators" style="flex-shrink: 0;">
         <uie:ObjectField label="Base" name="animator-base">
             <ui:Button text="Select" />
         </uie:ObjectField>

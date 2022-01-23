@@ -10,23 +10,27 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 190094eb54854032a64287f5ad450cf5, type: 3}
-  m_Name: AssetReferences
+  m_Name: Assets
   m_EditorClassIdentifier: 
   _definitionData:
   - Name: Generic Toggle
     Description: "Creates a toggle that needs to be customized afterwards. \nYou
       animate the exact outcome of the toggle!"
-    Icon: {fileID: 2800000, guid: afda9a460433adf45ac45fc281946df0, type: 3}
+    Icon: {fileID: 2800000, guid: 764dd95f33338a547a0af6cfed1b70d1, type: 3}
     Asset: {fileID: 11500000, guid: 4392f53dc05309f429f14d123c201729, type: 3}
   - Name: Item Toggle
     Description: A fully finished toggle for turning an item on your avatar on or
       off.
-    Icon: {fileID: 2800000, guid: 1a41363445caaa84ab4867a6b97608d7, type: 3}
+    Icon: {fileID: 2800000, guid: af9d985d899cf44489f9db383a02e7b2, type: 3}
     Asset: {fileID: 11500000, guid: 7954c90080604ebe9bd33ba5e15cca63, type: 3}
+  - Name: Material Slider
+    Description: Create a 1D slider for quickly changing materials on a target object.
+    Icon: {fileID: 2800000, guid: 707e84679110e524fbb73d07463c16ca, type: 3}
+    Asset: {fileID: 11500000, guid: c412077f2b85467489e5e586e209d6f4, type: 3}
   - Name: Texture Atlas Slider
     Description: Add multiple images together in one and control which image is shown
       somewhere on your avatar.
-    Icon: {fileID: 2800000, guid: 7a8560aef8babe8428eed4cf12a3c3db, type: 3}
+    Icon: {fileID: 2800000, guid: 707e84679110e524fbb73d07463c16ca, type: 3}
     Asset: {fileID: 11500000, guid: 436f6da9efcc4b459975b9bdd79c6860, type: 3}
   _messages:
   - Identifier: give-expr-name
@@ -46,7 +50,7 @@ MonoBehaviour:
     MessageType: 1
     Text: Select which avatar to modify!
   - Identifier: specify-animation-folder
-    MessageType: 3
+    MessageType: 1
     Text: Please specify a folder for where created animations should go
   - Identifier: animation-folder-invalid
     MessageType: 3

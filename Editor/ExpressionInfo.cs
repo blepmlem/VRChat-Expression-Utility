@@ -22,8 +22,6 @@ namespace ExpressionUtility
 
 		private const string MENU_PREF = "EXPRUTIL_MENU_";
 		private const string FOLDER_PREF = "EXPRUTIL_FOLDER_";
-		private const string DEFAULT_ANIMATION_FOLDER_PATH = "Assets/Animations";
-
 
 		public void Ping() => EditorGUIUtility.PingObject(GameObject);
 
@@ -59,7 +57,7 @@ namespace ExpressionUtility
 		
 		public DefaultAsset AnimationsFolder
 		{
-			get => AssetDatabase.LoadAssetAtPath(EditorPrefs.GetString($"{FOLDER_PREF}_{GameObject.name}", DEFAULT_ANIMATION_FOLDER_PATH), typeof(DefaultAsset)) as DefaultAsset;
+			get => AssetDatabase.LoadAssetAtPath(EditorPrefs.GetString($"{FOLDER_PREF}_{GameObject.name}", null), typeof(DefaultAsset)) as DefaultAsset;
 			set => EditorPrefs.SetString($"{FOLDER_PREF}_{GameObject.name}", AssetDatabase.GetAssetPath(value));
 		}
 

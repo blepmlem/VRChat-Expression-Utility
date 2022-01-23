@@ -36,7 +36,7 @@ namespace ExpressionUtility.UI
 
 		public Messages(UIController controller, VisualElement root)
 		{
-			var assetReferences = controller.AssetsReferences;
+			var assetReferences = controller.Assets;
 			var infoBox = assetReferences.InfoBox;
 
 			(Color color, Texture2D texture) GetVisuals(MessageType type)

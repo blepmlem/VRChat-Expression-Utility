@@ -88,7 +88,7 @@ namespace ExpressionUtility.UI
 			if(!_buttons.TryGetValue(info, out var element))
 			{
 				var frame = _controller.ContentFrame.Q("avatars");
-				element = _controller.AssetsReferences.AvatarSelectorButton.InstantiateTemplate(frame);
+				element = _controller.Assets.AvatarSelectorButton.InstantiateTemplate(frame);
 			}
 
 			void Clicked() => AvatarClicked(info);

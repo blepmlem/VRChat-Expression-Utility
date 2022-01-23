@@ -20,7 +20,6 @@ namespace ExpressionUtility.UI
 		private Messages _messages;
 		private ScrollView _expressionScrollView;
 		private ObjectField _folderField;
-		private TextField _nameField;
 
 		public void OnEnter(UIController controller, IExpressionUI previousUI)
 		{
@@ -28,8 +27,7 @@ namespace ExpressionUtility.UI
 			_messages = controller.Messages;
 			_expressionScrollView = controller.ContentFrame.Q<ScrollView>("expression-buttons");
 			_folderField = controller.ContentFrame.Q<ObjectField>("animation-folder");
-			_nameField = controller.ContentFrame.Q<TextField>("expression-name"); 
-				
+
 			BuildNameSelection(controller);
 			BuildExpressionSelection(controller);
 			BuildAnimatorSelection(controller);
@@ -134,10 +132,11 @@ namespace ExpressionUtility.UI
 			var scroll = controller.ContentFrame.Q<ScrollView>("expression-buttons");
 			foreach (var type in TypeCache.GetTypesDerivedFrom<IExpressionDefinition>())
 			{
-				if (controller.AssetsReferences.ExpressionDefinitionAssets.TryGetValue(type, out var result))
+				if (controller.Assets.ExpressionDefinitionAssets.TryGetValue(type, out var result))
 				{
-					var btn = controller.AssetsReferences.ExpressionDefinitionPreviewButton.InstantiateTemplate<Button>(scroll.contentContainer);
+					var btn = controller.Assets.ExpressionDefinitionPreviewButton.InstantiateTemplate<Button>(scroll.contentContainer);
 
+					result.Icon.mipMapBias = -1;
 					btn.Q<Label>("header").text = ObjectNames.NicifyVariableName(result.Name);
 					btn.Q<Label>("description").text = result.Description;
 					btn.Q("thumbnail").style.backgroundImage = result.Icon;
@@ -199,15 +198,15 @@ namespace ExpressionUtility.UI
 		{
 			var expressionInfo = _controller.ExpressionInfo;
 			var controllerLayers = expressionInfo.AvatarDescriptor.baseAnimationLayers;
-			
-			bool folderEmpty = _folderField.value == null;
-			bool invalidFolder = !folderEmpty && !Directory.Exists(AssetDatabase.GetAssetPath(_folderField.value));
+
+			bool folderEmpty = expressionInfo.AnimationsFolder == null;
+			bool invalidFolder = !folderEmpty && !Directory.Exists(AssetDatabase.GetAssetPath(expressionInfo.AnimationsFolder));
 			bool missingRootMenu = !expressionInfo.AvatarDescriptor.expressionsMenu;
 			bool invalidAnimator = expressionInfo.Controller == null;
 			bool noValidAnim = controllerLayers.All(a => a.animatorController == null || a.isDefault);
 			bool notFxLayer = !invalidAnimator && expressionInfo.Controller != controllerLayers.LastOrDefault().animatorController;
-			bool layerNameExists = expressionInfo.Controller.layers.Any(l => l.name.Equals(expressionInfo.ExpressionName, StringComparison.InvariantCultureIgnoreCase));
-			bool parameterExists = expressionInfo.AvatarDescriptor.expressionParameters.parameters.Any(p => p.name.Equals(expressionInfo.ExpressionName, StringComparison.InvariantCultureIgnoreCase));
+			bool layerNameExists = !invalidAnimator && expressionInfo.Controller.layers.Any(l => l.name.Equals(expressionInfo.ExpressionName, StringComparison.InvariantCultureIgnoreCase));
+			bool parameterExists = !invalidAnimator && expressionInfo.AvatarDescriptor.expressionParameters.parameters.Any(p => p.name.Equals(expressionInfo.ExpressionName, StringComparison.InvariantCultureIgnoreCase));
 			bool nameEmpty = string.IsNullOrEmpty(expressionInfo.ExpressionName);
 			bool inUse = !nameEmpty && (layerNameExists || parameterExists);
 
@@ -220,7 +219,7 @@ namespace ExpressionUtility.UI
 			_messages.SetActive(folderEmpty, "specify-animation-folder");
 			_messages.SetActive(invalidFolder, "animation-folder-invalid");
 				
-			bool hasErrors = invalidAnimator || noValidAnim || notFxLayer || nameEmpty || inUse;
+			bool hasErrors = invalidAnimator || noValidAnim || nameEmpty || inUse;
 			_expressionScrollView.SetEnabled(!hasErrors);
 		}
 

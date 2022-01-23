@@ -7,7 +7,7 @@ using UnityEngine.UIElements;
 
 namespace ExpressionUtility.UI
 {
-	internal class AssetReferences : ScriptableObject
+	internal class Assets : ScriptableObject
 	{
 		[Serializable]
 		public class ExpressionDefinitionData

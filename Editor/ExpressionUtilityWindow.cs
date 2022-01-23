@@ -9,8 +9,7 @@ namespace ExpressionUtility.UI
 	internal class ExpressionUtilityWindow : EditorWindow
 	{
 		[SerializeField]
-		private AssetReferences _assetReferences;
-
+		private Assets _assets;
 		private UIController _controller;
 
 		[MenuItem("Expression Utility/Window")]
@@ -20,7 +19,7 @@ namespace ExpressionUtility.UI
 		{
 			this.SetAntiAliasing(4);
 			titleContent = EditorGUIUtility.TrTextContentWithIcon("Expression Utility", "NetworkAnimator Icon");
-			_controller = new UIController(this, _assetReferences);
+			_controller = new UIController(this, _assets);
 			_controller.SetFrame<Intro>();
 			EditorSceneManager.sceneOpened += SceneChanged;
 		}

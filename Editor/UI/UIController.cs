@@ -5,36 +5,43 @@ using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
-using VRC.Core;
-using VRC.SDK3.Avatars.Components;
-using VRC.SDKBase;
 
 namespace ExpressionUtility.UI
 {
 	internal class UIController : IDisposable
 	{
-		public UIController(EditorWindow window, AssetReferences assetReferences)
+		private readonly Stack<Type> _history = new Stack<Type>();
+		private IExpressionUI _activeContent;
+		private readonly VisualElement _root;
+		private readonly ToolbarBreadcrumbs _breadcrumbs = new ToolbarBreadcrumbs();
+		
+		public Messages Messages { get; }
+		public VisualElement ContentFrame { get; }
+		public Assets Assets { get; }
+		public AvatarCache AvatarCache { get; } = new AvatarCache();
+		public ExpressionInfo ExpressionInfo { get; }
+		
+		public UIController(EditorWindow window, Assets assets)
 		{
-			assetReferences.Initialize();
-			AssetsReferences = assetReferences;
-			Window = window;
-			Root = window.rootVisualElement;
+			assets.Initialize();
+			Assets = assets;
+			_root = window.rootVisualElement;
 			
-			AssetsReferences.MainWindow.CloneTree(Root);
+			Assets.MainWindow.CloneTree(_root);
 
-			ContentFrame = Root.Q("content-frame");
+			ContentFrame = _root.Q("content-frame");
 			
-			Root.Q<Toolbar>("navigation").Add(Breadcrumbs);;
-			AssetsReferences.MiniAvatar.CloneTree(Root.Q("header"));
+			_root.Q<Toolbar>("navigation").Add(_breadcrumbs);
+			Assets.MiniAvatar.CloneTree(_root.Q("header"));
 
 			ExpressionInfo = new ExpressionInfo(UpdateMiniAvatar);
-			if (AvatarCache.GetAllAvatarInfo().Count() == 1)
+			if (AvatarCache.GetAllAvatarInfo().Count == 1)
 			{
 				ExpressionInfo.SetInfo(AvatarCache.GetAllAvatarInfo().First());
 			}
 			AvatarCache.AvatarWasUpdated += OnAvatarWasUpdated;
 			UpdateMiniAvatar(ExpressionInfo);
-			Messages = new Messages(this, Root);
+			Messages = new Messages(this, _root);
 		}
 
 		private void OnAvatarWasUpdated(AvatarCache.AvatarInfo info)
@@ -54,21 +61,9 @@ namespace ExpressionUtility.UI
 			}
 		}
 
-		private readonly Stack<Type> _history = new Stack<Type>();
-		private EditorWindow Window { get; }
-		private IExpressionUI ActiveContent { get; set; }
-		private VisualElement Root { get; }
-		private ToolbarBreadcrumbs Breadcrumbs { get; } = new ToolbarBreadcrumbs();
-		public Messages Messages { get; }
-		public VisualElement ContentFrame { get; }
-		public AssetReferences AssetsReferences { get; }
-		public AvatarCache AvatarCache { get; } = new AvatarCache();
-
-		public ExpressionInfo ExpressionInfo { get; }
-
 		private void UpdateMiniAvatar(ExpressionInfo info)
 		{
-			var element = Root.Q("avatar-mini");
+			var element = _root.Q("avatar-mini");
 			element.Display(info.AvatarInfo?.IsValid ?? false);
 			
 			element.Q("thumbnail").style.backgroundImage = info.AvatarInfo?.Thumbnail;
@@ -85,8 +80,6 @@ namespace ExpressionUtility.UI
 			ob.Q(null, "unity-object-field-display__label").Display(true);
 		}
 
-
-		
 		public void SetFrame<T>() where T : IExpressionUI => SetFrame(typeof(T));
 
 		public void SetFrame(Type type)
@@ -97,22 +90,22 @@ namespace ExpressionUtility.UI
 			}
 
 			Messages.Clear();
-			if (!AssetsReferences.UIAssets.TryGetValue(type, out (IExpressionUI ui, VisualTreeAsset treeAsset) assets))
+			if (!Assets.UIAssets.TryGetValue(type, out (IExpressionUI ui, VisualTreeAsset treeAsset) assets))
 			{
 				$"Failed to find assets for {type}".LogError();
 				return;
 			}
 
 			_history.Push(type);
-			Breadcrumbs.PushItem(ObjectNames.NicifyVariableName(type.Name), () => NavigateHistory(type));
+			_breadcrumbs.PushItem(ObjectNames.NicifyVariableName(type.Name), () => NavigateHistory(type));
 
 			ContentFrame.Clear();
 			assets.treeAsset.CloneTree(ContentFrame);
 
-			IExpressionUI previousContent = ActiveContent;
-			ActiveContent = assets.ui;
-			previousContent?.OnExit(ActiveContent);
-			ActiveContent.OnEnter(this, previousContent);
+			IExpressionUI previousContent = _activeContent;
+			_activeContent = assets.ui;
+			previousContent?.OnExit(_activeContent);
+			_activeContent.OnEnter(this, previousContent);
 		}
 
 		private void NavigateHistory(Type type)
@@ -122,9 +115,9 @@ namespace ExpressionUtility.UI
 				return;
 			}
 
-			while (Breadcrumbs.childCount > 0)
+			while (_breadcrumbs.childCount > 0)
 			{
-				Breadcrumbs.PopItem();
+				_breadcrumbs.PopItem();
 				Type target;
 				if ((target = _history.Pop()) == type)
 				{
@@ -136,7 +129,7 @@ namespace ExpressionUtility.UI
 
 		public void Dispose()
 		{
-			ActiveContent?.OnExit(null);
+			_activeContent?.OnExit(null);
 			AvatarCache?.Dispose();
 			ExpressionInfo?.Dispose();
 		}

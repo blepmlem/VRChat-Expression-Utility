@@ -25,7 +25,7 @@ MonoBehaviour:
     Asset: {fileID: 11500000, guid: 7954c90080604ebe9bd33ba5e15cca63, type: 3}
   - Name: Material Slider
     Description: Create a 1D slider for quickly changing materials on a target object.
-    Icon: {fileID: 2800000, guid: 707e84679110e524fbb73d07463c16ca, type: 3}
+    Icon: {fileID: 2800000, guid: a32c1a7e60bdbd74ea10ec0816ec144b, type: 3}
     Asset: {fileID: 11500000, guid: c412077f2b85467489e5e586e209d6f4, type: 3}
   - Name: Texture Atlas Slider
     Description: Add multiple images together in one and control which image is shown
@@ -78,6 +78,17 @@ MonoBehaviour:
   - Identifier: item-object-is-null
     MessageType: 1
     Text: Select the object to be toggled
+  - Identifier: material-is-null
+    MessageType: 1
+    Text: Put in the materials you want to shift between
+  - Identifier: renderer-is-not-owned
+    MessageType: 3
+    Text: The selected renderer is not part of the avatar! Move the renderer into
+      your avatar's hierarchy or select another renderer
+  - Identifier: renderer-is-null
+    MessageType: 1
+    Text: Select the renderer you want to modify the materials on. If a renderer
+      has multiple material slots you can specify the specific slot as well
   _miniAvatar: {fileID: 9197481963319205126, guid: a38f02644114c3e40ae93feea8f74473,
     type: 3}
   _avatarSelectorButton: {fileID: 9197481963319205126, guid: 3a6620e1239272c4aafcf3db86a956e1,

@@ -1,5 +1,16 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
-    <ui:Toggle label="Create Animation" name="create-animation" />
+    <uie:ObjectField label="Target Renderer" name="target-renderer" />
+    <ui:VisualElement name="material-slot" />
+    <ui:VisualElement name="padding" style="display: flex; height: 6px;" />
+    <ui:VisualElement name="materials" style="border-left-color: rgba(115, 115, 115, 0.61); border-right-color: rgba(115, 115, 115, 0.61); border-top-color: rgba(115, 115, 115, 0.61); border-bottom-color: rgba(115, 115, 115, 0.61); border-left-width: 1px; border-right-width: 1px; border-top-width: 1px; border-bottom-width: 1px;">
+        <uie:Toolbar style="justify-content: flex-end; border-top-width: 1px; border-right-width: 1px; border-left-width: 1px; margin-right: 1px; margin-left: 1px; flex-shrink: 0;">
+            <ui:Label text="Materials to use" style="-unity-text-align: middle-left; font-size: 10px;" />
+            <uie:ToolbarSpacer style="flex-grow: 1;" />
+            <uie:ToolbarButton text="+" name="add" style="border-right-width: 0;" />
+            <uie:ToolbarButton text="-" name="remove" style="border-right-width: 0;" />
+        </uie:Toolbar>
+        <ui:ScrollView name="material-list" />
+    </ui:VisualElement>
     <ui:VisualElement name="padding" style="flex-grow: 1;" />
     <ui:Button text="Build expression!" name="button-finish" />
 </ui:UXML>

@@ -4,6 +4,9 @@ using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.UIElements;
+using VRC.SDK3.Avatars.ScriptableObjects;
+using static VRC.SDK3.Avatars.ScriptableObjects.VRCExpressionParameters;
+using static VRC.SDK3.Avatars.ScriptableObjects.VRCExpressionsMenu.Control;
 using Object = UnityEngine.Object;
 
 namespace ExpressionUtility
@@ -42,17 +45,17 @@ namespace ExpressionUtility
 			var expName = _expressionInfo.ExpressionName;
 			var controller = _expressionInfo.Controller;
 
-			AnimatorControllerLayer layer = AnimationUtility.AddLayer(controller, expName, _dirtyAssets);
+			AnimatorControllerLayer layer = AnimUtility.AddLayer(controller, expName, _dirtyAssets);
 			controller.AddParameter(expName, AnimatorControllerParameterType.Bool);
 			
 			AnimatorStateMachine stateMachine = layer.stateMachine;
-			var empty = AnimationUtility.AddState(stateMachine, "Empty", true, _dirtyAssets);
+			var empty = AnimUtility.AddState(stateMachine, "Empty", true, _dirtyAssets);
 			
-			AnimatorState toggleState = AnimationUtility.AddState(stateMachine, expName, false, _dirtyAssets);
+			AnimatorState toggleState = AnimUtility.AddState(stateMachine, expName, false, _dirtyAssets);
 
 			if (_createAnimation)
 			{
-				var animationClip = AnimationUtility.CreateAnimation(_expressionInfo.AnimationsFolder, expName, _dirtyAssets);
+				var animationClip = AnimUtility.CreateAnimation(_expressionInfo.AnimationsFolder.GetPath(), expName, _dirtyAssets);
 				toggleState.motion = animationClip;
 			}
 			
@@ -62,8 +65,8 @@ namespace ExpressionUtility
 			AnimatorStateTransition exitTransition = toggleState.AddExitTransition(false);
 			exitTransition.AddCondition(AnimatorConditionMode.IfNot, 0, expName);
 
-			AnimationUtility.AddVRCExpressionsParameter(_expressionInfo.AvatarDescriptor, expName, _dirtyAssets);
-			AnimationUtility.AddVRCExpressionsMenuControl(_expressionInfo.Menu, expName, _dirtyAssets);
+			AnimUtility.AddVRCExpressionsParameter(_expressionInfo.AvatarDescriptor, ValueType.Bool, expName, _dirtyAssets);
+			AnimUtility.AddVRCExpressionsMenuControl(_expressionInfo.Menu, ControlType.Toggle, expName, _dirtyAssets);
 
 			_dirtyAssets.SetDirty();
 			controller.AddObjectsToAsset(stateMachine, toggleState, anyStateTransition, exitTransition, empty);

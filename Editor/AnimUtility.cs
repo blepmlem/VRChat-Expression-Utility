@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using ExpressionUtility;
 using UnityEditor;
@@ -6,20 +8,36 @@ using UnityEditor.Animations;
 using UnityEngine;
 using VRC.SDK3.Avatars.Components;
 using VRC.SDK3.Avatars.ScriptableObjects;
+using static VRC.SDK3.Avatars.ScriptableObjects.VRCExpressionParameters;
+using static VRC.SDK3.Avatars.ScriptableObjects.VRCExpressionsMenu.Control;
+using Object = UnityEngine.Object;
 
 namespace ExpressionUtility
 {
-	public static class AnimationUtility
+	public static class AnimUtility
 	{
-		public static VRCExpressionsMenu.Control AddVRCExpressionsMenuControl(VRCExpressionsMenu menu, string parameterName, List<Object> dirtyAssets)
+		public static VRCExpressionsMenu.Control AddVRCExpressionsMenuControl(VRCExpressionsMenu menu, ControlType controlType, string parameterName, List<Object> dirtyAssets)
 		{
 			var control = new VRCExpressionsMenu.Control
 			{
 				name = ObjectNames.NicifyVariableName(parameterName),
-				parameter = new VRCExpressionsMenu.Control.Parameter{name = parameterName},
-				type = VRCExpressionsMenu.Control.ControlType.Toggle,
+				type = controlType,
+				subParameters = new VRCExpressionsMenu.Control.Parameter[4],
 			};
-			
+
+			switch (controlType)
+			{
+				case ControlType.Button:
+				case ControlType.Toggle:
+					control.parameter = new VRCExpressionsMenu.Control.Parameter{name = parameterName};
+					break;
+				case ControlType.RadialPuppet:
+					control.subParameters[0] = new VRCExpressionsMenu.Control.Parameter{name = parameterName};
+					break;
+				default:
+					throw new ArgumentException(nameof(controlType), $"{controlType}", null);
+			}
+
 			if (menu != null)
 			{
 				menu.controls.Add(control);
@@ -29,7 +47,7 @@ namespace ExpressionUtility
 			return control;
 		}
 		
-		public static VRCExpressionParameters.Parameter AddVRCExpressionsParameter(VRCAvatarDescriptor avatarDescriptor, string name, List<Object> dirtyAssets)
+		public static VRCExpressionParameters.Parameter AddVRCExpressionsParameter(VRCAvatarDescriptor avatarDescriptor, VRCExpressionParameters.ValueType type, string name, List<Object> dirtyAssets)
 		{
 			VRCExpressionParameters parameters = avatarDescriptor.expressionParameters;
 			VRCExpressionParameters.Parameter parameter = parameters.FindParameter(name);
@@ -40,7 +58,7 @@ namespace ExpressionUtility
 				parameter = new VRCExpressionParameters.Parameter
 				{
 					name = name,
-					valueType = VRCExpressionParameters.ValueType.Bool,
+					valueType = type,
 				};
 				list.Add(parameter);
 				parameters.parameters = list.ToArray();
@@ -49,6 +67,27 @@ namespace ExpressionUtility
 			dirtyAssets.Add(parameters);
 			dirtyAssets.Add(avatarDescriptor.gameObject);
 			return parameter;
+		}
+
+		public static string GetAnimationPath(Transform target)
+		{
+			var path = $"{target.name}";
+			if (target.GetComponentInParent<VRCAvatarDescriptor>() == null)
+			{
+				throw new ArgumentException($"{target.name} is not a child of an avatar!");
+			}
+			
+			while (true)
+			{
+				target = target.parent;
+				if (target == null || target.GetComponent<VRCAvatarDescriptor>())
+				{
+					break;
+				}
+				path = $"{target.name}/{path}";
+			}
+
+			return path;
 		}
 		
 		public static AnimatorState AddState(AnimatorStateMachine stateMachine, string stateName, bool isDefault, List<Object> dirtyAssets)
@@ -80,13 +119,15 @@ namespace ExpressionUtility
 			return layer;
 		}
 
-		public static AnimationClip CreateAnimation(DefaultAsset animationFolder, string name, List<Object> dirtyAssets)
+		public static AnimationClip CreateAnimation(string directory, string name, List<Object> dirtyAssets)
 		{
-			var folderPath = AssetDatabase.GetAssetPath(animationFolder);
+			Directory.CreateDirectory(directory);
 			var animation = new AnimationClip { name = name };
-			AssetDatabase.CreateAsset(animation, $"{folderPath}/{name}.anim");
+			AssetDatabase.CreateAsset(animation, $"{directory}/{name}.anim");
 			dirtyAssets.Add(animation);
 			return animation;
 		}
+
+		public static string GetPath(this DefaultAsset asset) => AssetDatabase.GetAssetPath(asset);
 	}
 }

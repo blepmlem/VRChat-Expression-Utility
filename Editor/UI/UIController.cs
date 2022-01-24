@@ -37,6 +37,8 @@ namespace ExpressionUtility.UI
 			miniAvatarObjectField.RegisterValueChangedCallback(e => miniAvatarObjectField.SetValueWithoutNotify(e.previousValue));
 			
 			ExpressionInfo = new ExpressionInfo(UpdateMiniAvatar);
+			ExpressionInfo.ExpressionName = "Testing! please remove before release";
+			
 			if (AvatarCache.GetAllAvatarInfo().Count == 1)
 			{
 				ExpressionInfo.SetInfo(AvatarCache.GetAllAvatarInfo().First());

@@ -87,6 +87,7 @@ namespace ExpressionUtility.UI
 				field.objectType = typeof(AnimatorController);
 				field.Q(null, "unity-object-field__selector").Display(false);
 				field.Q(null, "unity-object-field-display__label").Display(true);
+				field.RegisterValueChangedCallback(e => field.SetValueWithoutNotify(e.previousValue));
 			}
 
 			CleanObjectField(activeAnimator);
@@ -95,11 +96,11 @@ namespace ExpressionUtility.UI
 				CleanObjectField(objectField);
 				switch (objectField.name)
 				{
-					case "animator-base": objectField.value = animatorLayers[0].animatorController; break;
-					case "animator-additive": objectField.value = animatorLayers[1].animatorController; break;
-					case "animator-gesture": objectField.value = animatorLayers[2].animatorController; break;
-					case "animator-action": objectField.value = animatorLayers[3].animatorController; break;
-					case "animator-fx": objectField.value = animatorLayers[4].animatorController; break;
+					case "animator-base": objectField.SetValueWithoutNotify(animatorLayers[0].animatorController); break;
+					case "animator-additive": objectField.SetValueWithoutNotify(animatorLayers[1].animatorController); break;
+					case "animator-gesture": objectField.SetValueWithoutNotify(animatorLayers[2].animatorController); break;
+					case "animator-action": objectField.SetValueWithoutNotify(animatorLayers[3].animatorController); break;
+					case "animator-fx": objectField.SetValueWithoutNotify(animatorLayers[4].animatorController); break;
 				}
 				objectField.SetEnabled(objectField.value != null);
 				var button = objectField.Q<Button>(null, "unity-button");

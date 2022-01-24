@@ -10,8 +10,8 @@ namespace ExpressionUtility.UI
 {
 	internal class UIController : IDisposable
 	{
-		private readonly Stack<Type> _history = new Stack<Type>();
 		private IExpressionUI _activeContent;
+		private readonly Stack<Type> _history = new Stack<Type>();
 		private readonly VisualElement _root;
 		private readonly ToolbarBreadcrumbs _breadcrumbs = new ToolbarBreadcrumbs();
 		
@@ -33,7 +33,9 @@ namespace ExpressionUtility.UI
 			
 			_root.Q<Toolbar>("navigation").Add(_breadcrumbs);
 			Assets.MiniAvatar.CloneTree(_root.Q("header"));
-
+			var miniAvatarObjectField = _root.Q("avatar-mini").Q<ObjectField>("object-field");
+			miniAvatarObjectField.RegisterValueChangedCallback(e => miniAvatarObjectField.SetValueWithoutNotify(e.previousValue));
+			
 			ExpressionInfo = new ExpressionInfo(UpdateMiniAvatar);
 			if (AvatarCache.GetAllAvatarInfo().Count == 1)
 			{
@@ -70,10 +72,10 @@ namespace ExpressionUtility.UI
 			var ob = element.Q<ObjectField>("object-field");
 			ob.objectType = typeof(GameObject);
 			ob.allowSceneObjects = true;
-			
+
 			if (info.AvatarDescriptor != null)
 			{
-				ob.value = info.AvatarDescriptor.gameObject;
+				ob.SetValueWithoutNotify(info.AvatarDescriptor.gameObject);
 			}
 
 			ob.Q(null, "unity-object-field__selector").Display(false);

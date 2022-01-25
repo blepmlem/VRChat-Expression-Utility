@@ -31,10 +31,10 @@ namespace ExpressionUtility
 			_messages = controller.Messages;
 			_finishButton = controller.ContentFrame.Q<Button>("button-finish");
 			_finishButton.clickable = new Clickable(OnFinishClicked);
-			
-			SetupTargetRenderer(controller);
+
 			SetupMaterialList(controller);
-			
+			SetupTargetRenderer(controller);
+
 			void OnFinishClicked()
 			{
 				Build();
@@ -76,7 +76,8 @@ namespace ExpressionUtility
 				_materialSlot = obj;
 				ErrorValidate();
 			}
-			
+
+			SetMenu(_materialSlot);
 			holder.Add(selector);
 		}
 
@@ -94,6 +95,8 @@ namespace ExpressionUtility
 				SetupMaterialSlotPicker(controller);
 				ErrorValidate();
 			}
+
+			SetTargetRenderer(_renderer);
 		}
 
 
@@ -173,16 +176,7 @@ namespace ExpressionUtility
 			{
 				Material material = materials[i];
 				var animationClip = AnimUtility.CreateAnimation(directory, $"{expName} [{i}] {material.name}", _dirtyAssets);
-				var path = AnimUtility.GetAnimationPath(_renderer.transform);
-				var type = _renderer.GetType();
-				var binding = EditorCurveBinding.PPtrCurve(path, type, $"m_Materials.Array.data[{_materialSlot}]");
-				var keyframe = new ObjectReferenceKeyframe
-				{
-					time = 0,
-					value = material,
-				};
-				AnimationUtility.SetObjectReferenceCurve(animationClip, binding, new[] { keyframe });
-				
+				AnimUtility.SetObjectReferenceKeyframe(animationClip, _renderer, $"m_Materials.Array.data[{_materialSlot}]", material, _dirtyAssets);
 				blendTree.AddChild(animationClip);
 				_dirtyAssets.Add(animationClip);
 			}

@@ -105,7 +105,7 @@ namespace ExpressionUtility.UI
 		{
 			Messages.Clear();
 			_history.Push(instance);
-			_breadcrumbs.PushItem(ObjectNames.NicifyVariableName(instance.GetType().Name), () => NavigateHistory(instance));
+			_breadcrumbs.PushItem(ObjectNames.NicifyVariableName(instance.Name), () => NavigateHistory(instance));
 
 			ContentFrame.Clear();
 

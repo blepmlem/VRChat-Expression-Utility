@@ -50,9 +50,12 @@ namespace ExpressionUtility
 			
 			void SetObject(Transform value)
 			{
+				expressionObject.SetValueWithoutNotify(value);
 				_expressionObject = value;
 				ErrorValidate();
 			}
+			
+			SetObject(_expressionObject);
 		}
 
 		private void ErrorValidate()
@@ -87,7 +90,7 @@ namespace ExpressionUtility
 
 			var animationClip = AnimUtility.CreateAnimation(_expressionInfo.AnimationsFolder.GetPath(), expName, _dirtyAssets);
 			toggleState.motion = animationClip;
-			AddToggleKeyframes(animationClip, expressionActiveState.value, expressionObject.value as Transform, _dirtyAssets);
+			AddToggleKeyframes(animationClip, expressionObject.value as Transform, expressionActiveState.value, _dirtyAssets);
 			
 			AnimatorStateTransition anyStateTransition = stateMachine.AddAnyStateTransition(toggleState);
 			anyStateTransition.AddCondition(AnimatorConditionMode.If, 1, expName);
@@ -104,21 +107,12 @@ namespace ExpressionUtility
 			AssetDatabase.Refresh();
 		}
 
-		private void AddToggleKeyframes(AnimationClip animationClip, bool expressionActiveState, Transform expressionObject, List<Object> dirtyAssets)
+		private void AddToggleKeyframes(AnimationClip animationClip, Transform target, bool expressionActiveState, List<Object> dirtyAssets)
 		{
-			var go = expressionObject.gameObject;
+			var go = target.gameObject;
 			Undo.RecordObject(go, $"Set expression starting state");
 			go.SetActive(!expressionActiveState);
-			
-			var keyframe = new Keyframe(0, expressionActiveState ? 1 : 0);
-			var curve = new AnimationCurve(keyframe);
-			var path = AnimUtility.GetAnimationPath(expressionObject);
-			var attribute = "m_IsActive";
-
-			animationClip.SetCurve(path, typeof(GameObject),attribute, curve);
-			
-			dirtyAssets.Add(go);
-			dirtyAssets.Add(animationClip);
+			AnimUtility.SetKeyframe(animationClip, target, "m_IsActive", expressionActiveState ? 1 : 0, dirtyAssets);
 		}
 	}
 }

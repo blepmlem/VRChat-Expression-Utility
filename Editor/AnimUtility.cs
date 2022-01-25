@@ -127,6 +127,31 @@ namespace ExpressionUtility
 			dirtyAssets.Add(animation);
 			return animation;
 		}
+		
+		public static void SetKeyframe(AnimationClip animationClip, Component target, string attribute, float value, List<Object> dirtyAssets)
+		{
+			var keyframe = new Keyframe(0, value);
+			var curve = new AnimationCurve(keyframe);
+			var path = GetAnimationPath(target.transform);
+			animationClip.SetCurve(path, typeof(GameObject),attribute, curve);
+			dirtyAssets.Add(target);
+			dirtyAssets.Add(animationClip);
+		}
+		
+		public static void SetObjectReferenceKeyframe(AnimationClip animationClip, Component target, string attribute, Object reference, List<Object> dirtyAssets)
+		{
+			var path = AnimUtility.GetAnimationPath(target.transform);
+			var type = target.GetType();
+			var binding = EditorCurveBinding.PPtrCurve(path, type, $"{attribute}");
+			var keyframe = new ObjectReferenceKeyframe
+			{
+				time = 0,
+				value = reference,
+			};
+			AnimationUtility.SetObjectReferenceCurve(animationClip, binding, new[] { keyframe });
+			dirtyAssets.Add(target);
+			dirtyAssets.Add(animationClip);
+		}
 
 		public static string GetPath(this DefaultAsset asset) => AssetDatabase.GetAssetPath(asset);
 	}

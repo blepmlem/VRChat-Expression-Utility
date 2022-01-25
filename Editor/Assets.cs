@@ -59,7 +59,7 @@ namespace ExpressionUtility.UI
 					value = new List<ExpressionUI>();
 				}
 				value.Add(instance);
-				UIAssets.Add(type, value);
+				UIAssets[type] = value;
 			}
 			
 			foreach (Type type in TypeCache.GetTypesDerivedFrom<ExpressionUI>())
@@ -72,7 +72,7 @@ namespace ExpressionUtility.UI
 				value = new List<ExpressionUI>();
 				var instance = CreateInstance(type) as ExpressionUI;
 				value.Add(instance);
-				UIAssets.Add(type, value);
+				UIAssets[type] = value;
 			}
 		}
 		

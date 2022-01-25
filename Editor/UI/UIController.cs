@@ -46,7 +46,7 @@ namespace ExpressionUtility.UI
 			}
 			AvatarCache.AvatarWasUpdated += OnAvatarWasUpdated;
 			UpdateMiniAvatar(ExpressionInfo);
-			Messages = new Messages(this, _root.Q("root"));
+			Messages = new Messages(this, _root.Q("main"));
 		}
 
 		private void OnAvatarWasUpdated(AvatarCache.AvatarInfo info)

@@ -1,9 +1,15 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
-    <ui:VisualElement name="root" style="flex-grow: 1;">
+    <ui:VisualElement name="main" style="flex-grow: 1;">
         <Style src="Styles.uss" />
-        <ui:VisualElement name="header" style="flex-shrink: 0;">
-            <uie:Toolbar name="navigation" style="justify-content: flex-start; border-left-width: 0; border-right-width: 0; border-top-width: 1px; border-bottom-width: 1px;" />
+        <uie:Toolbar name="navigation" style="justify-content: flex-start; border-left-width: 0; border-right-width: 0; border-top-width: 1px; border-bottom-width: 1px; flex-shrink: 0;" />
+        <ui:VisualElement name="right-align" style="flex-grow: 1; flex-direction: row; flex-shrink: 0;">
+            <ui:VisualElement name="down-align" style="flex-grow: 1;">
+                <ui:VisualElement name="header" style="flex-shrink: 0;" />
+                <ui:VisualElement name="content-frame" style="flex-grow: 1; padding-left: 10px; padding-right: 10px; padding-top: 10px; padding-bottom: 10px;" />
+            </ui:VisualElement>
+            <ui:VisualElement name="sidebar" style="display: none; flex-shrink: 0; padding-top: 4px; padding-right: 4px; padding-left: 4px; padding-bottom: 4px;">
+                <uie:ToolbarButton style="background-image: resource(&apos;thryEditor_help&apos;); padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; border-left-width: 0; border-right-width: 0; border-top-width: 0; border-bottom-width: 0; height: 32px; flex-grow: 0; flex-shrink: 0; width: 32px; left: auto; -unity-background-image-tint-color: rgb(43, 157, 212); border-top-left-radius: 129px; border-bottom-left-radius: 129px; border-top-right-radius: 129px; border-bottom-right-radius: 129px;" />
+            </ui:VisualElement>
         </ui:VisualElement>
-        <ui:VisualElement name="content-frame" style="flex-grow: 1; padding-left: 10px; padding-right: 10px; padding-top: 10px; padding-bottom: 10px;" />
     </ui:VisualElement>
 </ui:UXML>

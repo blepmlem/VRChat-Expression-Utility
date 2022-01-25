@@ -20,8 +20,8 @@ namespace ExpressionUtility.UI
 		public VisualTreeAsset Layout => _layout;
 		public Texture2D Icon => _icon;
 
-		public virtual string Name => string.IsNullOrEmpty(_name) ? ObjectNames.NicifyVariableName(GetType().Name) : _name;
-		public virtual string Description => _description;
+		public string Name => string.IsNullOrEmpty(_name) ? ObjectNames.NicifyVariableName(GetType().Name) : _name;
+		public string Description => _description;
 		
 		public virtual void OnEnter(UIController controller, ExpressionUI previousUI){}
 		public virtual void OnExit(ExpressionUI nextUI){}

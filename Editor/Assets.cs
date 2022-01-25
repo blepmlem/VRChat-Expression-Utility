@@ -61,19 +61,6 @@ namespace ExpressionUtility.UI
 				value.Add(instance);
 				UIAssets[type] = value;
 			}
-			
-			foreach (Type type in TypeCache.GetTypesDerivedFrom<ExpressionUI>())
-			{
-				if (UIAssets.TryGetValue(type, out List<ExpressionUI> value))
-				{
-					continue;
-				}
-
-				value = new List<ExpressionUI>();
-				var instance = CreateInstance(type) as ExpressionUI;
-				value.Add(instance);
-				UIAssets[type] = value;
-			}
 		}
 		
 	}

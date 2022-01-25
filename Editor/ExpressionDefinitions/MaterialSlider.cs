@@ -14,7 +14,8 @@ using Object = UnityEngine.Object;
 
 namespace ExpressionUtility
 {
-	internal class MaterialSlider : IExpressionDefinition, IExpressionUI
+	[CreateAssetMenu(fileName = nameof(MaterialSlider), menuName = "Expression Utility/"+nameof(MaterialSlider))]
+	internal class MaterialSlider : ExpressionUI, IExpressionDefinition
 	{
 		private ExpressionInfo _expressionInfo;
 		private readonly List<Object> _dirtyAssets = new List<Object>();
@@ -24,7 +25,7 @@ namespace ExpressionUtility
 		private Button _finishButton;
 		private Messages _messages;
 
-		public void OnEnter(UIController controller, IExpressionUI previousUI)
+		public override void OnEnter(UIController controller, ExpressionUI previousUI)
 		{
 			_expressionInfo = controller.ExpressionInfo;
 			_messages = controller.Messages;
@@ -140,11 +141,6 @@ namespace ExpressionUtility
 			{
 				yield return objectField.value as Material;
 			}
-		}
-
-		public void OnExit(IExpressionUI nextUI)
-		{
-			
 		}
 
 		public void Build()

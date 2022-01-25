@@ -1,25 +1,18 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using NUnit.Framework;
-using UnityEditor;
-using UnityEditor.SceneManagement;
 using UnityEditor.UIElements;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
-using VRC.Core;
-using VRC.SDK3.Avatars.Components;
 
 namespace ExpressionUtility.UI
 {
-	internal class AvatarSelection : IExpressionUI
+	internal class AvatarSelection : ExpressionUI
 	{
 		private Dictionary<AvatarCache.AvatarInfo, VisualElement> _buttons = new Dictionary<AvatarCache.AvatarInfo, VisualElement>();
 		private UIController _controller;
 		private Messages _messages;
 
-		public void OnEnter(UIController controller, IExpressionUI previousUI)
+		public override void OnEnter(UIController controller, ExpressionUI previousUI)
 		{
 			_controller = controller;
 			_messages = controller.Messages;
@@ -68,7 +61,7 @@ namespace ExpressionUtility.UI
 		}
 
 
-		public void OnExit(IExpressionUI nextUI)
+		public override void OnExit(ExpressionUI nextUI)
 		{
 			_controller.AvatarCache.AvatarWasUpdated -= OnAvatarWasUpdated;
 			if (nextUI is Setup)

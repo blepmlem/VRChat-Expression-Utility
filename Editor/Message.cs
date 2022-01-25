@@ -9,6 +9,7 @@ namespace ExpressionUtility.UI
 	{		
 		public string Identifier;
 		public MessageType MessageType;
+		[TextArea]
 		public string Text;
 	}
 }

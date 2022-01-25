@@ -10,8 +10,8 @@ namespace ExpressionUtility.UI
 {
 	internal class UIController : IDisposable
 	{
-		private IExpressionUI _activeContent;
-		private readonly Stack<Type> _history = new Stack<Type>();
+		private ExpressionUI _activeContent;
+		private readonly Stack<ExpressionUI> _history = new Stack<ExpressionUI>();
 		private readonly VisualElement _root;
 		private readonly ToolbarBreadcrumbs _breadcrumbs = new ToolbarBreadcrumbs();
 		
@@ -27,7 +27,8 @@ namespace ExpressionUtility.UI
 			Assets = assets;
 			_root = window.rootVisualElement;
 			
-			Assets.MainWindow.CloneTree(_root);
+			Assets.UIAssets.TryGetValue(typeof(MainWindow), out var mainWindow);
+			mainWindow.FirstOrDefault().Layout.CloneTree(_root);
 
 			ContentFrame = _root.Q("content-frame");
 			
@@ -56,11 +57,11 @@ namespace ExpressionUtility.UI
 				if (!info.IsValid)
 				{
 					var active = _history.Peek();
-					if (active == typeof(Intro) || active == typeof(AvatarSelection))
+					if (active is Intro || active is AvatarSelection)
 					{
 						return;
 					}
-					NavigateHistory(typeof(AvatarSelection));
+					NavigateHistory(active);
 				}
 			}
 		}
@@ -84,7 +85,7 @@ namespace ExpressionUtility.UI
 			ob.Q(null, "unity-object-field-display__label").Display(true);
 		}
 
-		public void SetFrame<T>() where T : IExpressionUI => SetFrame(typeof(T));
+		public void SetFrame<T>() where T : ExpressionUI => SetFrame(typeof(T));
 
 		public void SetFrame(Type type)
 		{
@@ -92,29 +93,38 @@ namespace ExpressionUtility.UI
 			{
 				return;
 			}
-
-			Messages.Clear();
-			if (!Assets.UIAssets.TryGetValue(type, out (IExpressionUI ui, VisualTreeAsset treeAsset) assets))
+			if (!Assets.UIAssets.TryGetValue(type, out var instances))
 			{
 				$"Failed to find assets for {type}".LogError();
 				return;
 			}
+			SetFrame(instances.FirstOrDefault());
+		}
 
-			_history.Push(type);
-			_breadcrumbs.PushItem(ObjectNames.NicifyVariableName(type.Name), () => NavigateHistory(type));
+		public void SetFrame(ExpressionUI instance)
+		{
+			Messages.Clear();
+			_history.Push(instance);
+			_breadcrumbs.PushItem(ObjectNames.NicifyVariableName(instance.GetType().Name), () => NavigateHistory(instance));
 
 			ContentFrame.Clear();
-			assets.treeAsset.CloneTree(ContentFrame);
 
-			IExpressionUI previousContent = _activeContent;
-			_activeContent = assets.ui;
-			previousContent?.OnExit(_activeContent);
+
+			
+			instance.Layout.CloneTree(ContentFrame);
+
+			ExpressionUI previousContent = _activeContent;
+			_activeContent = instance;
+			if(previousContent != null)
+			{
+				previousContent.OnExit(_activeContent);
+			}
 			_activeContent.OnEnter(this, previousContent);
 		}
 
-		private void NavigateHistory(Type type)
+		private void NavigateHistory(ExpressionUI instance)
 		{
-			if (_history.Peek() == type)
+			if (_history.Peek() == instance)
 			{
 				return;
 			}
@@ -122,8 +132,8 @@ namespace ExpressionUtility.UI
 			while (_breadcrumbs.childCount > 0)
 			{
 				_breadcrumbs.PopItem();
-				Type target;
-				if ((target = _history.Pop()) == type)
+				ExpressionUI target;
+				if ((target = _history.Pop()) == instance)
 				{
 					SetFrame(target);
 					return;
@@ -133,7 +143,10 @@ namespace ExpressionUtility.UI
 
 		public void Dispose()
 		{
-			_activeContent?.OnExit(null);
+			if (_activeContent != null)
+			{
+				_activeContent.OnExit(null);
+			}
 			AvatarCache?.Dispose();
 			ExpressionInfo?.Dispose();
 		}

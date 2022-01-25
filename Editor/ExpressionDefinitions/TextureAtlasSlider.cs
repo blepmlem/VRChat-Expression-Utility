@@ -1,18 +1,16 @@
 using ExpressionUtility.UI;
+using UnityEngine;
 
 namespace ExpressionUtility
 {
-	internal class TextureAtlasSlider : IExpressionDefinition, IExpressionUI
+	[CreateAssetMenu(fileName = nameof(TextureAtlasSlider), menuName = "Expression Utility/"+nameof(TextureAtlasSlider))]
+	internal class TextureAtlasSlider : ExpressionUI, IExpressionDefinition
 	{
 		public void Build()
 		{
 		}
 
-		public void OnEnter(UIController controller, IExpressionUI previousUI)
-		{
-		}
-
-		public void OnExit(IExpressionUI nextUI)
+		public override void OnEnter(UIController controller, ExpressionUI previousUI)
 		{
 		}
 	}

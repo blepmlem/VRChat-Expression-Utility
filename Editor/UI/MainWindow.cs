@@ -1,13 +1,6 @@
 namespace ExpressionUtility.UI
 {
-	internal class MainWindow : IExpressionUI
+	internal class MainWindow : ExpressionUI
 	{
-		public void OnEnter(UIController controller, IExpressionUI previousUI)
-		{
-		}
-
-		public void OnExit(IExpressionUI nextUI)
-		{
-		}
 	}
 }

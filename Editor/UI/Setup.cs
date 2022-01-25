@@ -14,14 +14,14 @@ using Object = UnityEngine.Object;
 
 namespace ExpressionUtility.UI
 {
-	internal class Setup : IExpressionUI
+	internal class Setup : ExpressionUI
 	{
 		private UIController _controller;
 		private Messages _messages;
 		private ScrollView _expressionScrollView;
 		private ObjectField _folderField;
 
-		public void OnEnter(UIController controller, IExpressionUI previousUI)
+		public override void OnEnter(UIController controller, ExpressionUI previousUI)
 		{
 			_controller = controller;
 			_messages = controller.Messages;
@@ -131,17 +131,18 @@ namespace ExpressionUtility.UI
 		private void BuildExpressionSelection(UIController controller)
 		{
 			var scroll = controller.ContentFrame.Q<ScrollView>("expression-buttons");
-			foreach (var type in TypeCache.GetTypesDerivedFrom<IExpressionDefinition>())
+			
+			foreach (ExpressionUI expressionUI in controller.Assets.UIAssets.SelectMany(u => u.Value))
 			{
-				if (controller.Assets.ExpressionDefinitionAssets.TryGetValue(type, out var result))
+				if (expressionUI is IExpressionDefinition instance)
 				{
 					var btn = controller.Assets.ExpressionDefinitionPreviewButton.InstantiateTemplate<Button>(scroll.contentContainer);
 
-					result.Icon.mipMapBias = -1;
-					btn.Q<Label>("header").text = ObjectNames.NicifyVariableName(result.Name);
-					btn.Q<Label>("description").text = result.Description;
-					btn.Q("thumbnail").style.backgroundImage = result.Icon;
-					btn.clickable = new Clickable(() => controller.SetFrame(type));
+					expressionUI.Icon.mipMapBias = -1;
+					btn.Q<Label>("header").text = ObjectNames.NicifyVariableName(expressionUI.Name);
+					btn.Q<Label>("description").text = expressionUI.Description;
+					btn.Q("thumbnail").style.backgroundImage = expressionUI.Icon;
+					btn.clickable = new Clickable(() => controller.SetFrame(expressionUI));
 				}
 			}
 		}
@@ -222,11 +223,6 @@ namespace ExpressionUtility.UI
 				
 			bool hasErrors = invalidAnimator || noValidAnim || nameEmpty || inUse || folderEmpty || invalidFolder || missingRootMenu;
 			_expressionScrollView.SetEnabled(!hasErrors);
-		}
-
-		public void OnExit(IExpressionUI nextUI)
-		{
-			
 		}
 	}
 }

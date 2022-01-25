@@ -1,13 +1,8 @@
 namespace ExpressionUtility.UI
 {
-	internal class Finish : IExpressionUI
+	internal class Finish : ExpressionUI
 	{
-		public void OnEnter(UIController controller, IExpressionUI previousUI)
-		{
-			
-		}
-
-		public void OnExit(IExpressionUI nextUI)
+		public override void OnEnter(UIController controller, ExpressionUI previousUI)
 		{
 			
 		}

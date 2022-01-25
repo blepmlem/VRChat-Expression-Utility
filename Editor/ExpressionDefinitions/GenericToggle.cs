@@ -11,14 +11,16 @@ using Object = UnityEngine.Object;
 
 namespace ExpressionUtility
 {
-	internal class GenericToggle : IExpressionDefinition, IExpressionUI
+	[CreateAssetMenu(fileName = nameof(GenericToggle), menuName = "Expression Utility/"+nameof(GenericToggle))]
+	internal class GenericToggle : ExpressionUI, IExpressionDefinition
 	{
 		private ExpressionInfo _expressionInfo;
 		private readonly List<Object> _dirtyAssets = new List<Object>();
 		private bool _createAnimation = true;
 		
-		public void OnEnter(UIController controller, IExpressionUI previousUI)
+		public override void OnEnter(UIController controller, ExpressionUI previousUI)
 		{
+			_dirtyAssets.Clear();
 			_expressionInfo = controller.ExpressionInfo;
 			var createAnimation = controller.ContentFrame.Q<Toggle>("create-animation");
 			var finishButton = controller.ContentFrame.Q<Button>("button-finish");
@@ -33,11 +35,6 @@ namespace ExpressionUtility
 				Build();
 				controller.SetFrame<Finish>();
 			}
-		}
-
-		public void OnExit(IExpressionUI nextUI)
-		{
-			
 		}
 		
 		public void Build()

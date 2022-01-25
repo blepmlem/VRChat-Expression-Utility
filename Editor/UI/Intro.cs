@@ -3,13 +3,13 @@ using UnityEngine.UIElements;
 
 namespace ExpressionUtility.UI
 {
-	internal class Intro : IExpressionUI
+	internal class Intro : ExpressionUI
 	{
 		private const string SKIP_PREF = "expression-ui-skip-intro";
 		private UIController _controller;
 		private bool _skipInto;
 
-		public void OnEnter(UIController controller, IExpressionUI previousUI)
+		public override void OnEnter(UIController controller, ExpressionUI previousUI)
 		{
 			_skipInto = EditorPrefs.GetBool(SKIP_PREF, false);
 			
@@ -26,11 +26,6 @@ namespace ExpressionUtility.UI
 			}
 			
 			nextButton.clickable = new Clickable(OnClicked);
-		}
-
-		public void OnExit(IExpressionUI nextUI)
-		{
-
 		}
 
 		private void OnClicked()

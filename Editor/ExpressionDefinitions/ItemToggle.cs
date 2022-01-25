@@ -14,14 +14,15 @@ using Object = UnityEngine.Object;
 
 namespace ExpressionUtility
 {
-	internal class ItemToggle : IExpressionDefinition, IExpressionUI
+	[CreateAssetMenu(fileName = nameof(ItemToggle), menuName = "Expression Utility/"+nameof(ItemToggle))]
+	internal class ItemToggle : ExpressionUI, IExpressionDefinition
 	{
 		private UIController _controller;
 		private ExpressionInfo _expressionInfo;
 		private Transform _expressionObject;
 		private readonly List<Object> _dirtyAssets = new List<Object>();
 
-		public void OnEnter(UIController controller, IExpressionUI previousUI)
+		public override void OnEnter(UIController controller, ExpressionUI previousUI)
 		{
 			_controller = controller;
 			_expressionInfo = controller.ExpressionInfo;
@@ -68,11 +69,6 @@ namespace ExpressionUtility
 			finishButton.SetEnabled(!hasErrors);
 		}
 
-		public void OnExit(IExpressionUI nextUI)
-		{
-			
-		}
-		
 		public void Build()
 		{
 			var expressionActiveState = _controller.ContentFrame.Q<Toggle>("expression-active-state");

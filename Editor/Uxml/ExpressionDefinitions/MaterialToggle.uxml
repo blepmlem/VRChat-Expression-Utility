@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <uie:ObjectField label="Target Renderer" name="target-renderer" />
+    <ui:VisualElement name="material-slot" />
+    <uie:ObjectField label="New material" name="toggle-material" />
+    <ui:VisualElement name="padding" style="flex-grow: 1;" />
+    <ui:Button text="Build expression!" name="button-finish" />
+</ui:UXML>

@@ -12,7 +12,7 @@ namespace ExpressionUtility.UI
 		private Assets _assets;
 		private UIController _controller;
 
-		[MenuItem("Expression Utility/Window")]
+		[MenuItem("Expression Utility/Open Expression Utility")]
 		public static void GetWindow() => GetWindow(typeof(ExpressionUtilityWindow));
 
 		private void OnEnable()

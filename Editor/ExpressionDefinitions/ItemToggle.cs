@@ -17,10 +17,13 @@ namespace ExpressionUtility
 	[CreateAssetMenu(fileName = nameof(ItemToggle), menuName = "Expression Utility/"+nameof(ItemToggle))]
 	internal class ItemToggle : ExpressionUI, IExpressionDefinition
 	{
+		[SerializeField]
+		private VisualTreeAsset _targetObjectAsset;
+		
 		private UIController _controller;
 		private ExpressionInfo _expressionInfo;
-		private Transform _expressionObject;
 		private readonly List<Object> _dirtyAssets = new List<Object>();
+		private ScrollView _targetObjectsScrollView;
 
 		public override void OnEnter(UIController controller, ExpressionUI previousUI)
 		{
@@ -28,10 +31,10 @@ namespace ExpressionUtility
 			_expressionInfo = controller.ExpressionInfo;
 
 			var finishButton = controller.ContentFrame.Q<Button>("button-finish");
-
-			BuildExpressionObjectSelection(controller);
-
 			finishButton.clickable = new Clickable(OnFinishClicked);
+
+			SetupTargetObjectsList(controller);
+
 
 			void OnFinishClicked()
 			{
@@ -42,41 +45,55 @@ namespace ExpressionUtility
 			ErrorValidate();
 		}
 
-		private void BuildExpressionObjectSelection(UIController controller)
+		private void SetupTargetObjectsList(UIController controller)
 		{
-			var expressionObject = controller.ContentFrame.Q<ObjectField>("expression-object");
-			expressionObject.objectType = typeof(Transform);
-			expressionObject.RegisterValueChangedCallback(e => SetObject(e.newValue as Transform));
-			
-			void SetObject(Transform value)
+			void AddObject()
 			{
-				expressionObject.SetValueWithoutNotify(value);
-				_expressionObject = value;
+				var obj = _targetObjectAsset.InstantiateTemplate(_targetObjectsScrollView.contentContainer);
+				var objectField = obj.Q<ObjectField>("target-object");
+				objectField.allowSceneObjects = true;
+				objectField.objectType = typeof(Transform);
+
+				objectField.RegisterValueChangedCallback(e => ErrorValidate());
+				ErrorValidate();
+			}
+
+			void RemoveObject()
+			{
+				var children = _targetObjectsScrollView.contentContainer.Children();
+				var last = children.LastOrDefault();
+				if (last != null)
+				{
+					_targetObjectsScrollView.contentContainer.Remove(last);
+				}
+
+				if (!children.Any())
+				{
+					AddObject();
+				}
 				ErrorValidate();
 			}
 			
-			SetObject(_expressionObject);
+			var holder = controller.ContentFrame.Q("objects");
+			_targetObjectsScrollView = holder.Q<ScrollView>("objects-list");
+			holder.Q<Button>("add").clickable.clicked += AddObject;
+			holder.Q<Button>("remove").clickable.clicked += RemoveObject;
+			AddObject();
 		}
 
-		private void ErrorValidate()
+		public IEnumerable<(Transform transform, bool isActive)> GetObjects()
 		{
-			var finishButton = _controller.ContentFrame.Q<Button>("button-finish");
-			
-			bool isNotChild = _expressionObject != null && !_expressionInfo.AvatarDescriptor.GetComponentsInChildren<Transform>(true).Any(t => t == _expressionObject);
-			bool isNull = _expressionObject == null;
-			
-			_controller.Messages.SetActive(isNotChild, "item-not-child-of-avatar");
-			_controller.Messages.SetActive(isNull, "item-object-is-null");
-			
-			bool hasErrors = isNull || isNotChild;
-			finishButton.SetEnabled(!hasErrors);
+			var children = _targetObjectsScrollView.contentContainer.Children();
+			foreach (VisualElement e in children)
+			{
+				var obj = e.Q<ObjectField>("target-object").value as Transform;
+				var state = e.Q<Toggle>("target-active-state").value;
+				yield return (obj, state);
+			}
 		}
 
 		public void Build()
 		{
-			var expressionActiveState = _controller.ContentFrame.Q<Toggle>("expression-active-state");
-			var expressionObject = _controller.ContentFrame.Q<ObjectField>("expression-object");
-			
 			var expName = _expressionInfo.ExpressionName;
 			var controller = _expressionInfo.Controller;
 
@@ -90,7 +107,11 @@ namespace ExpressionUtility
 
 			var animationClip = AnimUtility.CreateAnimation(_expressionInfo.AnimationsFolder.GetPath(), expName, _dirtyAssets);
 			toggleState.motion = animationClip;
-			AddToggleKeyframes(animationClip, expressionObject.value as Transform, expressionActiveState.value, _dirtyAssets);
+			
+			foreach (var obj in GetObjects())
+			{
+				AddToggleKeyframes(animationClip, obj.transform, obj.isActive, _dirtyAssets);
+			}
 			
 			AnimatorStateTransition anyStateTransition = stateMachine.AddAnyStateTransition(toggleState);
 			anyStateTransition.AddCondition(AnimatorConditionMode.If, 1, expName);
@@ -99,7 +120,7 @@ namespace ExpressionUtility
 			exitTransition.AddCondition(AnimatorConditionMode.IfNot, 0, expName);
 
 			AnimUtility.AddVRCExpressionsParameter(_expressionInfo.AvatarDescriptor, VRCExpressionParameters.ValueType.Bool, expName, _dirtyAssets);
-			AnimUtility.AddVRCExpressionsMenuControl(_expressionInfo.Menu, ControlType.RadialPuppet, expName, _dirtyAssets);
+			AnimUtility.AddVRCExpressionsMenuControl(_expressionInfo.Menu, ControlType.Toggle, expName, _dirtyAssets);
 
 			_dirtyAssets.SetDirty();
 			controller.AddObjectsToAsset(stateMachine, toggleState, anyStateTransition, exitTransition, empty);
@@ -109,10 +130,24 @@ namespace ExpressionUtility
 
 		private void AddToggleKeyframes(AnimationClip animationClip, Transform target, bool expressionActiveState, List<Object> dirtyAssets)
 		{
-			var go = target.gameObject;
-			Undo.RecordObject(go, $"Set expression starting state");
-			go.SetActive(!expressionActiveState);
 			AnimUtility.SetKeyframe(animationClip, target, "m_IsActive", expressionActiveState ? 1 : 0, dirtyAssets);
+		}
+
+		private void ErrorValidate()
+		{
+			var finishButton = _controller.ContentFrame.Q<Button>("button-finish");
+
+			var ownerTransforms = _expressionInfo.AvatarDescriptor.GetComponentsInChildren<Transform>(true);
+			var children = GetObjects().ToList();
+
+			bool childNull = children.Any(c => c.transform == null);
+			bool isNotChild = children.Select(c => c.transform).Except(ownerTransforms).Any(t => t != null);
+
+			_controller.Messages.SetActive(isNotChild, "item-not-child-of-avatar");
+			_controller.Messages.SetActive(childNull, "item-object-is-null");
+			
+			bool hasErrors = childNull || isNotChild;
+			finishButton.SetEnabled(!hasErrors);
 		}
 	}
 }

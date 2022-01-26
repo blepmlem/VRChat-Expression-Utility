@@ -1,0 +1,6 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:VisualElement name="object-field-toggle" style="flex-direction: row;">
+        <uie:ObjectField name="target-object" style="flex-grow: 1;" />
+        <ui:Toggle name="target-active-state" value="true" />
+    </ui:VisualElement>
+</ui:UXML>

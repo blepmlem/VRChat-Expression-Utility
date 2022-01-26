@@ -12,26 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 190094eb54854032a64287f5ad450cf5, type: 3}
   m_Name: Assets
   m_EditorClassIdentifier: 
-  _definitionData:
-  - Name: Generic Toggle
-    Description: "Creates a toggle that needs to be customized afterwards. \nYou
-      animate the exact outcome of the toggle!"
-    Icon: {fileID: 2800000, guid: 764dd95f33338a547a0af6cfed1b70d1, type: 3}
-    Asset: {fileID: 11500000, guid: 4392f53dc05309f429f14d123c201729, type: 3}
-  - Name: Item Toggle
-    Description: A fully finished toggle for turning an item on your avatar on or
-      off.
-    Icon: {fileID: 2800000, guid: af9d985d899cf44489f9db383a02e7b2, type: 3}
-    Asset: {fileID: 11500000, guid: 7954c90080604ebe9bd33ba5e15cca63, type: 3}
-  - Name: Material Slider
-    Description: Create a 1D slider for quickly changing materials on a target object.
-    Icon: {fileID: 2800000, guid: a32c1a7e60bdbd74ea10ec0816ec144b, type: 3}
-    Asset: {fileID: 11500000, guid: c412077f2b85467489e5e586e209d6f4, type: 3}
-  - Name: Texture Atlas Slider
-    Description: Add multiple images together in one and control which image is shown
-      somewhere on your avatar.
-    Icon: {fileID: 2800000, guid: 707e84679110e524fbb73d07463c16ca, type: 3}
-    Asset: {fileID: 11500000, guid: 436f6da9efcc4b459975b9bdd79c6860, type: 3}
   _messages:
   - Identifier: give-expr-name
     MessageType: 1
@@ -68,8 +48,8 @@ MonoBehaviour:
       know what you are doing
   - Identifier: item-not-child-of-avatar
     MessageType: 3
-    Text: The selected object is not part of the active avatar. The object you want
-      to toggle needs to be added to the hierarchy of your avatar
+    Text: One of the objects in the list is not part of the active avatar. The objects
+      you want to toggle needs to be added to the hierarchy of your avatar
   - Identifier: missing-root-menu
     MessageType: 3
     Text: Your avatar is missing a main menu! Before continuing, you will need to
@@ -77,7 +57,9 @@ MonoBehaviour:
       GameObject
   - Identifier: item-object-is-null
     MessageType: 1
-    Text: Select the object to be toggled
+    Text: Add the objects you want to toggle to the list. The checkmark after each
+      object decides if the object should be enabled or disabled when this expression
+      is toggled on
   - Identifier: material-is-null
     MessageType: 1
     Text: Put in the materials you want to shift between
@@ -95,11 +77,5 @@ MonoBehaviour:
     type: 3}
   _expressionDefinitionPreviewButton: {fileID: 9197481963319205126, guid: dd01fea312dc1b949ae7020a324a0c50,
     type: 3}
-  _uiAssetsFolder: {fileID: 102900000, guid: 69d7fd3d511f35942ae36e419c2b9174, type: 3}
-  _mainWindow: {fileID: 9197481963319205126, guid: 5c53d2060dd8e46438f7229dafc53385,
-    type: 3}
   _infoBox: {fileID: 9197481963319205126, guid: a3d666f4b9845ae4ea5c5d8b2bf6d7ce,
     type: 3}
-  _infoIcon: {fileID: 0}
-  _warningIcon: {fileID: 0}
-  _errorIcon: {fileID: 0}

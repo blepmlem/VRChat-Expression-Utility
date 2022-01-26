@@ -1,8 +1,9 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
     <ui:TextField label="Expression name" value="filler text" name="expression-name" />
     <ui:VisualElement name="menu-selection" />
+    <ui:VisualElement name="padding" style="height: 4px;" />
     <ui:VisualElement name="expressions" style="flex-grow: 1;">
-        <ui:ScrollView show-horizontal-scroller="false" show-vertical-scroller="true" name="expression-buttons" style="flex-grow: 1;" />
+        <ui:ScrollView name="expression-buttons" style="flex-grow: 1;" />
     </ui:VisualElement>
     <uie:ObjectField label="Animations folder" name="animation-folder" allow-scene-objects="false" />
     <uie:ObjectField label="Active animator" name="active-animator" />

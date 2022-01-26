@@ -12,7 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7954c90080604ebe9bd33ba5e15cca63, type: 3}
   m_Name: ItemToggle
   m_EditorClassIdentifier: 
-  _name: Item Toggle
-  _description: Turn an item on your avatar on or off.
+  _name: Object(s) Toggle
+  _description: 'Turn one or several objects on your avatar on or off. '
   _layout: {fileID: 9197481963319205126, guid: 9eb66e3f7078d9547bf922d5fdaa1374, type: 3}
   _icon: {fileID: 2800000, guid: af9d985d899cf44489f9db383a02e7b2, type: 3}
+  _targetObjectAsset: {fileID: 9197481963319205126, guid: 3e7e5cc255d2b8e4eb7074cb4853e417,
+    type: 3}

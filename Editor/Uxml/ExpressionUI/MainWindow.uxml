@@ -2,7 +2,7 @@
     <ui:VisualElement name="main" style="flex-grow: 1;">
         <Style src="Styles.uss" />
         <uie:Toolbar name="navigation" style="justify-content: flex-start; border-left-width: 0; border-right-width: 0; border-top-width: 1px; border-bottom-width: 1px; flex-shrink: 0;" />
-        <ui:VisualElement name="right-align" style="flex-grow: 1; flex-direction: row; flex-shrink: 0;">
+        <ui:VisualElement name="right-align" style="flex-grow: 1; flex-direction: row; flex-shrink: 1;">
             <ui:VisualElement name="down-align" style="flex-grow: 1;">
                 <ui:VisualElement name="header" style="flex-shrink: 0;" />
                 <ui:VisualElement name="content-frame" style="flex-grow: 1; padding-left: 10px; padding-right: 10px; padding-top: 10px; padding-bottom: 10px;" />

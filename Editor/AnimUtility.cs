@@ -22,9 +22,10 @@ namespace ExpressionUtility
 			{
 				name = ObjectNames.NicifyVariableName(parameterName),
 				type = controlType,
-				subParameters = new VRCExpressionsMenu.Control.Parameter[4],
+				subParameters = new VRCExpressionsMenu.Control.Parameter[1],
+				parameter = new VRCExpressionsMenu.Control.Parameter(),
 			};
-
+			
 			switch (controlType)
 			{
 				case ControlType.Button:
@@ -38,10 +39,31 @@ namespace ExpressionUtility
 					throw new ArgumentException(nameof(controlType), $"{controlType}", null);
 			}
 
+			void FixAv3Emulator()
+			{
+				try
+				{
+					// Hacky hack to avoid a bug in Lyuma.Av3Emulator
+					control.icon = Texture2D.blackTexture; 
+					var m = new SerializedObject(menu);
+					m.Update();
+					var c = m.FindProperty("controls");
+					var element = c.GetArrayElementAtIndex(Mathf.Min(0, c.arraySize - 1));
+					var icon = element.FindPropertyRelative("icon");
+					icon.objectReferenceInstanceIDValue = 0;
+					m.ApplyModifiedProperties();
+				}
+				catch (Exception)
+				{
+					// ignored
+				}
+			}
+			
 			if (menu != null)
 			{
 				menu.controls.Add(control);
 				dirtyAssets.Add(menu);
+				FixAv3Emulator();
 			}
 			
 			return control;

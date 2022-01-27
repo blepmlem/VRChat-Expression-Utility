@@ -1,0 +1,11 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:VisualElement name="expression-info-box" style="flex-shrink: 0; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; padding-left: 4px;">
+        <ui:VisualElement name="holder" style="flex-shrink: 0; padding-left: 2px; padding-right: 2px; padding-top: 2px; padding-bottom: 2px; margin-left: 2px; margin-right: 2px; margin-top: 2px; margin-bottom: 2px; opacity: 0.51; border-top-left-radius: 6px; border-bottom-left-radius: 6px; border-top-right-radius: 6px; border-bottom-right-radius: 6px;">
+            <ui:Label text="Expression name" name="expression-name" style="-unity-font-style: bold; padding-left: 4px; padding-right: 0;" />
+            <uie:ObjectField label="Menu" name="expression-menu" />
+            <uie:ObjectField label="Animator" name="expression-animator" />
+            <uie:ObjectField label="Animation Folder" name="expression-animation-folder" />
+        </ui:VisualElement>
+        <ui:Label text="Material Slider" name="expression-definition-name" style="font-size: 18px; -unity-font-style: bold; padding-left: 0; padding-right: 0; padding-top: 18px; -unity-text-align: upper-center;" />
+    </ui:VisualElement>
+</ui:UXML>

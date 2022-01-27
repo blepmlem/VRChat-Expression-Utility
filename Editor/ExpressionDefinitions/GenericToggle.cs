@@ -30,6 +30,7 @@ namespace ExpressionUtility
 			createAnimation.RegisterValueChangedCallback(evt => _createAnimation = evt.newValue);
 			finishButton.clickable = new Clickable(OnFinishClicked);
 
+			controller.Messages.SetActive(true, "generic-toggle-create-animation");
 			void OnFinishClicked()
 			{
 				Build();

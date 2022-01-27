@@ -2,9 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
+using UnityEditor.Animations;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
+using VRC.SDK3.Avatars.ScriptableObjects;
+using Object = System.Object;
 
 namespace ExpressionUtility.UI
 {
@@ -116,9 +119,47 @@ namespace ExpressionUtility.UI
 			{
 				previousContent.OnExit(_activeContent);
 			}
+
+			SetExpressionInfoBoxActive(instance, ExpressionInfo);
 			_activeContent.OnEnter(this, previousContent);
 		}
 
+		private void SetExpressionInfoBoxActive(ExpressionUI instance, ExpressionInfo expressionInfo)
+		{
+			var box = _root.Q("expression-info-box");
+
+			if (!(instance is IExpressionDefinition definition))
+			{
+				box.style.display = DisplayStyle.None;
+				return;
+			}
+
+			box.style.display = DisplayStyle.Flex;
+			var expMenu = box.Q<ObjectField>("expression-menu");
+			var expAnimator = box.Q<ObjectField>("expression-animator");
+			var expAnimFolder = box.Q<ObjectField>("expression-animation-folder");
+			expMenu.objectType = typeof(VRCExpressionsMenu);
+			expAnimator.objectType = typeof(RuntimeAnimatorController);
+			expAnimFolder.objectType = typeof(DefaultAsset);
+			
+			var expName = box.Q<Label>("expression-name");
+			expName.text = expressionInfo.ExpressionName;
+			var expDefinitionName= box.Q<Label>("expression-definition-name");
+			expDefinitionName.text = instance.Name;
+			
+			expMenu.SetValueWithoutNotify(expressionInfo.Menu);
+			expAnimator.SetValueWithoutNotify(expressionInfo.Controller);
+			expAnimFolder.SetValueWithoutNotify(expressionInfo.AnimationsFolder);
+			
+			expMenu.Q(null, "unity-object-field__selector").Display(false);
+			expAnimator.Q(null, "unity-object-field__selector").Display(false);
+			expAnimFolder.Q(null, "unity-object-field__selector").Display(false);
+			
+			expMenu.RegisterValueChangedCallback(e => expMenu.SetValueWithoutNotify(e.previousValue));
+			expAnimator.RegisterValueChangedCallback(e => expAnimator.SetValueWithoutNotify(e.previousValue));
+			expAnimFolder.RegisterValueChangedCallback(e => expAnimFolder.SetValueWithoutNotify(e.previousValue));
+		}
+		
 		private void NavigateHistory(ExpressionUI instance)
 		{
 			if (_history.Peek() == instance)

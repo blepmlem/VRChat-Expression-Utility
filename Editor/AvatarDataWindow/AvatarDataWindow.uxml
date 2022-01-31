@@ -1,0 +1,13 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:VisualElement name="main" style="flex-grow: 1;">
+        <Style src="/Packages/com.uwu.vrc-expression-utility/Editor/Uxml/Styles.uss" />
+        <uie:Toolbar>
+            <uie:ObjectField label="Avatar" name="avatar" class="object-field-no-selector" style="flex-grow: 1;" />
+        </uie:Toolbar>
+        <ui:ScrollView style="flex-grow: 1; -unity-text-align: upper-center;">
+            <ui:VisualElement class="object-field-no-selector" style="flex-direction: row;">
+                <ui:VisualElement name="container" style="flex-grow: 1;" />
+            </ui:VisualElement>
+        </ui:ScrollView>
+    </ui:VisualElement>
+</ui:UXML>

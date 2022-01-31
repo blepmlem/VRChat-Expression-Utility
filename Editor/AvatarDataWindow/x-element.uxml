@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:VisualElement name="x-element" style="flex-grow: 1; flex-direction: row;">
+        <Style src="/Packages/com.uwu.vrc-expression-utility/Editor/Uxml/Styles.uss" />
+        <uie:ObjectField name="x-object" class="object-field-no-selector x-object" style="flex-grow: 1; -unity-text-align: middle-left;" />
+        <ui:Button text="X" name="x-delete" class="x-delete" />
+    </ui:VisualElement>
+</ui:UXML>

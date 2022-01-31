@@ -4,10 +4,12 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using UnityEditor;
+using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.UIElements;
 using VRC.Core;
 using VRC.SDK3.Avatars.Components;
+using VRC.SDK3.Avatars.ScriptableObjects;
 
 namespace ExpressionUtility
 {
@@ -178,6 +180,14 @@ namespace ExpressionUtility
 			return false;
 		}
 
+		public static IEnumerable<AnimatorController> GetValidAnimators(this VRCAvatarDescriptor descriptor)
+		{
+			return descriptor.baseAnimationLayers
+				.Where(b => !b.isDefault)
+				.Select(b => b.animatorController)
+				.Cast<AnimatorController>();
+		}
+		
 		public static void Replace(this VisualElement root, VisualElement oldElement, VisualElement newElement)
 		{
 			var index = root.IndexOf(oldElement);
@@ -185,6 +195,44 @@ namespace ExpressionUtility
 			root.Remove(oldElement);
 		}
 
+		public static IEnumerable<T> GetChildren<T>(this IAnimationDefinition instance) where T : IAnimationDefinition
+		{
+			foreach (var child in instance.Children)
+			{
+				if (child is T value)
+				{
+					yield return value;
+				}
+
+				foreach (var t in child.GetChildren<T>())
+				{
+					yield return t;
+				}
+			}
+		}
+
+		public static IEnumerable<T> GetParents<T>(this IAnimationDefinition instance) where T : IAnimationDefinition
+		{
+			foreach (var parent in instance.Parents)
+			{
+				if (parent is T value)
+				{
+					yield return value;
+				}
+
+				foreach (var t in parent.GetParents<T>())
+				{
+					yield return t;
+				}
+			}
+		}
+
+		public static T AddChild<T>(this List<IAnimationDefinition> instance, T value) where T : IAnimationDefinition
+		{
+			instance?.Add(value);
+			return value;
+		}
+		
 		public static void Display(this VisualElement element, bool shouldDisplay)
 		{
 			if (element == null)
@@ -215,6 +263,27 @@ namespace ExpressionUtility
 					continue;
 				}
 				EditorUtility.SetDirty(o);
+			}
+		}
+		
+		public static IEnumerable<AnimatorStateMachine> GetAnimatorStateMachinesRecursively(this AnimatorStateMachine stateMachine)
+		{
+			yield return stateMachine;
+			var subs = stateMachine.stateMachines.SelectMany(sm => GetAnimatorStateMachinesRecursively(sm.stateMachine));
+			foreach (AnimatorStateMachine sub in subs)
+			{
+				yield return sub;
+			}
+		}
+		
+		public static IEnumerable<VRCExpressionsMenu> GetMenusRecursively(this VRCExpressionsMenu menu)
+		{
+			yield return menu;
+			foreach (VRCExpressionsMenu vrcExpressionsMenu in menu.controls
+				.Where(mControl => mControl.type == VRCExpressionsMenu.Control.ControlType.SubMenu && mControl.subMenu != null)
+				.SelectMany(mControl => GetMenusRecursively(mControl.subMenu)))
+			{
+				yield return vrcExpressionsMenu;
 			}
 		}
 		

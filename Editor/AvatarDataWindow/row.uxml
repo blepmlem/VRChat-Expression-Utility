@@ -1,0 +1,10 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:VisualElement name="row" class="row">
+        <ui:VisualElement style="flex-direction: row; flex-grow: 1;">
+            <ui:VisualElement name="parameter" class="column" />
+            <ui:VisualElement name="animator" class="column" />
+            <ui:VisualElement name="layer" class="column" />
+            <ui:VisualElement name="menu" class="column" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

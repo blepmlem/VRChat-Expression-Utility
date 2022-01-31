@@ -1,3 +1,15 @@
-﻿fileFormatVersion: 2
+fileFormatVersion: 2
 guid: c61cbcb2abfe4561902da78447f0745b
-timeCreated: 1643149566
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - m_ViewDataDictionary: {instanceID: 0}
+  - _layout: {fileID: 9197481963319205126, guid: 8d263578bfd055445a846750fcaa9361,
+      type: 3}
+  - _avatarDescriptor: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

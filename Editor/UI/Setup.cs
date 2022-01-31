@@ -156,19 +156,10 @@ namespace ExpressionUtility.UI
 				ErrorValidate();
 				return;
 			}
-			
-			IEnumerable<VRCExpressionsMenu> GetAllMenus(VRCExpressionsMenu m)
-			{
-				yield return m;
-				foreach (VRCExpressionsMenu vrcExpressionsMenu in m.controls.Where(mControl => mControl.type == VRCExpressionsMenu.Control.ControlType.SubMenu && mControl.subMenu != null).SelectMany(mControl => GetAllMenus(mControl.subMenu)))
-				{
-					yield return vrcExpressionsMenu;
-				}
-			}
 
 			string PrettifyName(VRCExpressionsMenu arg) => arg.name;
 
-			var menus = GetAllMenus(menu).ToList();
+			var menus = Utility.GetMenusRecursively(menu).ToList();
 			var menuSelector = new PopupField<VRCExpressionsMenu>(menus, menu, PrettifyName, PrettifyName)
 			{
 				label = "Expression menu",

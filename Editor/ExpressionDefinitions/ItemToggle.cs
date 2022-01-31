@@ -144,7 +144,7 @@ namespace ExpressionUtility
 			bool isNotChild = children.Select(c => c.transform).Except(ownerTransforms).Any(t => t != null);
 
 			_controller.Messages.SetActive(isNotChild, "item-not-child-of-avatar");
-			_controller.Messages.SetActive(childNull, "item-object-is-null");
+			_controller.Messages.SetActive(true, "item-toggle-info");
 			
 			bool hasErrors = childNull || isNotChild;
 			finishButton.SetEnabled(!hasErrors);

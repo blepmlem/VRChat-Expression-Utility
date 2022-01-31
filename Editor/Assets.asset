@@ -55,9 +55,10 @@ MonoBehaviour:
     Text: Your avatar is missing a main menu! Before continuing, you will need to
       drag a menu object into the "menu" slot found on the top level of your avatar's
       GameObject
-  - Identifier: item-object-is-null
+  - Identifier: item-toggle-info
     MessageType: 1
-    Text: Add the objects you want to toggle to the list. The checkmark after each
+    Text: Add the objects you want to toggle to the list. You can add more objects
+      to toggle with the [+] button at the top of the list. The checkmark after each
       object decides if the object should be enabled or disabled when this expression
       is toggled on
   - Identifier: material-is-null

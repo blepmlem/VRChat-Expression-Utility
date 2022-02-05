@@ -52,6 +52,8 @@ namespace ExpressionUtility
 			}
 		}
 
+		public StateDefinition GetState(string name) => Children.OfType<StateDefinition>().FirstOrDefault(c => c.Name == name);
+
 		public StateDefinition AddState(string name = null)
 		{
 			return Children.AddChild(new StateDefinition(this, name));

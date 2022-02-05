@@ -13,9 +13,13 @@ namespace ExpressionUtility
 			Int,
 			Float,
 			Bool,
+			SpeedParameter,
+			MirrorParameter,
+			TimeParameter,
+			CycleOffsetParameter,
 		}
 		
-		public ParameterDefinition(IAnimationDefinition parent, string name, ParameterType type)
+		public ParameterDefinition(IAnimationDefinition parent, string name, ParameterType? type = null)
 		{
 			Name = name ?? parent.Name;
 			Parents.Add(parent);
@@ -100,10 +104,10 @@ namespace ExpressionUtility
 			}
 		}
 		
-		public ParameterType Type { get; }
+		public ParameterType? Type { get; }
 		public string Name { get; }
 		public bool IsRealized { get; set; }
-		public List<IAnimationDefinition> Children { get; } = new List<IAnimationDefinition>();
+		public List<IAnimationDefinition> Children => new List<IAnimationDefinition>();
 		public List<IAnimationDefinition> Parents { get; } = new List<IAnimationDefinition>();
 
 		public override string ToString() => $"[{GetType().Name}] {Name}";

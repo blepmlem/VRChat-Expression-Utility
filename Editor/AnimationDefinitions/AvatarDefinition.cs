@@ -11,7 +11,9 @@ namespace ExpressionUtility
 		{
 			Name = descriptor.name;
 			AvatarDescriptor = descriptor;
-			foreach (var parameter in descriptor.expressionParameters.parameters)
+			VrcExpressionParameters = AvatarDescriptor.expressionParameters;
+			
+			foreach (var parameter in VrcExpressionParameters.parameters)
 			{
 				AddParameter(parameter);
 			}
@@ -72,7 +74,8 @@ namespace ExpressionUtility
 		}
 
 		public VRCAvatarDescriptor AvatarDescriptor { get; }
-
+		
+		public VRCExpressionParameters VrcExpressionParameters { get; }
 		public string Name { get; }
 
 		public bool IsRealized => AvatarDescriptor != null;

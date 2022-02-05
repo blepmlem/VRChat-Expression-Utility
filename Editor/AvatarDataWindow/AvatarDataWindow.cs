@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEditor.SceneManagement;
@@ -16,26 +18,19 @@ namespace ExpressionUtility.UI
 	{
 		[SerializeField]
 		private VisualTreeAsset _layout;
+		
+		[SerializeField]
+		private VisualTreeAsset _rowLayout;
 
-		[SerializeField]
-		private VisualTreeAsset _objectElement;
-		
-		[SerializeField]
-		private VisualTreeAsset _rowElement;
-		
 		[SerializeField]
 		private VRCAvatarDescriptor _avatarDescriptor;
 
-		private IEnumerable<AnimatorController> _animators;
-		private object _animData;
-		private List<VRCExpressionParameters.Parameter> _parameters;
-		private IEnumerable<VRCExpressionsMenu> _menus;
-
+		private bool _initialized;
 
 		[MenuItem("Expression Utility/Avatar Data")]
 		public static void GetWindow()
 		{
-			var vrcAvatarDescriptor = StageUtility.GetCurrentStageHandle().FindComponentOfType<VRCAvatarDescriptor>();
+			var vrcAvatarDescriptor = StageUtility.GetCurrentStageHandle().FindComponentsOfType<VRCAvatarDescriptor>().Where(d => d.gameObject.activeInHierarchy).ToList().FirstOrDefault();
 			CreateWindow(vrcAvatarDescriptor, false);
 		}
 
@@ -55,51 +50,108 @@ namespace ExpressionUtility.UI
 			
 			return window.Initialize();
 		}
-		
+
+		private void OnEnable()
+		{
+			Initialize();
+		}
+
 		private AvatarDataWindow Initialize()
 		{
+			if (_initialized || _avatarDescriptor == null)
+			{
+				return this;
+			}
+			
 			this.SetAntiAliasing(4);
 			titleContent = EditorGUIUtility.TrTextContentWithIcon("Avatar Data", "NetworkAnimator Icon");
 			_layout.CloneTree(rootVisualElement);
-			GatherData(_avatarDescriptor);
+			BuildLayout();
+			_initialized = true;
 			return this;
 		}
 
-		public class Data
-		{
-			public List<VRCExpressionParameters.Parameter> Parameters { get; } = new List<VRCExpressionParameters.Parameter>();
-			public List<AnimatorDefinition> AnimatorDefinitions { get; } = new List<AnimatorDefinition>();
-			public List<VRCExpressionsMenu> Menus { get; } = new List<VRCExpressionsMenu>();
-		}
-
-		private void GatherData(VRCAvatarDescriptor avd)
-		{
-			var def = new AvatarDefinition(avd);
-
-			foreach (var child in def.GetChildren<IAnimationDefinition>().Where(c => !c.IsRealized))
-			{
-				child.ToString().Log();
-			}
-		}
-		
-		
 		private void BuildLayout()
 		{
-			GatherData(_avatarDescriptor);
-			var container = rootVisualElement.Q("container");
-			foreach (VRCExpressionParameters.Parameter parameter in _parameters)
+			var def = new AvatarDefinition(_avatarDescriptor);
+			var scroll = rootVisualElement.Q<ScrollView>("scrollview");
+
+			var parameters = def.Children.OfType<ParameterDefinition>();
+			foreach (ParameterDefinition parameterDefinition in parameters)
 			{
-				var data = new Data()
+				var parameter = parameterDefinition.Name;
+				var row = _rowLayout.InstantiateTemplate(scroll.contentContainer);
+				row.Q("parameter").Add(ObjectHolder.CreateHolderField(() => Selection.activeObject = def.VrcExpressionParameters, parameter));
+				
+				foreach (AnimatorLayerDefinition l in GetLayers(def, parameter))
 				{
-					Parameters = { parameter },
+					if (!l.TryGetFirstParent(out AnimatorDefinition animDef))
+					{
+						continue;
+					}
 					
-				};
+					row.Q("layer").Add(ObjectHolder.CreateHolderField(() => animDef.Animator.SelectAnimatorLayer(l.Layer), $"{animDef.Name}/{l.Layer.name}"));
+				}
+				
+				foreach (var m in GetMotions(def, parameter))
+				{
+					if (m.Motion == null)
+					{
+						continue;
+					}
+
+					var path = AssetDatabase.GetAssetPath(m.Motion);
+					
+					row.Q("motion").Add(ObjectHolder.CreateHolderField(() => Selection.activeObject = m.Motion, m.Motion.name));
+				}
+				
+				foreach (var m in GetMenuControls(def, parameter))
+				{
+					if (!m.TryGetFirstParent(out MenuDefinition menu))
+					{
+						continue;
+					}
+					
+					row.Q("menu").Add(ObjectHolder.CreateHolderField(() => Selection.activeObject = menu.Menu, menu.Menu.name));
+				}
 			}
 		}
 
-		// class Row()
-		// {
-		// 	
-		// }
+		private IEnumerable<AnimatorDefinition> GetAnimators(AvatarDefinition avatarDefinition, string parameter)
+		{
+			return avatarDefinition
+				.GetChildren<AnimatorDefinition>()
+				.Where(a => a
+					.GetChildren<ParameterDefinition>()
+					.Any(p => p.Name == parameter))
+				.Distinct().ToList();
+		}
+
+		private IEnumerable<AnimatorLayerDefinition> GetLayers(AvatarDefinition avatarDefinition, string parameter)
+		{
+			return avatarDefinition
+				.GetChildren<AnimatorLayerDefinition>()
+				.Where(a => a
+					.GetChildren<ParameterDefinition>()
+					.Any(p => p.Name == parameter))
+				.Distinct().ToList();
+		}
+
+		private IEnumerable<MotionDefinition> GetMotions(AvatarDefinition avatarDefinition, string parameter)
+		{
+			return GetLayers(avatarDefinition, parameter)
+				.SelectMany(l => l
+					.GetChildren<MotionDefinition>())
+				.Distinct().ToList();
+		}
+
+		private IEnumerable<MenuControlDefinition> GetMenuControls(AvatarDefinition avatarDefinition, string parameter)
+		{
+			return avatarDefinition
+				.GetChildren<MenuControlDefinition>()
+				.Where(m => m.Children
+					.Any(c => (c as ParameterDefinition)?.Name == parameter))
+				.Distinct().ToList();
+		}
 	}
 }

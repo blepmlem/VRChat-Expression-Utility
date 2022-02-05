@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,6 +11,7 @@ using UnityEngine.UIElements;
 using VRC.Core;
 using VRC.SDK3.Avatars.Components;
 using VRC.SDK3.Avatars.ScriptableObjects;
+using Object = UnityEngine.Object;
 
 namespace ExpressionUtility
 {
@@ -162,6 +164,24 @@ namespace ExpressionUtility
 		
 		public static T InstantiateTemplate<T>(this VisualTreeAsset template, VisualElement target) where T : VisualElement => InstantiateTemplate(template, target) as T;
 
+		public static void SelectAnimatorLayer(this AnimatorController animator, AnimatorControllerLayer layer)
+		{
+			try
+			{
+				var type = Type.GetType("UnityEditor.Graphs.AnimatorControllerTool,UnityEditor.Graphs");
+				EditorApplication.ExecuteMenuItem("Window/Animation/Animator");
+				Selection.activeObject = animator;
+				var index = Array.FindIndex(animator.layers, l => l.name == layer.name);
+				var window = EditorWindow.GetWindow(type);
+				var prop = type?.GetProperties().FirstOrDefault(p => p.Name == "selectedLayerIndex");
+				prop?.GetSetMethod()?.Invoke(window, new object[]{index});
+			}
+			catch (Exception)
+			{
+				// ignored
+			}
+		}
+		
 		public static bool OwnsAnimator(this VRCAvatarDescriptor descriptor, RuntimeAnimatorController animator)
 		{
 			if (animator == null)
@@ -210,7 +230,31 @@ namespace ExpressionUtility
 				}
 			}
 		}
+		
+		public static bool TryGetFirstChild<T>(this IAnimationDefinition instance, out T result) where T : IAnimationDefinition
+		{
+			result = default;
+			foreach (T child in GetChildren<T>(instance))
+			{
+				result = child;
+				return true;
+			}
 
+			return false;
+		}
+		
+		public static bool TryGetFirstParent<T>(this IAnimationDefinition instance, out T result) where T : IAnimationDefinition
+		{
+			result = default;
+			foreach (T parent in GetParents<T>(instance))
+			{
+				result = parent;
+				return true;
+			}
+
+			return false;
+		}
+		
 		public static IEnumerable<T> GetParents<T>(this IAnimationDefinition instance) where T : IAnimationDefinition
 		{
 			foreach (var parent in instance.Parents)

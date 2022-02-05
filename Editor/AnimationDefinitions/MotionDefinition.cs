@@ -24,10 +24,19 @@ namespace ExpressionUtility
 			IsRealized = true;
 			if (motion is BlendTree blendTree)
 			{
+				if (!string.IsNullOrEmpty(blendTree.blendParameter))
+				{
+					BlendParameters.Add(Children.AddChild(new ParameterDefinition(this, blendTree.blendParameter, ParameterDefinition.ParameterType.Float)));
+				}
+				if (!string.IsNullOrEmpty(blendTree.blendParameterY))
+				{
+					BlendParameters.Add(Children.AddChild(new ParameterDefinition(this, blendTree.blendParameterY, ParameterDefinition.ParameterType.Float)));
+				}
 				foreach (ChildMotion blendTreeChild in blendTree.children)
 				{
 					AddMotion(blendTreeChild.motion);
 				}
+				
 			}
 		}
 		
@@ -46,6 +55,7 @@ namespace ExpressionUtility
 		public bool IsBlendTree { get; }
 		public Motion Motion { get; }
 
+		public readonly List<ParameterDefinition> BlendParameters = new List<ParameterDefinition>();
 		public string Name { get; }
 		public bool IsRealized { get; set; }
 		public List<IAnimationDefinition> Children { get; } = new List<IAnimationDefinition>();

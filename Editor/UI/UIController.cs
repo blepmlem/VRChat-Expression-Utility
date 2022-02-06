@@ -52,9 +52,20 @@ namespace ExpressionUtility.UI
 			}
 			AvatarCache.AvatarWasUpdated += OnAvatarWasUpdated;
 			UpdateMiniAvatar(ExpressionInfo);
-			Messages = new Messages(this, _root.Q("main"));
+			Messages = new Messages(this, _root.Q("info-box"));
 
+			SetupFooter();
 			SetupUpdater();
+		}
+
+		private void SetupFooter()
+		{
+			var githubIcon = _root.Q("github-icon");
+			githubIcon.style.backgroundImage = EditorGUIUtility.isProSkin ? Assets.GithubLight : Assets.GithubDark;
+			var githubButton = _root.Q<Button>("github-button");
+			githubButton.clicked += () => Application.OpenURL("https://github.com/blepmlem/VRChat-Expression-Utility");
+			var donateButton = _root.Q<Button>("donate-button");
+			donateButton.clicked += () => Application.OpenURL("https://ko-fi.com/blepblem");
 		}
 
 		private async Task SetupUpdater()

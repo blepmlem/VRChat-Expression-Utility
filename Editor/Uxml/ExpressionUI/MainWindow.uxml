@@ -2,7 +2,7 @@
     <ui:Template name="expression-info-box" src="/Packages/com.blep.vrc-expression-utility/Editor/Uxml/Elements/expression-info-box.uxml" />
     <ui:VisualElement name="main" style="flex-grow: 1;">
         <Style src="/Packages/com.blep.vrc-expression-utility/Editor/Uxml/Styles.uss" />
-        <ui:VisualElement name="update-info" style="flex-direction: row; justify-content: space-between; border-left-width: 0; border-right-width: 0; border-top-width: 0; border-bottom-width: 0; margin-left: 6px; margin-right: 6px; display: none;">
+        <ui:VisualElement name="update-info" style="flex-direction: row; justify-content: space-between; border-left-width: 0; border-right-width: 0; border-top-width: 0; border-bottom-width: 0; margin-left: 6px; margin-right: 6px; display: none; flex-shrink: 0;">
             <ui:Label text="There is an update available!&#10;Version 2.0.0" name="update-text" style="-unity-text-align: middle-left;" />
             <ui:Button text="UPDATE NOW" name="update-button" class="button--big" style="-unity-font-style: bold; font-size: 18px; color: rgb(19, 188, 0); min-height: 30px; border-left-color: rgb(48, 173, 38); border-right-color: rgb(48, 173, 38); border-top-color: rgb(48, 173, 38); border-bottom-color: rgb(48, 173, 38); border-left-width: 2px; border-right-width: 2px; border-top-width: 2px; border-bottom-width: 2px;" />
         </ui:VisualElement>
@@ -17,5 +17,16 @@
                 <uie:ToolbarButton style="background-image: resource(&apos;thryEditor_help&apos;); padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; border-left-width: 0; border-right-width: 0; border-top-width: 0; border-bottom-width: 0; height: 32px; flex-grow: 0; flex-shrink: 0; width: 32px; left: auto; -unity-background-image-tint-color: rgb(43, 157, 212); border-top-left-radius: 129px; border-bottom-left-radius: 129px; border-top-right-radius: 129px; border-bottom-right-radius: 129px;" />
             </ui:VisualElement>
         </ui:VisualElement>
+        <ui:VisualElement name="info-box" style="flex-shrink: 0;" />
+        <uie:Toolbar name="footer" style="height: auto; justify-content: flex-end; flex-shrink: 0;">
+            <uie:ToolbarButton name="github-button" class="footer-button">
+                <ui:VisualElement name="github-icon" style="background-image: url(&apos;/Packages/com.blep.vrc-expression-utility/Editor/Textures/T_Github_Light.png&apos;); height: 16px; width: 16px;" />
+                <ui:Label text="View on Github" class="footer-text" />
+            </uie:ToolbarButton>
+            <uie:ToolbarButton name="donate-button" class="footer-button">
+                <ui:VisualElement name="VisualElement" style="height: 16px; width: 16px; background-image: url(&apos;/Packages/com.blep.vrc-expression-utility/Editor/Textures/T_Heart.png&apos;);" />
+                <ui:Label text="Donate" class="footer-text" />
+            </uie:ToolbarButton>
+        </uie:Toolbar>
     </ui:VisualElement>
 </ui:UXML>

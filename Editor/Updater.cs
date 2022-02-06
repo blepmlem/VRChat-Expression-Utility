@@ -1,22 +1,23 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using ICSharpCodeRenamedToAvoidConflictWithOldSDKs.SharpZipLib.Zip;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using UnityEditor;
-using UnityEditor.PackageManager.UI;
+using Unity.EditorCoroutines.Editor;
+using UnityEditor.PackageManager;
 using UnityEngine;
 using UnityEngine.Networking;
+using PackageInfo = UnityEditor.PackageManager.PackageInfo;
 using Version = System.Version;
 
 namespace ExpressionUtility
 {
 	internal class Updater
 	{
+		private const string PACKAGE_NAME = "com.blep.vrc-expression-utility";
+		
 		private const string TAGS_URL = "https://api.github.com/repos/blepmlem/VRChat-Expression-Utility/tags";
 
 		private const string GIT_URL = "https://github.com/blepmlem/VRChat-Expression-Utility.git";
@@ -25,98 +26,89 @@ namespace ExpressionUtility
 
 		private TaskCompletionSource<Version> _latestVersionTcs;
 
-		public Version LatestVersion { get; private set; }
+		public Version LatestOnlineVersion { get; private set; }
 
 		public Version CurrentVersion { get; private set; }
-
-		public bool IsUpdating { get; private set; }
+		
+		public PackageInfo PackageInfo { get; private set; }
 
 		public bool HasNewerVersion
 		{
 			get
 			{
-				if (CurrentVersion == null || LatestVersion == null)
+				if (CurrentVersion == null || LatestOnlineVersion == null)
 				{
 					return false;
 				}
 
-				return LatestVersion > CurrentVersion;
+				return LatestOnlineVersion > CurrentVersion;
 			}
 		}
 
 		public void OpenGitHub() => Application.OpenURL(GIT_URL);
-
-		[MenuItem("Expression Utility/Check for updates")]
-		private static void CheckForUpdates()
+		
+		public async Task CheckForUpdates()
 		{
-			Create();
+			var latestOnlineVersionTask = GetLatestOnlineVersion();
+			var packageTask = GetPackage();
+			await Task.WhenAll(packageTask, latestOnlineVersionTask);
+			LatestOnlineVersion = latestOnlineVersionTask.Result;
+			PackageInfo = packageTask.Result;
+			CurrentVersion = new Version(PackageInfo.version);
+		}
+
+		private Task<PackageInfo> GetPackage()
+		{
+			var tcs = new TaskCompletionSource<PackageInfo>();
+			var req = Client.List();
+			IEnumerator Waiter()
+			{
+				while (!req.IsCompleted)
+				{
+					yield return null;
+				}
+
+				if (req.Error != null)
+				{
+					req.Error.message.LogError();
+				}
+				tcs.SetResult(req.Result?.FirstOrDefault(p => p.name == PACKAGE_NAME));
+			}
+
+			EditorCoroutineUtility.StartCoroutineOwnerless(Waiter());
+			return tcs.Task;
 		}
 		
-		public static async Task<Updater> Create()
+		private Task<bool> SetPackage(string packageId)
 		{
-			var updater = new Updater();
-			var newest = await updater.GetLatestVersion();
+			var tcs = new TaskCompletionSource<bool>();
+			var req = Client.Add(packageId);
+			IEnumerator Waiter()
+			{
+				while (!req.IsCompleted)
+				{
+					yield return null;
+				}
 
-			updater.LatestVersion = newest;
-		
-			dynamic obj = JObject.Parse(File.ReadAllText(PACKAGE_PATH));
-			var v = obj["version"];
-			updater.CurrentVersion = new Version(v.ToString());
+				if (req.Error != null)
+				{
+					req.Error.message.LogError();
+				}
+				tcs.SetResult(req.Status == StatusCode.Success);
+			}
 
-			return updater;
+			EditorCoroutineUtility.StartCoroutineOwnerless(Waiter());
+			return tcs.Task;
 		}
-	
-		// UnityEditor.PackageManager.Client.
 		
 		public async Task Update(Action OnComplete = null)
 		{
-			if (!HasNewerVersion)
-			{
-				return;
-			}
-
-			var gitString = $"{GIT_URL}#{LatestVersion}";
-			//
-			//
-			//
-			// IsUpdating = true;
-			var tcs = new TaskCompletionSource<bool>();
-			// var http = UnityWebRequest.Get(_latestVersionPath);
-			// var req = http.SendWebRequest();
-			// req.completed += operation =>
-			// {
-			// 	if (http.isHttpError || http.isNetworkError)
-			// 	{
-			// 		tcs.TrySetResult(false);
-			// 	}
-			// 	else
-			// 	{
-			// 		try
-			// 		{
-			// 			var data = req.webRequest.downloadHandler.data;
-			//
-			// 			if (data != null)
-			// 			{
-			// 				var stream = new MemoryStream(data);
-			// 				var file = new FastZip();
-			// 				file.ExtractZip(stream, "Packages", FastZip.Overwrite.Always, null, null, null, true, true);
-			// 				AssetDatabase.Refresh();
-			// 				tcs.TrySetResult(true);
-			// 			}
-			// 		}
-			// 		catch (Exception)
-			// 		{
-			// 			tcs.TrySetResult(false);
-			// 		}
-			// 	}
-			// 	http.Dispose();
-			// };
-
-			await tcs.Task;
+			var gitString = $"{GIT_URL}#{LatestOnlineVersion}";
+			await SetPackage(gitString);
 			OnComplete?.Invoke();
 		}
 
-		private Task<Version> GetLatestVersion()
+		private Task<Version> GetLatestOnlineVersion()
 		{
 			if (_latestVersionTcs != null)
 			{

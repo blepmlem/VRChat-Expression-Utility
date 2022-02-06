@@ -2,6 +2,10 @@
     <ui:Template name="expression-info-box" src="/Packages/com.blep.vrc-expression-utility/Editor/Uxml/Elements/expression-info-box.uxml" />
     <ui:VisualElement name="main" style="flex-grow: 1;">
         <Style src="/Packages/com.blep.vrc-expression-utility/Editor/Uxml/Styles.uss" />
+        <ui:VisualElement name="update-info" style="flex-direction: row; justify-content: space-between; border-left-width: 0; border-right-width: 0; border-top-width: 0; border-bottom-width: 0; margin-left: 6px; margin-right: 6px; display: none;">
+            <ui:Label text="There is an update available!&#10;Version 2.0.0" name="update-text" style="-unity-text-align: middle-left;" />
+            <ui:Button text="UPDATE NOW" name="update-button" class="button--big" style="-unity-font-style: bold; font-size: 18px; color: rgb(19, 188, 0); min-height: 30px; border-left-color: rgb(48, 173, 38); border-right-color: rgb(48, 173, 38); border-top-color: rgb(48, 173, 38); border-bottom-color: rgb(48, 173, 38); border-left-width: 2px; border-right-width: 2px; border-top-width: 2px; border-bottom-width: 2px;" />
+        </ui:VisualElement>
         <uie:Toolbar name="navigation" style="justify-content: flex-start; border-left-width: 0; border-right-width: 0; border-top-width: 1px; border-bottom-width: 1px; flex-shrink: 0;" />
         <ui:VisualElement name="right-align" style="flex-grow: 1; flex-direction: row; flex-shrink: 1;">
             <ui:VisualElement name="down-align" style="flex-grow: 1;">

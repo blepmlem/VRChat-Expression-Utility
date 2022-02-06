@@ -1,7 +1,7 @@
 {
   "name": "com.blep.vrc-expression-utility",
   "displayName": "VRC Expression Utility",
-  "description": "VRC Expression Utility",
+  "description": "Simplify creating multiple types of common VRC expressions! \nAllows for automatically adding and configuring new VRC parameters, animation clips, animator layers, and more!",
   "version": "2.0.0",
   "author": {
     "name": "blep",
@@ -16,7 +16,8 @@
     "expression"
   ],
   "dependencies": {
-    "com.unity.nuget.newtonsoft-json": "2.0.0"
+    "com.unity.nuget.newtonsoft-json": "2.0.0",
+    "com.unity.editorcoroutines": "1.0.0"
   },
   "unity": "2019.4"
 }

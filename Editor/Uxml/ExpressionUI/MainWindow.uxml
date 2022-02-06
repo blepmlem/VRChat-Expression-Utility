@@ -1,5 +1,4 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
-    <ui:Template name="expression-info-box" src="/Packages/com.blep.vrc-expression-utility/Editor/Uxml/Elements/expression-info-box.uxml" />
     <ui:VisualElement name="main" style="flex-grow: 1;">
         <Style src="/Packages/com.blep.vrc-expression-utility/Editor/Uxml/Styles.uss" />
         <ui:VisualElement name="update-info" style="flex-direction: row; justify-content: space-between; border-left-width: 0; border-right-width: 0; border-top-width: 0; border-bottom-width: 0; margin-left: 6px; margin-right: 6px; display: none; flex-shrink: 0;">
@@ -10,7 +9,17 @@
         <ui:VisualElement name="right-align" style="flex-grow: 1; flex-direction: row; flex-shrink: 1;">
             <ui:VisualElement name="down-align" style="flex-grow: 1;">
                 <ui:VisualElement name="header" style="flex-shrink: 0;" />
-                <ui:Instance template="expression-info-box" name="expression-info-box" style="flex-shrink: 0; display: none;" />
+                <ui:VisualElement name="expression-info-box" style="flex-shrink: 0; display: none;">
+                    <ui:VisualElement name="expression-info-box" style="flex-shrink: 0; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; padding-left: 4px;">
+                        <ui:VisualElement name="holder" style="flex-shrink: 0; padding-left: 2px; padding-right: 2px; padding-top: 2px; padding-bottom: 2px; margin-left: 2px; margin-right: 2px; margin-top: 2px; margin-bottom: 2px; opacity: 0.51; border-top-left-radius: 6px; border-bottom-left-radius: 6px; border-top-right-radius: 6px; border-bottom-right-radius: 6px;">
+                            <ui:Label text="Expression name" name="expression-name" style="-unity-font-style: bold; padding-left: 4px; padding-right: 0;" />
+                            <uie:ObjectField label="Menu" name="expression-menu" />
+                            <uie:ObjectField label="Animator" name="expression-animator" />
+                            <uie:ObjectField label="Animation Folder" name="expression-animation-folder" />
+                        </ui:VisualElement>
+                        <ui:Label text="Material Slider" name="expression-definition-name" style="font-size: 18px; -unity-font-style: bold; padding-left: 0; padding-right: 0; padding-top: 18px; -unity-text-align: upper-center;" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
                 <ui:VisualElement name="content-frame" style="flex-grow: 1; padding-left: 10px; padding-right: 10px; padding-top: 10px; padding-bottom: 10px;" />
             </ui:VisualElement>
             <ui:VisualElement name="sidebar" style="display: none; flex-shrink: 0; padding-top: 4px; padding-right: 4px; padding-left: 4px; padding-bottom: 4px;">

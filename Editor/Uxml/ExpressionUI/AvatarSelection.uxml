@@ -1,14 +1,7 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
-    <ui:Template name="avatar-button" src="avatar-button.uxml" />
     <ui:VisualElement name="VisualElement" style="flex-grow: 1;">
-        <Style src="Styles.uss" />
-        <ui:Label text="Select avatar:" style="-unity-text-align: upper-center; font-size: 16px; -unity-font-style: bold;" />
-        <ui:VisualElement name="avatars" style="flex-grow: 1;">
-            <ui:Instance template="avatar-button" name="avatar-button" />
-            <ui:Instance template="avatar-button" name="avatar-button" />
-            <ui:Instance template="avatar-button" name="avatar-button" />
-            <ui:Instance template="avatar-button" name="avatar-button" />
-            <ui:Instance template="avatar-button" name="avatar-button" />
-        </ui:VisualElement>
+        <Style src="/Packages/com.uwu.vrc-expression-utility/Editor/Uxml/Styles.uss" />
+        <ui:Label text="Select avatar:" class="header--center" />
+        <ui:VisualElement name="avatars" style="flex-grow: 1;" />
     </ui:VisualElement>
 </ui:UXML>

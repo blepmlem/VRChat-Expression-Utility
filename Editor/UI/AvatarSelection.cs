@@ -18,7 +18,7 @@ namespace ExpressionUtility.UI
 			_messages = controller.Messages;
 			if (controller.AvatarCache.AvatarCount == 1 && controller.ExpressionInfo.AvatarDescriptor != null && previousUI is Intro)
 			{
-				controller.SetFrame<Setup>();
+				controller.SetFrame<MainMenu>();
 				return;
 			}
 
@@ -98,7 +98,7 @@ namespace ExpressionUtility.UI
 			ob.allowSceneObjects = true;
 			ob.SetEnabled(false);
 			ob.value = info.VrcAvatarDescriptor.gameObject;
-			ob.Q(null, "unity-object-field__selector").Display(false);
+			ob.RemoveObjectSelector();
 			ob.Q(null, "unity-label").Display(false);
 			ob.Q(null, "unity-object-field-display__label").Display(true);
 		}
@@ -106,7 +106,7 @@ namespace ExpressionUtility.UI
 		private void AvatarClicked(AvatarCache.AvatarInfo info)
 		{
 			_controller.ExpressionInfo.SetInfo(info);
-			_controller.SetFrame<Setup>();
+			_controller.SetFrame<MainMenu>();
 		}
 	}
 }

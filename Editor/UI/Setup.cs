@@ -20,13 +20,26 @@ namespace ExpressionUtility.UI
 		private Messages _messages;
 		private ScrollView _expressionScrollView;
 		private ObjectField _folderField;
+		private TextField _nameField;
+		private Foldout _avatarAnimators;
+		private ObjectField _activeAnimator;
+		private VisualElement _menuSelectionPlaceholder;
+
+		public override void BindControls(VisualElement root)
+		{
+			_expressionScrollView = root.Q<ScrollView>("expression-buttons");
+			_folderField = root.Q<ObjectField>("animation-folder");
+			_nameField = root.Q<TextField>("expression-name");
+			_avatarAnimators = root.Q<Foldout>("avatar-animators");
+			_activeAnimator = root.Q<ObjectField>("active-animator");
+			_menuSelectionPlaceholder = root.Q("menu-selection");
+		}
 
 		public override void OnEnter(UIController controller, ExpressionUI previousUI)
 		{
 			_controller = controller;
 			_messages = controller.Messages;
-			_expressionScrollView = controller.ContentFrame.Q<ScrollView>("expression-buttons");
-			_folderField = controller.ContentFrame.Q<ObjectField>("animation-folder");
+
 
 			BuildNameSelection(controller);
 			BuildExpressionSelection(controller);
@@ -38,13 +51,12 @@ namespace ExpressionUtility.UI
 
 		private void BuildNameSelection(UIController controller)
 		{
-			var nameField = controller.ContentFrame.Q<TextField>("expression-name");
-			nameField.RegisterValueChangedCallback(e => SetName(e.newValue));
+			_nameField.RegisterValueChangedCallback(e => SetName(e.newValue));
 			
 			SetName(controller.ExpressionInfo.ExpressionName);
 			void SetName(string name)
 			{
-				nameField.SetValueWithoutNotify(name);
+				_nameField.SetValueWithoutNotify(name);
 				if (controller.ExpressionInfo.ExpressionName != name)
 				{
 					controller.ExpressionInfo.ExpressionName = name;
@@ -56,17 +68,16 @@ namespace ExpressionUtility.UI
 
 		private void BuildAnimationFolderSelection(UIController controller)
 		{
-			var animFolder = controller.ContentFrame.Q<ObjectField>("animation-folder");
-			animFolder.objectType = typeof(DefaultAsset);
-			animFolder.SetEnabled(true);
-			animFolder.Q(null, "unity-object-field__selector").Display(true);
-			animFolder.Q(null, "unity-object-field-display__label").Display(true);
-			animFolder.RegisterValueChangedCallback(e => SetFolder(e.newValue as DefaultAsset));
+			_folderField.objectType = typeof(DefaultAsset);
+			_folderField.SetEnabled(true);
+			// _folderField.Q(null, "unity-object-field__selector").Display(true);
+			// _folderField.Q(null, "unity-object-field-display__label").Display(true);
+			_folderField.RegisterValueChangedCallback(e => SetFolder(e.newValue as DefaultAsset));
 			SetFolder(controller.ExpressionInfo.AnimationsFolder);
 			
 			void SetFolder(DefaultAsset folder)
 			{
-				animFolder.SetValueWithoutNotify(folder);
+				_folderField.SetValueWithoutNotify(folder);
 				if (controller.ExpressionInfo.AnimationsFolder != folder)
 				{
 					controller.ExpressionInfo.AnimationsFolder = folder;
@@ -79,19 +90,17 @@ namespace ExpressionUtility.UI
 		private void BuildAnimatorSelection(UIController controller)
 		{
 			var animatorLayers = controller.ExpressionInfo.AvatarDescriptor.baseAnimationLayers;
-			var animatorsHolder = controller.ContentFrame.Q<Foldout>("avatar-animators");
-			var activeAnimator = controller.ContentFrame.Q<ObjectField>("active-animator");
 			
 			void CleanObjectField(ObjectField field)
 			{
 				field.objectType = typeof(AnimatorController);
-				field.Q(null, "unity-object-field__selector").Display(false);
-				field.Q(null, "unity-object-field-display__label").Display(true);
+				field.RemoveObjectSelector();
+				// field.Q(null, "unity-object-field-display__label").Display(true);
 				field.RegisterValueChangedCallback(e => field.SetValueWithoutNotify(e.previousValue));
 			}
 
-			CleanObjectField(activeAnimator);
-			foreach (var objectField in animatorsHolder.Query<ObjectField>().Build().ToList())
+			CleanObjectField(_activeAnimator);
+			foreach (var objectField in _avatarAnimators.Query<ObjectField>().Build().ToList())
 			{
 				CleanObjectField(objectField);
 				switch (objectField.name)
@@ -117,26 +126,24 @@ namespace ExpressionUtility.UI
 					obj = !last.isDefault && last.animatorController != null ? last.animatorController as AnimatorController: null;
 				}
 				
-				activeAnimator.SetValueWithoutNotify(obj);
+				_activeAnimator.SetValueWithoutNotify(obj);
 				if (controller.ExpressionInfo.Controller != obj)
 				{
 					controller.ExpressionInfo.Controller = obj;
 				}
 
-				animatorsHolder.value = obj == null;
+				_avatarAnimators.value = obj == null;
 				ErrorValidate();
 			}
 		}
 		
 		private void BuildExpressionSelection(UIController controller)
 		{
-			var scroll = controller.ContentFrame.Q<ScrollView>("expression-buttons");
-			
 			foreach (ExpressionUI expressionUI in controller.Assets.UIAssets.SelectMany(u => u.Value))
 			{
 				if (expressionUI is IExpressionDefinition instance)
 				{
-					var btn = controller.Assets.ExpressionDefinitionPreviewButton.InstantiateTemplate<Button>(scroll.contentContainer);
+					var btn = controller.Assets.ExpressionDefinitionPreviewButton.InstantiateTemplate<Button>(_expressionScrollView.contentContainer);
 
 					expressionUI.Icon.mipMapBias = -1;
 					btn.Q<Label>("header").text = ObjectNames.NicifyVariableName(expressionUI.Name);
@@ -164,9 +171,8 @@ namespace ExpressionUtility.UI
 			{
 				label = "Expression menu",
 			};
-
-			var placeholder = controller.ContentFrame.Q("menu-selection");
-			controller.ContentFrame.Replace(placeholder, menuSelector);
+			
+			controller.ContentFrame.Replace(_menuSelectionPlaceholder, menuSelector);
 			
 			menuSelector.RegisterValueChangedCallback(e => SetMenu(e.newValue));
 			SetMenu(controller.ExpressionInfo.Menu);

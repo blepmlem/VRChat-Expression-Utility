@@ -14,9 +14,7 @@ namespace ExpressionUtility.UI
 		public static ObjectField CreateHolderField(Action selectionAction, string text)
 		{
 			var field = new ObjectField();
-			// field.AddToClassList("object-field-no-icon");
-			field.AddToClassList("object-field-no-selector");
-			field.AddToClassList("object-field-small");
+			field.RemoveObjectSelector();
 			var instance = CreateInstance<ObjectHolder>();
 			instance.name = $"{text}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 ";
 			instance.SelectionAction = selectionAction;

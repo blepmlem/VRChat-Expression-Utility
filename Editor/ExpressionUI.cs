@@ -28,5 +28,6 @@ namespace ExpressionUtility.UI
 		
 		public virtual void OnEnter(UIController controller, ExpressionUI previousUI){}
 		public virtual void OnExit(ExpressionUI nextUI){}
+		public virtual void BindControls(VisualElement root){}
 	}
 }

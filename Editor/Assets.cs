@@ -24,6 +24,10 @@ namespace ExpressionUtility.UI
 		[SerializeField]
 		private VisualTreeAsset _infoBox;
 
+		[SerializeField]
+		private VisualTreeAsset _avatarParameterDataRow;
+
+		public VisualTreeAsset AvatarParameterDataRow => _avatarParameterDataRow; 
 		public VisualTreeAsset MiniAvatar => _miniAvatar;
 		public VisualTreeAsset InfoBox => _infoBox;
 		public VisualTreeAsset AvatarSelectorButton => _avatarSelectorButton;

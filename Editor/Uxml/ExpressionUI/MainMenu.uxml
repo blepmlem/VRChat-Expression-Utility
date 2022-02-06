@@ -1,0 +1,11 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:Label text="Chose what to do" class="header--center">
+        <Style src="/Packages/com.uwu.vrc-expression-utility/Editor/Uxml/Styles.uss" />
+    </ui:Label>
+    <ui:Button text="Create an expression" name="create-expression-button" tooltip="Build an expression from a list of presets!" class="button button--big">
+        <Style src="/Packages/com.uwu.vrc-expression-utility/Editor/Uxml/Styles.uss" />
+    </ui:Button>
+    <ui:Button text="Avatar parameter data" name="avatar-parameter-data-button" tooltip="View all relationships between each parameter and associated animations/layers/menus" class="button button--big">
+        <Style src="/Packages/com.uwu.vrc-expression-utility/Editor/Uxml/Styles.uss" />
+    </ui:Button>
+</ui:UXML>

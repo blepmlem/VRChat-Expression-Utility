@@ -1,87 +1,37 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using UnityEditor;
-using UnityEditor.Animations;
-using UnityEditor.SceneManagement;
-using UnityEditor.UIElements;
-using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
-using VRC.SDK3.Avatars.Components;
-using VRC.SDK3.Avatars.ScriptableObjects;
 
 namespace ExpressionUtility.UI
 {
-	internal class AvatarDataWindow : EditorWindow
+	internal class AvatarParameterData : ExpressionUI
 	{
-		[SerializeField]
-		private VisualTreeAsset _layout;
+		private VisualTreeAsset _dataRow;
+		private ScrollView _scrollView;
 		
-		[SerializeField]
-		private VisualTreeAsset _rowLayout;
-
-		[SerializeField]
-		private VRCAvatarDescriptor _avatarDescriptor;
-
-		private bool _initialized;
-
-		[MenuItem("Expression Utility/Avatar Data")]
-		public static void GetWindow()
+		public override void BindControls(VisualElement root)
 		{
-			var vrcAvatarDescriptor = StageUtility.GetCurrentStageHandle().FindComponentsOfType<VRCAvatarDescriptor>().Where(d => d.gameObject.activeInHierarchy).ToList().FirstOrDefault();
-			CreateWindow(vrcAvatarDescriptor, false);
+			_scrollView = root.Q<ScrollView>("scrollView");
 		}
 
-		public static AvatarDataWindow CreateWindow(VRCAvatarDescriptor avatarDescriptor, bool asModal)
+		public override void OnEnter(UIController controller, ExpressionUI previousUI)
 		{
-			var window = GetWindow<AvatarDataWindow>();
-			window._avatarDescriptor = avatarDescriptor;
+			_dataRow = controller.Assets.AvatarParameterDataRow;
+			BuildLayout(controller.ExpressionInfo);
+		}
+
+		private void BuildLayout(ExpressionInfo controllerExpressionInfo)
+		{
+			var def = new AvatarDefinition(controllerExpressionInfo.AvatarDescriptor);
 			
-			if (asModal)
-			{
-				window.ShowModal();
-			}
-			else
-			{
-				window.Show();
-			}
-			
-			return window.Initialize();
-		}
-
-		private void OnEnable()
-		{
-			Initialize();
-		}
-
-		private AvatarDataWindow Initialize()
-		{
-			if (_initialized || _avatarDescriptor == null)
-			{
-				return this;
-			}
-			
-			this.SetAntiAliasing(4);
-			titleContent = EditorGUIUtility.TrTextContentWithIcon("Avatar Data", "NetworkAnimator Icon");
-			_layout.CloneTree(rootVisualElement);
-			BuildLayout();
-			_initialized = true;
-			return this;
-		}
-
-		private void BuildLayout()
-		{
-			var def = new AvatarDefinition(_avatarDescriptor);
-			var scroll = rootVisualElement.Q<ScrollView>("scrollview");
 
 			var parameters = def.Children.OfType<ParameterDefinition>();
 			foreach (ParameterDefinition parameterDefinition in parameters)
 			{
 				var parameter = parameterDefinition.Name;
-				var row = _rowLayout.InstantiateTemplate(scroll.contentContainer);
-				row.Q("parameter").Add(ObjectHolder.CreateHolderField(() => Selection.activeObject = def.VrcExpressionParameters, parameter));
+				var row = _dataRow.InstantiateTemplate(_scrollView.contentContainer);
+				row.Q("parameter").Add(ObjectHolder.CreateHolderField(() => Selection.activeObject = def.VrcExpressionParameters, $"{parameter} ({parameterDefinition.Type})"));
 				
 				foreach (AnimatorLayerDefinition l in GetLayers(def, parameter))
 				{

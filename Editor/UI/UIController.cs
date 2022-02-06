@@ -121,6 +121,7 @@ namespace ExpressionUtility.UI
 			}
 
 			SetExpressionInfoBoxActive(instance, ExpressionInfo);
+			_activeContent.BindControls(ContentFrame);
 			_activeContent.OnEnter(this, previousContent);
 		}
 

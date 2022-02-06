@@ -84,3 +84,5 @@ MonoBehaviour:
     type: 3}
   _infoBox: {fileID: 9197481963319205126, guid: a3d666f4b9845ae4ea5c5d8b2bf6d7ce,
     type: 3}
+  _avatarParameterDataRow: {fileID: 9197481963319205126, guid: ad2d4270b8a51d047a242c2edbab24f8,
+    type: 3}

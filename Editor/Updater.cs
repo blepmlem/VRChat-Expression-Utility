@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -7,6 +8,7 @@ using ICSharpCodeRenamedToAvoidConflictWithOldSDKs.SharpZipLib.Zip;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEditor;
+using UnityEditor.PackageManager.UI;
 using UnityEngine;
 using UnityEngine.Networking;
 using Version = System.Version;
@@ -15,16 +17,13 @@ namespace ExpressionUtility
 {
 	internal class Updater
 	{
-		private const string URL = "https://api.github.com/repos/blepmlem/VRChat-Expression-Utility/releases/latest";
+		private const string TAGS_URL = "https://api.github.com/repos/blepmlem/VRChat-Expression-Utility/tags";
 
-		private const string GITHUB = "https://github.com/blepmlem/VRChat-Expression-Utility";
-
-		private const string GITHUB_RELEASES = GITHUB + "/releases";
-	
+		private const string GIT_URL = "https://github.com/blepmlem/VRChat-Expression-Utility.git";
+		
 		private const string PACKAGE_PATH = "Packages/com.uwu.vrc-expression-utility/package.json";
-	
-		private string _latestVersionPath;
-		private TaskCompletionSource<string> _latestVersionTcs;
+
+		private TaskCompletionSource<Version> _latestVersionTcs;
 
 		public Version LatestVersion { get; private set; }
 
@@ -45,20 +44,20 @@ namespace ExpressionUtility
 			}
 		}
 
-		public void OpenGitHub() => Application.OpenURL(GITHUB_RELEASES);
+		public void OpenGitHub() => Application.OpenURL(GIT_URL);
 
+		[MenuItem("Expression Utility/Check for updates")]
+		private static void CheckForUpdates()
+		{
+			Create();
+		}
+		
 		public static async Task<Updater> Create()
 		{
 			var updater = new Updater();
-			updater._latestVersionPath = await updater.GetLatestVersionPath();
+			var newest = await updater.GetLatestVersion();
 
-			if (string.IsNullOrEmpty(updater._latestVersionPath))
-			{
-				return null;
-			}
-		
-			var version = Regex.Match(updater._latestVersionPath,"(?<=download/)(.*)(?=/)");
-			updater.LatestVersion = new Version(version.Value);
+			updater.LatestVersion = newest;
 		
 			dynamic obj = JObject.Parse(File.ReadAllText(PACKAGE_PATH));
 			var v = obj["version"];
@@ -67,59 +66,66 @@ namespace ExpressionUtility
 			return updater;
 		}
 	
+		// UnityEditor.PackageManager.Client.
+		
 		public async Task Update(Action OnComplete = null)
 		{
-			if (!HasNewerVersion || string.IsNullOrEmpty(_latestVersionPath))
+			if (!HasNewerVersion)
 			{
 				return;
 			}
 
-			IsUpdating = true;
+			var gitString = $"{GIT_URL}#{LatestVersion}";
+			//
+			//
+			//
+			// IsUpdating = true;
 			var tcs = new TaskCompletionSource<bool>();
-			var http = UnityWebRequest.Get(_latestVersionPath);
-			var req = http.SendWebRequest();
-			req.completed += operation =>
-			{
-				if (http.isHttpError || http.isNetworkError)
-				{
-					tcs.TrySetResult(false);
-				}
-				else
-				{
-					try
-					{
-						var data = req.webRequest.downloadHandler.data;
-
-						if (data != null)
-						{
-							var stream = new MemoryStream(data);
-							var file = new FastZip();
-							file.ExtractZip(stream, "Packages", FastZip.Overwrite.Always, null, null, null, true, true);
-							AssetDatabase.Refresh();
-							tcs.TrySetResult(true);
-						}
-					}
-					catch (Exception)
-					{
-						tcs.TrySetResult(false);
-					}
-				}
-				http.Dispose();
-			};
+			// var http = UnityWebRequest.Get(_latestVersionPath);
+			// var req = http.SendWebRequest();
+			// req.completed += operation =>
+			// {
+			// 	if (http.isHttpError || http.isNetworkError)
+			// 	{
+			// 		tcs.TrySetResult(false);
+			// 	}
+			// 	else
+			// 	{
+			// 		try
+			// 		{
+			// 			var data = req.webRequest.downloadHandler.data;
+			//
+			// 			if (data != null)
+			// 			{
+			// 				var stream = new MemoryStream(data);
+			// 				var file = new FastZip();
+			// 				file.ExtractZip(stream, "Packages", FastZip.Overwrite.Always, null, null, null, true, true);
+			// 				AssetDatabase.Refresh();
+			// 				tcs.TrySetResult(true);
+			// 			}
+			// 		}
+			// 		catch (Exception)
+			// 		{
+			// 			tcs.TrySetResult(false);
+			// 		}
+			// 	}
+			// 	http.Dispose();
+			// };
 
 			await tcs.Task;
 			OnComplete?.Invoke();
 		}
 
-		private Task<string> GetLatestVersionPath()
+		private Task<Version> GetLatestVersion()
 		{
 			if (_latestVersionTcs != null)
 			{
 				return _latestVersionTcs.Task;
 			}
-			
-			_latestVersionTcs = new TaskCompletionSource<string>();
-			var http = UnityWebRequest.Get(URL);
+
+			var versions = new List<Version>();
+			_latestVersionTcs = new TaskCompletionSource<Version>();
+			var http = UnityWebRequest.Get(TAGS_URL);
 			var req = http.SendWebRequest();
 			req.completed += operation =>
 			{
@@ -129,23 +135,31 @@ namespace ExpressionUtility
 				}
 				else
 				{
-					string output = null;
 					try
 					{
 						var txt = req.webRequest.downloadHandler.text;
 						dynamic obj = JsonConvert.DeserializeObject(txt);
-						if (obj?.assets is JArray assets)
+						if (obj is JArray assets)
 						{
 							foreach (JToken jToken in assets)
 							{
-								var o = jToken.FirstOrDefault(j => (j as JProperty)?.Name == "browser_download_url");
-								if (o == null)
+								try
 								{
-									continue;
+									var o = jToken.FirstOrDefault(j => (j as JProperty)?.Name == "name");
+									if (o == null)
+									{
+										continue;
+									}
+
+									var result = o.FirstOrDefault();
+									var versionString = result.Value<string>();
+									var version = new Version(versionString);
+									versions.Add(version);
 								}
-							
-								var result = o.Children().FirstOrDefault();
-								output = result?.Value<string>();
+								catch (Exception)
+								{
+									// ignored
+								}
 							}
 						}
 					}
@@ -153,8 +167,11 @@ namespace ExpressionUtility
 					{
 						// ignored
 					}
-
-					_latestVersionTcs.TrySetResult(output);
+					
+					versions.Sort();
+					versions.Reverse();
+					var newest = versions.FirstOrDefault();
+					_latestVersionTcs.TrySetResult(newest);
 				}
 				http.Dispose();
 			};

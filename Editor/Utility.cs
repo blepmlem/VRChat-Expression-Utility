@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEditor.Animations;
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 using VRC.Core;
@@ -319,7 +320,10 @@ namespace ExpressionUtility
 				yield return sub;
 			}
 		}
-		
+
+		public static void RemoveObjectSelector(this ObjectField field) => field.AddToClassList("object-field--no-selector");
+		public static void RemoveIcon(this ObjectField field) => field.AddToClassList("object-field--no-icon");
+
 		public static IEnumerable<VRCExpressionsMenu> GetMenusRecursively(this VRCExpressionsMenu menu)
 		{
 			yield return menu;

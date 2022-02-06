@@ -126,7 +126,7 @@
     padding-right: 6px;
     padding-top: 3px;
     padding-bottom: 3px;
-    min-height: 40px;
+    min-height: 50px;
     -unity-font-style: normal;
     margin-left: 4px;
     margin-right: 4px;

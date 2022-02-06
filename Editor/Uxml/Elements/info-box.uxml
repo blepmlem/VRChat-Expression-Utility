@@ -1,6 +1,6 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
     <uie:Toolbar name="info-box" class="info-box" style="flex-grow: 0; height: auto; align-items: center; display: flex; flex-shrink: 0;">
-        <Style src="/Packages/com.uwu.vrc-expression-utility/Editor/Uxml/Styles.uss" />
+        <Style src="/Packages/com.blep.vrc-expression-utility/Editor/Uxml/Styles.uss" />
         <ui:VisualElement name="icon" style="min-width: 16px; min-height: 16px; flex-shrink: 0;" />
         <ui:VisualElement style="flex-grow: 1; padding-left: 3px;">
             <ui:Label name="text" style="-unity-text-align: upper-left; flex-grow: 1; white-space: normal;" />

@@ -21,7 +21,7 @@ namespace ExpressionUtility
 
 		private const string GIT_URL = "https://github.com/blepmlem/VRChat-Expression-Utility.git";
 		
-		private const string PACKAGE_PATH = "Packages/com.uwu.vrc-expression-utility/package.json";
+		private const string PACKAGE_PATH = "Packages/com.blep.vrc-expression-utility/package.json";
 
 		private TaskCompletionSource<Version> _latestVersionTcs;
 

@@ -1,6 +1,6 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
     <ui:VisualElement name="main" style="flex-grow: 1;">
-        <Style src="/Packages/com.uwu.vrc-expression-utility/Editor/Uxml/Styles.uss" />
+        <Style src="/Packages/com.blep.vrc-expression-utility/Editor/Uxml/Styles.uss" />
         <uie:Toolbar style="display: none;">
             <uie:ObjectField label="Avatar" name="avatar" class="object-field-no-selector" style="flex-grow: 1;" />
         </uie:Toolbar>

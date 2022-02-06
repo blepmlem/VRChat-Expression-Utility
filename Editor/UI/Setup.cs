@@ -204,7 +204,7 @@ namespace ExpressionUtility.UI
 			bool folderEmpty = expressionInfo.AnimationsFolder == null;
 			bool invalidFolder = !folderEmpty && !Directory.Exists(AssetDatabase.GetAssetPath(expressionInfo.AnimationsFolder));
 			bool missingRootMenu = !expressionInfo.AvatarDescriptor.expressionsMenu;
-			bool menuIsNone = !expressionInfo.Menu;
+			bool menuIsNone = !missingRootMenu && !expressionInfo.Menu;
 			bool invalidAnimator = expressionInfo.Controller == null;
 			bool noValidAnim = controllerLayers.All(a => a.animatorController == null || a.isDefault);
 			bool notFxLayer = !invalidAnimator && expressionInfo.Controller != controllerLayers.LastOrDefault().animatorController;

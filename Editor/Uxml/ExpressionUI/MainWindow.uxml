@@ -1,7 +1,7 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
-    <ui:Template name="expression-info-box" src="/Packages/com.uwu.vrc-expression-utility/Editor/Uxml/Elements/expression-info-box.uxml" />
+    <ui:Template name="expression-info-box" src="/Packages/com.blep.vrc-expression-utility/Editor/Uxml/Elements/expression-info-box.uxml" />
     <ui:VisualElement name="main" style="flex-grow: 1;">
-        <Style src="/Packages/com.uwu.vrc-expression-utility/Editor/Uxml/Styles.uss" />
+        <Style src="/Packages/com.blep.vrc-expression-utility/Editor/Uxml/Styles.uss" />
         <uie:Toolbar name="navigation" style="justify-content: flex-start; border-left-width: 0; border-right-width: 0; border-top-width: 1px; border-bottom-width: 1px; flex-shrink: 0;" />
         <ui:VisualElement name="right-align" style="flex-grow: 1; flex-direction: row; flex-shrink: 1;">
             <ui:VisualElement name="down-align" style="flex-grow: 1;">

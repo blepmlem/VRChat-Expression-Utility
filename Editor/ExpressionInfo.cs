@@ -34,6 +34,10 @@ namespace ExpressionUtility
 
 			_avatarInfo = info;
 			_controller = info.VrcAvatarDescriptor.baseAnimationLayers.LastOrDefault().animatorController as AnimatorController;
+			if (Menu == null && AvatarDescriptor.expressionsMenu != null)
+			{
+				Menu = AvatarDescriptor.expressionsMenu.GetMenusRecursively().FirstOrDefault();
+			}
 			_avatarWasUpdated?.Invoke(this);
 		}
 

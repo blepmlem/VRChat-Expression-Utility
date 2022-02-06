@@ -164,9 +164,17 @@ namespace ExpressionUtility.UI
 				return;
 			}
 
-			string PrettifyName(VRCExpressionsMenu arg) => arg.name;
+			string PrettifyName(VRCExpressionsMenu arg)
+			{
+				if (arg == null)
+				{
+					return "None";
+				}
+				return arg.name;
+			}
 
-			var menus = Utility.GetMenusRecursively(menu).ToList();
+			var menus = menu.GetMenusRecursively().ToList();
+			menus.Add(null);
 			var menuSelector = new PopupField<VRCExpressionsMenu>(menus, menu, PrettifyName, PrettifyName)
 			{
 				label = "Expression menu",
@@ -179,11 +187,6 @@ namespace ExpressionUtility.UI
 
 			void SetMenu(VRCExpressionsMenu obj)
 			{
-				if (obj == null || !menus.Contains(obj))
-				{
-					obj = menus.FirstOrDefault();
-				}
-				
 				menuSelector.SetValueWithoutNotify(obj);
 				if (controller.ExpressionInfo.Menu != obj)
 				{
@@ -201,6 +204,7 @@ namespace ExpressionUtility.UI
 			bool folderEmpty = expressionInfo.AnimationsFolder == null;
 			bool invalidFolder = !folderEmpty && !Directory.Exists(AssetDatabase.GetAssetPath(expressionInfo.AnimationsFolder));
 			bool missingRootMenu = !expressionInfo.AvatarDescriptor.expressionsMenu;
+			bool menuIsNone = !expressionInfo.Menu;
 			bool invalidAnimator = expressionInfo.Controller == null;
 			bool noValidAnim = controllerLayers.All(a => a.animatorController == null || a.isDefault);
 			bool notFxLayer = !invalidAnimator && expressionInfo.Controller != controllerLayers.LastOrDefault().animatorController;
@@ -209,6 +213,7 @@ namespace ExpressionUtility.UI
 			bool nameEmpty = string.IsNullOrEmpty(expressionInfo.ExpressionName);
 			bool inUse = !nameEmpty && (layerNameExists || parameterExists);
 
+			_messages.SetActive(menuIsNone, "menu-is-none");
 			_messages.SetActive(nameEmpty, "give-expr-name");
 			_messages.SetActive(inUse, "expr-in-use");
 			_messages.SetActive(invalidAnimator, "select-valid-animator");

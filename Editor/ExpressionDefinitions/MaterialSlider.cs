@@ -68,16 +68,16 @@ namespace ExpressionUtility
 				label = "Material slot",
 			};
 
-			selector.RegisterValueChangedCallback(e => SetMenu(e.newValue));
+			selector.RegisterValueChangedCallback(e => SetMaterial(e.newValue));
 				
-			void SetMenu(int obj)
+			void SetMaterial(int obj)
 			{
 				selector.SetValueWithoutNotify(obj);
 				_materialSlot = obj;
 				ErrorValidate();
 			}
 
-			SetMenu(_materialSlot);
+			SetMaterial(_materialSlot);
 			holder.Add(selector);
 		}
 
@@ -188,7 +188,10 @@ namespace ExpressionUtility
 			exitTransition.AddCondition(AnimatorConditionMode.Less, 0.01f, expName);
 
 			AnimUtility.AddVRCExpressionsParameter(_expressionInfo.AvatarDescriptor, VRCExpressionParameters.ValueType.Float, expName, _dirtyAssets);
-			AnimUtility.AddVRCExpressionsMenuControl(_expressionInfo.Menu, ControlType.RadialPuppet, expName, _dirtyAssets);
+			if(_expressionInfo.Menu != null)
+			{
+				AnimUtility.AddVRCExpressionsMenuControl(_expressionInfo.Menu, ControlType.RadialPuppet, expName, _dirtyAssets);
+			}
 
 			_dirtyAssets.SetDirty();
 			controller.AddObjectsToAsset(stateMachine, empty, state, anyStateTransition, exitTransition, blendTree);

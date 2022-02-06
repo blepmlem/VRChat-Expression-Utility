@@ -162,7 +162,10 @@ namespace ExpressionUtility
 			exitTransition.AddCondition(AnimatorConditionMode.IfNot, 0, expName);
 
 			AnimUtility.AddVRCExpressionsParameter(_expressionInfo.AvatarDescriptor, VRCExpressionParameters.ValueType.Bool, expName, _dirtyAssets);
-			AnimUtility.AddVRCExpressionsMenuControl(_expressionInfo.Menu, ControlType.Toggle, expName, _dirtyAssets);
+			if(_expressionInfo.Menu != null)
+			{
+				AnimUtility.AddVRCExpressionsMenuControl(_expressionInfo.Menu, ControlType.Toggle, expName, _dirtyAssets);
+			}
 
 			_dirtyAssets.SetDirty();
 			controller.AddObjectsToAsset(stateMachine, toggleState, anyStateTransition, exitTransition, empty);

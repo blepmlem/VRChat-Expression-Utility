@@ -76,6 +76,10 @@ MonoBehaviour:
     MessageType: 1
     Text: Decide whether the expression should create a new empty animation, or if
       you wish to use a pre-existing animation
+  - Identifier: menu-is-none
+    MessageType: 2
+    Text: You've chosen not to use a menu. This will mean that you must create a
+      menu control manually later before your toggle can be used.
   _miniAvatar: {fileID: 9197481963319205126, guid: a38f02644114c3e40ae93feea8f74473,
     type: 3}
   _avatarSelectorButton: {fileID: 9197481963319205126, guid: 3a6620e1239272c4aafcf3db86a956e1,

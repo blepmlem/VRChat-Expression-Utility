@@ -1,5 +1,6 @@
 ## Quick Install Guide
-Open Unity's Package Manager and add the git url `https://github.com/blepmlem/VRChat-Expression-Utility.git#2.0.0`
+Open Unity's Package Manager and add the git url 
+```https://github.com/blepmlem/VRChat-Expression-Utility.git#2.0.0```
 # VRChat Expression Utility
 This tool allows you to skip all of the tedious work when setting up new expressions in SDK3 Avatars.
 With Expression Utility you can automatically generate every part of many common expressions based on presets; Quickly set up a new radial puppet for switching between outfits, a toggle for turning on a hat, and many more! 

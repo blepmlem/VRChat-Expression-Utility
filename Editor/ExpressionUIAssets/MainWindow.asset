@@ -14,5 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _name: Main Window
   _description: Main Window
-  _layout: {fileID: 9197481963319205126, guid: 5c53d2060dd8e46438f7229dafc53385, type: 3}
   _icon: {fileID: 0}
+  _infoBox: 
+  _layout: {fileID: 9197481963319205126, guid: 5c53d2060dd8e46438f7229dafc53385, type: 3}

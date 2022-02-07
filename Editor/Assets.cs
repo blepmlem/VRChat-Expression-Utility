@@ -60,7 +60,8 @@ namespace ExpressionUtility.UI
 				var path = AssetDatabase.GUIDToAssetPath(guid);
 				var asset = AssetDatabase.LoadAssetAtPath<ExpressionUI>(path);
 				var type = asset.GetType();
-				var instance = asset;
+				
+				var instance = EditorUtility.InstanceIDToObject(asset.GetInstanceID()) as ExpressionUI;
 				if (instance == null || instance == null)
 				{
 					continue;

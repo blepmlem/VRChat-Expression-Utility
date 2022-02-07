@@ -8,6 +8,7 @@ using UnityEngine;
 using VRC.Core;
 using VRC.SDK3.Avatars.Components;
 using Object = UnityEngine.Object;
+#pragma warning disable 4014
 
 namespace ExpressionUtility.UI
 {

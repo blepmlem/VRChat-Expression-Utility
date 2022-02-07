@@ -27,15 +27,18 @@
             </ui:VisualElement>
         </ui:VisualElement>
         <ui:VisualElement name="info-box" style="flex-shrink: 0;" />
-        <uie:Toolbar name="footer" style="height: auto; justify-content: flex-end; flex-shrink: 0;">
-            <uie:ToolbarButton name="github-button" class="footer-button">
-                <ui:VisualElement name="github-icon" style="background-image: url(&apos;/Packages/com.blep.vrc-expression-utility/Editor/Textures/T_Github_Light.png&apos;); height: 16px; width: 16px;" />
-                <ui:Label text="View on Github" class="footer-text" />
-            </uie:ToolbarButton>
-            <uie:ToolbarButton name="donate-button" class="footer-button">
-                <ui:VisualElement name="VisualElement" style="height: 16px; width: 16px; background-image: url(&apos;/Packages/com.blep.vrc-expression-utility/Editor/Textures/T_Heart.png&apos;);" />
-                <ui:Label text="Donate" class="footer-text" />
-            </uie:ToolbarButton>
-        </uie:Toolbar>
     </ui:VisualElement>
+    <uie:Toolbar name="footer" style="height: auto; justify-content: flex-end; flex-shrink: 0; flex-direction: row;">
+        <Style src="/Packages/com.blep.vrc-expression-utility/Editor/Uxml/Styles.uss" />
+        <ui:Label name="version-label" class="footer-text" />
+        <ui:VisualElement style="flex-grow: 1;" />
+        <uie:ToolbarButton name="github-button" class="footer-button">
+            <ui:VisualElement name="github-icon" style="background-image: url(&apos;/Packages/com.blep.vrc-expression-utility/Editor/Textures/T_Github_Light.png&apos;); height: 16px; width: 16px;" />
+            <ui:Label text="View on Github" class="footer-text" />
+        </uie:ToolbarButton>
+        <uie:ToolbarButton name="donate-button" class="footer-button">
+            <ui:VisualElement name="VisualElement" style="height: 16px; width: 16px; background-image: url(&apos;/Packages/com.blep.vrc-expression-utility/Editor/Textures/T_Heart.png&apos;);" />
+            <ui:Label text="Donate" class="footer-text" />
+        </uie:ToolbarButton>
+    </uie:Toolbar>
 </ui:UXML>

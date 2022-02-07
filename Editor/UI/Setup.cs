@@ -1,16 +1,11 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEditor.UIElements;
-using UnityEngine;
 using UnityEngine.UIElements;
-using VRC.SDK3.Avatars.Components;
 using VRC.SDK3.Avatars.ScriptableObjects;
-using Object = UnityEngine.Object;
 
 namespace ExpressionUtility.UI
 {
@@ -54,12 +49,12 @@ namespace ExpressionUtility.UI
 			_nameField.RegisterValueChangedCallback(e => SetName(e.newValue));
 			
 			SetName(controller.ExpressionInfo.ExpressionName);
-			void SetName(string name)
+			void SetName(string expressionName)
 			{
-				_nameField.SetValueWithoutNotify(name);
-				if (controller.ExpressionInfo.ExpressionName != name)
+				_nameField.SetValueWithoutNotify(expressionName);
+				if (controller.ExpressionInfo.ExpressionName != expressionName)
 				{
-					controller.ExpressionInfo.ExpressionName = name;
+					controller.ExpressionInfo.ExpressionName = expressionName;
 				}
 
 				ErrorValidate();
@@ -141,7 +136,7 @@ namespace ExpressionUtility.UI
 		{
 			foreach (ExpressionUI expressionUI in controller.Assets.UIAssets.SelectMany(u => u.Value))
 			{
-				if (expressionUI is IExpressionDefinition instance)
+				if (expressionUI is IExpressionDefinition)
 				{
 					var btn = controller.Assets.ExpressionDefinitionPreviewButton.InstantiateTemplate<Button>(_expressionScrollView.contentContainer);
 

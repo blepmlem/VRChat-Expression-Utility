@@ -19,7 +19,6 @@ namespace ExpressionUtility.UI
 		private readonly VisualElement _root;
 		private readonly ToolbarBreadcrumbs _breadcrumbs = new ToolbarBreadcrumbs();
 		private readonly EditorWindow _window;
-		private readonly Updater _updater;
 		public Messages Messages { get; }
 		public VisualElement ContentFrame { get; }
 		public Assets Assets { get; }
@@ -32,8 +31,7 @@ namespace ExpressionUtility.UI
 			Assets = assets;
 			_root = window.rootVisualElement;
 			_window = window;
-			_updater = new Updater();
-			
+
 			Assets.UIAssets.TryGetValue(typeof(MainWindow), out var mainWindow);
 			mainWindow?.FirstOrDefault()?.Layout.CloneTree(_root);
 
@@ -70,19 +68,21 @@ namespace ExpressionUtility.UI
 
 		private async Task SetupUpdater()
 		{
-			await _updater.CheckForUpdates();
+			var updater = await Updater.GetUpdater();
 			var updateBox = _root.Q("update-info");
 			var updateText = _root.Q<Label>("update-text");
 			var updateButton = _root.Q<Button>("update-button");
+			var versionLabel = _root.Q<Label>("version-label");
 			
-			updateBox.Display(_updater.HasNewerVersion);
-			updateText.text = $"There is a new update available!\nVersion {_updater.LatestOnlineVersion} is out now.";
+			versionLabel.text = $"Version {updater.CurrentVersion}";
+			updateBox.Display(updater.HasNewerVersion);
+			updateText.text = $"There is a new update available!\nVersion {updater.LatestOnlineVersion} is out now.";
 
 			void Clicked()
 			{
 				updateText.text = $"Now updating...";
 				updateButton.Display(false);
-				_updater.Update(Close);
+				updater.InstallUpdate(Close);
 			}
 
 			updateButton.clicked += Clicked;

@@ -2,13 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using ExpressionUtility;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
 using VRC.SDK3.Avatars.Components;
 using VRC.SDK3.Avatars.ScriptableObjects;
-using static VRC.SDK3.Avatars.ScriptableObjects.VRCExpressionParameters;
 using static VRC.SDK3.Avatars.ScriptableObjects.VRCExpressionsMenu.Control;
 using Object = UnityEngine.Object;
 
@@ -22,18 +20,18 @@ namespace ExpressionUtility
 			{
 				name = ObjectNames.NicifyVariableName(parameterName),
 				type = controlType,
-				subParameters = new VRCExpressionsMenu.Control.Parameter[1],
-				parameter = new VRCExpressionsMenu.Control.Parameter(),
+				subParameters = new Parameter[1],
+				parameter = new Parameter(),
 			};
 			
 			switch (controlType)
 			{
 				case ControlType.Button:
 				case ControlType.Toggle:
-					control.parameter = new VRCExpressionsMenu.Control.Parameter{name = parameterName};
+					control.parameter = new Parameter{name = parameterName};
 					break;
 				case ControlType.RadialPuppet:
-					control.subParameters[0] = new VRCExpressionsMenu.Control.Parameter{name = parameterName};
+					control.subParameters[0] = new Parameter{name = parameterName};
 					break;
 				default:
 					throw new ArgumentException(nameof(controlType), $"{controlType}", null);

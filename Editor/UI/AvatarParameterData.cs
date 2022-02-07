@@ -49,8 +49,6 @@ namespace ExpressionUtility.UI
 					{
 						continue;
 					}
-
-					var path = AssetDatabase.GetAssetPath(m.Motion);
 					
 					row.Q("motion").Add(ObjectHolder.CreateHolderField(() => Selection.activeObject = m.Motion, m.Motion.name));
 				}
@@ -65,16 +63,6 @@ namespace ExpressionUtility.UI
 					row.Q("menu").Add(ObjectHolder.CreateHolderField(() => Selection.activeObject = menu.Menu, menu.Menu.name));
 				}
 			}
-		}
-
-		private IEnumerable<AnimatorDefinition> GetAnimators(AvatarDefinition avatarDefinition, string parameter)
-		{
-			return avatarDefinition
-				.GetChildren<AnimatorDefinition>()
-				.Where(a => a
-					.GetChildren<ParameterDefinition>()
-					.Any(p => p.Name == parameter))
-				.Distinct().ToList();
 		}
 
 		private IEnumerable<AnimatorLayerDefinition> GetLayers(AvatarDefinition avatarDefinition, string parameter)

@@ -7,7 +7,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Unity.EditorCoroutines.Editor;
 using UnityEditor.PackageManager;
-using UnityEngine;
 using UnityEngine.Networking;
 using PackageInfo = UnityEditor.PackageManager.PackageInfo;
 using Version = System.Version;
@@ -21,16 +20,26 @@ namespace ExpressionUtility
 		private const string TAGS_URL = "https://api.github.com/repos/blepmlem/VRChat-Expression-Utility/tags";
 
 		private const string GIT_URL = "https://github.com/blepmlem/VRChat-Expression-Utility.git";
-		
-		private const string PACKAGE_PATH = "Packages/com.blep.vrc-expression-utility/package.json";
 
 		private TaskCompletionSource<Version> _latestVersionTcs;
-
+		
 		public Version LatestOnlineVersion { get; private set; }
 
 		public Version CurrentVersion { get; private set; }
 		
 		public PackageInfo PackageInfo { get; private set; }
+
+		private Updater()
+		{
+			
+		}
+
+		public static async Task<Updater> GetUpdater()
+		{
+			var instance = new Updater();
+			await instance.CheckForUpdates();
+			return instance;
+		}
 
 		public bool HasNewerVersion
 		{
@@ -45,9 +54,14 @@ namespace ExpressionUtility
 			}
 		}
 
-		public void OpenGitHub() => Application.OpenURL(GIT_URL);
-		
-		public async Task CheckForUpdates()
+		public async Task InstallUpdate(Action OnComplete = null)
+		{
+			var gitString = $"{GIT_URL}#{LatestOnlineVersion}";
+			await SetPackage(gitString);
+			OnComplete?.Invoke();
+		}
+
+		private async Task CheckForUpdates()
 		{
 			var latestOnlineVersionTask = GetLatestOnlineVersion();
 			var packageTask = GetPackage();
@@ -78,7 +92,7 @@ namespace ExpressionUtility
 			EditorCoroutineUtility.StartCoroutineOwnerless(Waiter());
 			return tcs.Task;
 		}
-		
+
 		private Task<bool> SetPackage(string packageId)
 		{
 			var tcs = new TaskCompletionSource<bool>();
@@ -99,13 +113,6 @@ namespace ExpressionUtility
 
 			EditorCoroutineUtility.StartCoroutineOwnerless(Waiter());
 			return tcs.Task;
-		}
-		
-		public async Task Update(Action OnComplete = null)
-		{
-			var gitString = $"{GIT_URL}#{LatestOnlineVersion}";
-			await SetPackage(gitString);
-			OnComplete?.Invoke();
 		}
 
 		private Task<Version> GetLatestOnlineVersion()
@@ -143,7 +150,7 @@ namespace ExpressionUtility
 										continue;
 									}
 
-									var result = o.FirstOrDefault();
+									var result = o.First();
 									var versionString = result.Value<string>();
 									var version = new Version(versionString);
 									versions.Add(version);

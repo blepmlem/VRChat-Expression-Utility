@@ -8,7 +8,7 @@ namespace ExpressionUtility.UI
 {
 	internal class ObjectHolder : ScriptableObject
 	{
-		public Action SelectionAction;
+		private Action _selectionAction;
 		
 		public static ObjectField CreateHolderField(Action selectionAction, string text)
 		{
@@ -16,7 +16,7 @@ namespace ExpressionUtility.UI
 			field.RemoveObjectSelector();
 			var instance = CreateInstance<ObjectHolder>();
 			instance.name = $"{text}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 ";
-			instance.SelectionAction = selectionAction;
+			instance._selectionAction = selectionAction;
 
 			void Callback(MouseDownEvent e)
 			{
@@ -32,7 +32,7 @@ namespace ExpressionUtility.UI
 		[CustomEditor(typeof(ObjectHolder))]
 		class HolderInspector : Editor
 		{
-			public override void OnInspectorGUI() => ((ObjectHolder)target).SelectionAction?.Invoke();
+			public override void OnInspectorGUI() => ((ObjectHolder)target)._selectionAction?.Invoke();
 		}
 	}
 }

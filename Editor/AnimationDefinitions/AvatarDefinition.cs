@@ -12,13 +12,19 @@ namespace ExpressionUtility
 			Name = descriptor.name;
 			AvatarDescriptor = descriptor;
 			VrcExpressionParameters = AvatarDescriptor.expressionParameters;
-			
-			foreach (var parameter in VrcExpressionParameters.parameters)
+
+			if (VrcExpressionParameters != null)
 			{
-				AddParameter(parameter);
+				foreach (var parameter in VrcExpressionParameters.parameters)
+				{
+					AddParameter(parameter);
+				}
 			}
 
-			AddMenu(descriptor.expressionsMenu);
+			if(descriptor.expressionsMenu != null)
+			{
+				AddMenu(descriptor.expressionsMenu);
+			}
 
 			var animators = descriptor.baseAnimationLayers;
 			for (var i = 0; i < animators.Length; i++)

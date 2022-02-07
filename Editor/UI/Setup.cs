@@ -211,7 +211,7 @@ namespace ExpressionUtility.UI
 			_messages.SetActive(menuIsNone, "menu-is-none");
 			_messages.SetActive(nameEmpty, "give-expr-name");
 			_messages.SetActive(inUse, "expr-in-use");
-			_messages.SetActive(invalidAnimator, "select-valid-animator");
+			_messages.SetActive(!noValidAnim && invalidAnimator, "select-valid-animator");
 			_messages.SetActive(noValidAnim, "no-valid-animators");
 			_messages.SetActive(notFxLayer, "not-fx-layer");
 			_messages.SetActive(missingRootMenu, "missing-root-menu");

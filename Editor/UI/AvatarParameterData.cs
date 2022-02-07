@@ -9,7 +9,8 @@ namespace ExpressionUtility.UI
 	{
 		private VisualTreeAsset _dataRow;
 		private ScrollView _scrollView;
-		
+		private Messages _messages;
+
 		public override void BindControls(VisualElement root)
 		{
 			_scrollView = root.Q<ScrollView>("scrollView");
@@ -18,14 +19,24 @@ namespace ExpressionUtility.UI
 		public override void OnEnter(UIController controller, ExpressionUI previousUI)
 		{
 			_dataRow = controller.Assets.AvatarParameterDataRow;
+			_messages = controller.Messages;
 			BuildLayout(controller.ExpressionInfo);
+			ErrorValidate(controller.ExpressionInfo);
+		}
+
+		private void ErrorValidate(ExpressionInfo expressionInfo)
+		{
+			var controllerLayers = expressionInfo.AvatarDescriptor.baseAnimationLayers;
+			bool missingRootMenu = !expressionInfo.AvatarDescriptor.expressionsMenu;
+			bool noValidAnim = controllerLayers.All(a => a.animatorController == null || a.isDefault);
+			_messages.SetActive(noValidAnim, "no-valid-animators");
+			_messages.SetActive(missingRootMenu, "missing-root-menu");
 		}
 
 		private void BuildLayout(ExpressionInfo controllerExpressionInfo)
 		{
 			var def = new AvatarDefinition(controllerExpressionInfo.AvatarDescriptor);
 			
-
 			var parameters = def.Children.OfType<ParameterDefinition>();
 			foreach (ParameterDefinition parameterDefinition in parameters)
 			{

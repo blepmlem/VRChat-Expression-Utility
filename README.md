@@ -17,7 +17,8 @@ Creating a new expression with the tool allows for the automatic generation of:
 - Animation Layers
 - Animation Clips
 
-Other features include the ability to view the relationships between each VRC parameter and any any associated objects; Animation Clips, Animator Layers, Conditions, Menus, etc.
+Other features include the ability to view/delete each VRC parameter and relationships with associated objects such as Animation Clips, Animator Layers, Conditions, Menus, etc.
+![image](https://user-images.githubusercontent.com/76069764/152883549-4908bc40-d70c-4abe-a76b-ffe08bfd45aa.png)
 
 Have fun! <3
 

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEditor.Animations;
 
 namespace ExpressionUtility
@@ -14,31 +15,36 @@ namespace ExpressionUtility
 			Mode = mode;
 			Threshold = threshold;
 			Name = name ?? parent.Name;
-			Parents.Add(parent);
-			AddParameter(mode, false, Name);
+			Parent = parent;
+			AddParameter(false, Name);
 		}
 
 		public ConditionDefinition(IAnimationDefinition parent, AnimatorCondition condition)
 		{
 			AnimatorCondition = condition;
 			Name = condition.parameter;
-			Parents.Add(parent);
+			Parent = parent;
 			Mode = condition.mode;
 			Threshold = condition.threshold;
-			AddParameter(condition.mode, true, Name);
+			AddParameter(true, Name);
 		}
 
-		public ParameterDefinition AddParameter(AnimatorConditionMode mode, bool isRealized,  string name)
+		public ParameterDefinition AddParameter(bool isRealized,  string name)
 		{
-			return Children.AddChild(new ParameterDefinition(this, mode, name) {IsRealized = isRealized});
+			return Children.AddChild(new ParameterDefinition(this, name) {IsRealized = isRealized});
 		}
 		
 		public string Name { get; }
 		public bool IsRealized => AnimatorCondition != null;
-		
+
+		public void DeleteSelf()
+		{
+	
+		}
+
 		public List<IAnimationDefinition> Children { get; } = new List<IAnimationDefinition>();
-		public List<IAnimationDefinition> Parents { get; } = new List<IAnimationDefinition>();
+		public IAnimationDefinition Parent { get; }
 		
-		public override string ToString() => $"[{GetType().Name}] {Name}";
+		public override string ToString() => $"{Name} (Condition)";
 	}
 }

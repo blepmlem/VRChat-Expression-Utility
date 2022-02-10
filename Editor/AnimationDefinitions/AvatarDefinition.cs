@@ -48,30 +48,15 @@ namespace ExpressionUtility
 				AddAnimator(animLayer.animatorController as AnimatorController, type);
 			}
 		}
-
-		public AnimatorDefinition AddAnimator(AnimatorDefinition.AnimatorType type, string name = null)
-		{
-			return Children.AddChild(new AnimatorDefinition(this, type, name));
-		}
-
+		
 		private AnimatorDefinition AddAnimator(AnimatorController animator, AnimatorDefinition.AnimatorType type)
 		{
 			return Children.AddChild(new AnimatorDefinition(this, animator, type));
 		}
-
-		public ParameterDefinition AddParameter(ParameterDefinition.ParameterType type, string name = null)
+		
+		public VrcParameterDefinition AddParameter(VRCExpressionParameters.Parameter parameter)
 		{
-			return Children.AddChild(new ParameterDefinition(this, name, type));
-		}
-
-		public ParameterDefinition AddParameter(VRCExpressionParameters.Parameter parameter)
-		{
-			return Children.AddChild(new ParameterDefinition(this, parameter));
-		}
-
-		public MenuDefinition AddMenu(string name = null)
-		{
-			return Children.AddChild(new MenuDefinition(this, name));
+			return Children.AddChild(ParameterFactory.Create(this, parameter));
 		}
 
 		public MenuDefinition AddMenu(VRCExpressionsMenu menu)
@@ -85,9 +70,17 @@ namespace ExpressionUtility
 		public string Name { get; }
 
 		public bool IsRealized => AvatarDescriptor != null;
-		public List<IAnimationDefinition> Children { get; } = new List<IAnimationDefinition>();
-		public List<IAnimationDefinition> Parents { get; } = new List<IAnimationDefinition>();		
+
+		private ParameterFactory ParameterFactory { get; } = new ParameterFactory();
 		
-		public override string ToString() => $"[{GetType().Name}] {Name}";
+		public void DeleteSelf()
+		{
+			$"That's a bit extreme isn't it?".Log();
+		}
+
+		public List<IAnimationDefinition> Children { get; } = new List<IAnimationDefinition>();
+		public IAnimationDefinition Parent { get; }		
+		
+		public override string ToString() => $"{Name} (Avatar)";
 	}
 }

@@ -2,7 +2,7 @@
     <ui:VisualElement name="row" class="row">
         <ui:VisualElement name="parameter" class="column" />
         <ui:VisualElement name="layer" class="column" />
-        <ui:VisualElement name="motion" class="column" />
+        <ui:VisualElement name="misc" class="column" />
         <ui:VisualElement name="menu" class="column" />
     </ui:VisualElement>
 </ui:UXML>

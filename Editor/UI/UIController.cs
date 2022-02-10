@@ -143,8 +143,11 @@ namespace ExpressionUtility.UI
 		public void SetFrame(ExpressionUI instance)
 		{
 			Messages.Clear();
-			_history.Push(instance);
-			_breadcrumbs.PushItem(ObjectNames.NicifyVariableName(instance.Name), () => NavigateHistory(instance));
+			if(instance != _activeContent)
+			{
+				_history.Push(instance);
+				_breadcrumbs.PushItem(ObjectNames.NicifyVariableName(instance.Name), () => NavigateHistory(instance));
+			}
 			ContentFrame.Clear();
 			
 			instance.Layout.CloneTree(ContentFrame);

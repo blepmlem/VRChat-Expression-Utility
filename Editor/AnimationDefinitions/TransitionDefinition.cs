@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEditor.Animations;
 
 namespace ExpressionUtility
@@ -8,7 +9,7 @@ namespace ExpressionUtility
 		public TransitionDefinition(IAnimationDefinition parent, StateDefinition from, StateDefinition to, string name = null)
 		{
 			Name = name ?? parent.Name;
-			Parents.Add(parent);
+			Parent = parent;
 			From = from;
 			To = to;
 		}
@@ -16,8 +17,8 @@ namespace ExpressionUtility
 		public TransitionDefinition(IAnimationDefinition parent, AnimatorTransitionBase transition, StateDefinition from, StateDefinition to)
 		{
 			StateTransition = transition;
-			Name = transition.name;
-			Parents.Add(parent);
+			Name = string.IsNullOrEmpty(transition.name) ? parent.Name : transition.name;
+			Parent = parent;
 			From = from;
 			To = to;
 
@@ -47,10 +48,18 @@ namespace ExpressionUtility
 
 		public bool IsRealized => StateTransition != null;
 
+		public void DeleteSelf()
+		{
+			if (StateTransition != null)
+			{
+				Undo.DestroyObjectImmediate(StateTransition);
+			}
+		}
+
 		public List<IAnimationDefinition> Children { get; } = new List<IAnimationDefinition>();
 
-		public List<IAnimationDefinition> Parents { get; } = new List<IAnimationDefinition>();
+		public IAnimationDefinition Parent { get; }
 
-		public override string ToString() => $"[{GetType().Name}] {Name}";
+		public override string ToString() => $"{Name} (Animator Transition)";
 	}
 }

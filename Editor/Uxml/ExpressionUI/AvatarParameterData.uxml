@@ -5,15 +5,25 @@
             <uie:ObjectField label="Avatar" name="avatar" class="object-field-no-selector" style="flex-grow: 1;" />
         </uie:Toolbar>
         <ui:VisualElement style="flex-grow: 1; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; border-left-width: 1px; border-right-width: 1px; border-top-width: 1px; border-bottom-width: 1px; margin-left: 6px; margin-right: 6px; margin-top: 6px; margin-bottom: 6px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89);">
-            <uie:Toolbar name="toolbar">
+            <uie:Toolbar name="toolbar" style="flex-shrink: 0;">
                 <ui:VisualElement style="flex-direction: row; flex-grow: 1; padding-right: 13px;">
                     <uie:ToolbarButton text="Parameter" picking-mode="Ignore" name="parameter" class="toolbar-header" />
                     <uie:ToolbarButton text="Layer" picking-mode="Ignore" name="layer" class="toolbar-header" />
-                    <uie:ToolbarButton text="Animation" picking-mode="Ignore" name="motion" class="toolbar-header" />
-                    <uie:ToolbarButton text="Menu" picking-mode="Ignore" name="menu" class="toolbar-header" style="border-right-width: 0;" />
+                    <uie:ToolbarButton text="Animation/Other" picking-mode="Ignore" name="motion" class="toolbar-header" />
+                    <uie:ToolbarButton text="Menu Control" picking-mode="Ignore" name="menu" class="toolbar-header" style="border-right-width: 0;" />
                 </ui:VisualElement>
             </uie:Toolbar>
-            <ui:ScrollView name="scrollView" style="flex-grow: 1;" />
+            <ui:VisualElement style="flex-direction: row; flex-grow: 1;">
+                <ui:ScrollView name="scrollView" style="flex-grow: 1;" />
+                <ui:VisualElement name="delete-element" style="border-left-width: 1px; border-right-width: 1px; border-top-width: 1px; border-bottom-width: 1px; flex-grow: 1; flex-shrink: 0; max-width: 140px;">
+                    <uie:Toolbar style="justify-content: flex-end; border-top-width: 1px; border-right-width: 1px; border-left-width: 1px; margin-right: 1px; margin-left: 1px; flex-shrink: 0;">
+                        <ui:Label text="Objects to delete" style="-unity-text-align: middle-left; font-size: 10px; display: none;" />
+                        <ui:VisualElement style="flex-grow: 1; display: none;" />
+                        <ui:Button text="DELETE OBJECTS!" name="button-delete" class="button--delete--big" style="flex-grow: 1;" />
+                    </uie:Toolbar>
+                    <ui:ScrollView name="deletion-list" />
+                </ui:VisualElement>
+            </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

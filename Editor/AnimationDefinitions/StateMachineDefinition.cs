@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 using UnityEditor.Animations;
 
 namespace ExpressionUtility
@@ -9,7 +10,7 @@ namespace ExpressionUtility
 		public StateMachineDefinition(IAnimationDefinition parent, string name = null)
 		{
 			Name = name ?? parent.Name;
-			Parents.Add(parent);
+			Parent = parent;
 			Entry = new StateDefinition(this, nameof(Entry)){Type = StateDefinition.StateType.Entry};
 			Exit = new StateDefinition(this, nameof(Exit)){Type = StateDefinition.StateType.Exit};
 			Any = new StateDefinition(this, nameof(Any)){Type = StateDefinition.StateType.Any};
@@ -17,10 +18,16 @@ namespace ExpressionUtility
 		
 		public StateMachineDefinition(IAnimationDefinition parent, AnimatorStateMachine stateMachine)
 		{
+			Parent = parent;
+			if (stateMachine == null)
+			{
+				$"StateMachine of parent {parent.Name} is null!".LogError();
+				return;
+			}
+			
 			StateMachine = stateMachine;
 			Name = stateMachine.name;
-			Parents.Add(parent);
-			
+
 			Entry = new StateDefinition(this, nameof(Entry)){Type = StateDefinition.StateType.Entry};
 			Exit = new StateDefinition(this, nameof(Exit)){Type = StateDefinition.StateType.Exit};
 			Any = new StateDefinition(this, nameof(Any)){Type = StateDefinition.StateType.Any};
@@ -86,10 +93,18 @@ namespace ExpressionUtility
 
 		public bool IsRealized => StateMachine != null;
 
+		public void DeleteSelf()
+		{
+			if(StateMachine != null)
+			{
+				Undo.DestroyObjectImmediate(StateMachine);
+			}
+		}
+
 		public List<IAnimationDefinition> Children { get; } = new List<IAnimationDefinition>();
 
-		public List<IAnimationDefinition> Parents { get; } = new List<IAnimationDefinition>();
+		public IAnimationDefinition Parent { get; }
 
-		public override string ToString() => $"[{GetType().Name}] {Name}";
+		public override string ToString() => $"{Name} (Animator State Machine)";
 	}
 }

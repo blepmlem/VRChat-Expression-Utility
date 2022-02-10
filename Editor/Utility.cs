@@ -169,20 +169,28 @@ namespace ExpressionUtility
 		{
 			try
 			{
+				
 				var type = Type.GetType("UnityEditor.Graphs.AnimatorControllerTool,UnityEditor.Graphs");
 				EditorApplication.ExecuteMenuItem("Window/Animation/Animator");
 				Selection.activeObject = animator;
-				var index = Array.FindIndex(animator.layers, l => l.name == layer.name);
-				var window = EditorWindow.GetWindow(type);
-				var prop = type?.GetProperties().FirstOrDefault(p => p.Name == "selectedLayerIndex");
-				prop?.GetSetMethod()?.Invoke(window, new object[]{index});
+				EditorApplication.delayCall += DelayCall;
+				
+				void DelayCall()
+				{
+					var index = Array.FindIndex(animator.layers, l => l.name == layer.name);
+					var window = EditorWindow.GetWindow(type);
+					var prop = type?.GetProperties().FirstOrDefault(p => p.Name == "selectedLayerIndex");
+					prop?.GetSetMethod()?.Invoke(window, new object[]{index});
+				}
 			}
 			catch (Exception)
 			{
 				// ignored
 			}
 		}
-		
+
+	
+
 		public static bool OwnsAnimator(this VRCAvatarDescriptor descriptor, RuntimeAnimatorController animator)
 		{
 			if (animator == null)
@@ -216,68 +224,8 @@ namespace ExpressionUtility
 			root.Remove(oldElement);
 		}
 
-		public static IEnumerable<T> GetChildren<T>(this IAnimationDefinition instance) where T : IAnimationDefinition
-		{
-			foreach (var child in instance.Children)
-			{
-				if (child is T value)
-				{
-					yield return value;
-				}
+		public static T NotNull<T>(this T obj) where T : Object => obj != null ? obj : null;
 
-				foreach (var t in child.GetChildren<T>())
-				{
-					yield return t;
-				}
-			}
-		}
-		
-		public static bool TryGetFirstChild<T>(this IAnimationDefinition instance, out T result) where T : IAnimationDefinition
-		{
-			result = default;
-			foreach (T child in GetChildren<T>(instance))
-			{
-				result = child;
-				return true;
-			}
-
-			return false;
-		}
-		
-		public static bool TryGetFirstParent<T>(this IAnimationDefinition instance, out T result) where T : IAnimationDefinition
-		{
-			result = default;
-			foreach (T parent in GetParents<T>(instance))
-			{
-				result = parent;
-				return true;
-			}
-
-			return false;
-		}
-		
-		public static IEnumerable<T> GetParents<T>(this IAnimationDefinition instance) where T : IAnimationDefinition
-		{
-			foreach (var parent in instance.Parents)
-			{
-				if (parent is T value)
-				{
-					yield return value;
-				}
-
-				foreach (var t in parent.GetParents<T>())
-				{
-					yield return t;
-				}
-			}
-		}
-
-		public static T AddChild<T>(this List<IAnimationDefinition> instance, T value) where T : IAnimationDefinition
-		{
-			instance?.Add(value);
-			return value;
-		}
-		
 		public static void Display(this VisualElement element, bool shouldDisplay)
 		{
 			if (element == null)
@@ -310,7 +258,22 @@ namespace ExpressionUtility
 				EditorUtility.SetDirty(o);
 			}
 		}
-		
+
+		public static void RemoveLayer(this AnimatorController controller, AnimatorControllerLayer layer)
+		{
+			if (controller == null)
+			{
+				return;
+			}
+			
+			var layers = controller.layers.ToList();
+			var index = layers.FindIndex(l => l.name == layer.name);
+			if(index >= 0)
+			{
+				controller.RemoveLayer(index);
+			}
+		}
+
 		public static IEnumerable<AnimatorStateMachine> GetAnimatorStateMachinesRecursively(this AnimatorStateMachine stateMachine)
 		{
 			yield return stateMachine;

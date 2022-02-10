@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
 
@@ -12,13 +13,13 @@ namespace ExpressionUtility
 		public AnimatorDefinition(IAnimationDefinition parent, AnimatorType type, string name = null)
 		{
 			Name = name ?? type.ToString();
-			Parents.Add(parent);
+			Parent = parent;
 		}
 
 		public AnimatorDefinition(IAnimationDefinition parent, AnimatorController animator, AnimatorType type)
 		{
 			bool animatorIsNull = animator == null;
-			Parents.Add(parent);
+			Parent = parent;
 			Animator = animator;
 			Name = animatorIsNull ? type.ToString() : animator.name;
 			Type = type;
@@ -37,32 +38,32 @@ namespace ExpressionUtility
 				AddParameter(parameter);
 			}
 		}
-
-		public AnimatorLayerDefinition AddLayer(string name = null)
-		{
-			return Children.AddChild(new AnimatorLayerDefinition(this, name));
-		}
-
+		
 		public AnimatorLayerDefinition AddLayer(AnimatorControllerLayer controllerLayer)
 		{
 			return Children.AddChild(new AnimatorLayerDefinition(this, controllerLayer));
 		}
-
-		public ParameterDefinition AddParameter(ParameterDefinition.ParameterType type, string name = null)
+		
+		public AnimatorParameterDefinition AddParameter(AnimatorControllerParameter parameter)
 		{
-			return Children.AddChild(new ParameterDefinition(this, name, type));
-		}
-
-		public ParameterDefinition AddParameter(AnimatorControllerParameter parameter)
-		{
-			return Children.AddChild(new ParameterDefinition(this, parameter));
+			return Children.AddChild(new AnimatorParameterDefinition(this, parameter));
 		}
 
 		public string Name { get; }
 		public bool IsRealized => Animator != null;
 		public AnimatorType Type { get; set; }
+		public void DeleteSelf()
+		{
+			if (Animator != null)
+			{
+				Undo.DestroyObjectImmediate(Animator);
+			}
+		}
+
+		public IEnumerable<AnimatorParameterDefinition> ParameterDefinitions => Children.OfType<AnimatorParameterDefinition>();
+
 		public List<IAnimationDefinition> Children { get; } = new List<IAnimationDefinition>();
-		public List<IAnimationDefinition> Parents { get; } = new List<IAnimationDefinition>();
+		public IAnimationDefinition Parent { get; }
 		
 		public enum AnimatorType
 		{
@@ -73,6 +74,6 @@ namespace ExpressionUtility
 			FX,
 		}
 		
-		public override string ToString() => $"[{GetType().Name}] {Name}";
+		public override string ToString() => $"{Name} (Animator)";
 	}
 }

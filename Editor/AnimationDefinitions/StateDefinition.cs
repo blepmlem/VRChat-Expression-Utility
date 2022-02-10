@@ -1,7 +1,9 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
+using VRC.SDK3.Avatars.Components;
 
 namespace ExpressionUtility
 {
@@ -18,15 +20,19 @@ namespace ExpressionUtility
 		public StateDefinition(StateMachineDefinition parent, string name = null)
 		{
 			Name = name ?? parent.Name;
-			Parents.Add(parent);
+			Parent = parent;
 		}
 		
-		public StateDefinition(StateMachineDefinition parent, AnimatorState state)
+		public StateDefinition(StateMachineDefinition parent, AnimatorState state) : this(parent)
 		{
 			Name = state.name;
-			Parents.Add(parent);
 			State = state;
 			AddMotion(state.motion);
+
+			foreach (VRCAvatarParameterDriver vrcAvatarParameterDriver in state.behaviours.OfType<VRCAvatarParameterDriver>())
+			{
+				AddParameterDriverDefinition(vrcAvatarParameterDriver);
+			}
 			
 			foreach (var transition in state.transitions)
 			{
@@ -48,23 +54,28 @@ namespace ExpressionUtility
 			
 			if(state.speedParameterActive)
 			{
-				SpeedParameter = AddParameter(state.speedParameter, ParameterDefinition.ParameterType.SpeedParameter, true);
+				SpeedParameter = AddParameter(state.speedParameter, nameof(state.speedParameter), true);
 			}
 
 			if(state.mirrorParameterActive)
 			{
-				MirrorParameter = AddParameter(state.mirrorParameter, ParameterDefinition.ParameterType.MirrorParameter, true);
+				MirrorParameter = AddParameter(state.mirrorParameter, nameof(state.mirrorParameter), true);
 			}
 
 			if(state.timeParameterActive)
 			{
-				TimeParameter = AddParameter(state.timeParameter, ParameterDefinition.ParameterType.TimeParameter, true);
+				TimeParameter = AddParameter(state.timeParameter, nameof(state.timeParameter), true);
 			}
 
 			if(state.cycleOffsetParameterActive)
 			{
-				CycleOffsetParameter = AddParameter(state.cycleOffsetParameter, ParameterDefinition.ParameterType.CycleOffsetParameter, true);
+				CycleOffsetParameter = AddParameter(state.cycleOffsetParameter, nameof(state.cycleOffsetParameter), true);
 			}
+		}
+
+		public VrcParameterDriverDefinition AddParameterDriverDefinition(VRCAvatarParameterDriver driver)
+		{
+			return Children.AddChild(new VrcParameterDriverDefinition(this, driver));
 		}
 		
 		public TransitionDefinition AddTransition(AnimatorTransitionBase transition, StateDefinition from, StateDefinition to)
@@ -80,9 +91,9 @@ namespace ExpressionUtility
 
 		public ParameterDefinition SpeedParameter { get; private set; }
 
-		public ParameterDefinition AddParameter(string parameter, ParameterDefinition.ParameterType type, bool isRealized)
+		public ParameterDefinition AddParameter(string parameter, string label, bool isRealized)
 		{
-			return Children.AddChild(new ParameterDefinition(this, parameter, type) {IsRealized = isRealized});
+			return Children.AddChild(new ParameterDefinition(this, parameter, label) {IsRealized = isRealized});
 		}
 
 		public MotionDefinition AddMotion(bool isBlendTree = false, string name = null) => Children.AddChild(new MotionDefinition(this, isBlendTree, name));
@@ -94,10 +105,15 @@ namespace ExpressionUtility
 		
 		public string Name { get; }
 		public bool IsRealized => State != null;
-		
+
+		public void DeleteSelf()
+		{
+			Undo.DestroyObjectImmediate(State);
+		}
+
 		public List<IAnimationDefinition> Children { get; } = new List<IAnimationDefinition>();
-		public List<IAnimationDefinition> Parents { get; } = new List<IAnimationDefinition>();
+		public IAnimationDefinition Parent { get; }
 						
-		public override string ToString() => $"[{GetType().Name}] {Name}";
+		public override string ToString() => $"{Name} (Animation State)";
 	}
 }

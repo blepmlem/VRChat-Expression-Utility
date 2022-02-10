@@ -99,16 +99,22 @@
 }
 
 .button--danger {
-    background-color: rgb(183, 28, 28);
+    background-color: rgb(128, 38, 38);
     color: rgb(255, 255, 255);
-    margin-left: 0;
+    margin-left: 2px;
     margin-right: 0;
-    margin-top: 0;
-    margin-bottom: 0;
+    margin-top: 1px;
+    margin-bottom: 1px;
     padding-left: 2px;
     padding-right: 2px;
-    padding-top: 2px;
-    padding-bottom: 2px;
+    padding-top: 0;
+    padding-bottom: 1px;
+    border-bottom-right-radius: 0;
+    border-top-right-radius: 0;
+    flex-shrink: 0;
+    -unity-text-align: middle-left;
+    -unity-font-style: bold;
+    border-right-width: 0;
 }
 
 .button--big {
@@ -174,4 +180,41 @@
 .footer-button {
     flex-direction: row;
     align-items: center;
+}
+
+.object-field--left-flushed {
+    margin-left: 0;
+    flex-shrink: 1;
+}
+
+.object-field--left-flushed .unity-object-field__input {
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+}
+
+.button--danger:hover, .button--delete--big:hover {
+    background-color: crimson;
+}
+
+.button--danger:active, .button--delete--big:active {
+    background-color: darkred;
+}
+
+.button--danger--green {
+    background-color: green;
+}
+
+.button--danger--green:hover {
+    background-color: greenyellow;
+}
+
+.button--danger--green:active {
+    background-color: darkgreen;
+}
+
+.button--delete--big {
+    flex-shrink: 0;
+    flex-grow: 0;
+    background-color: rgb(128, 38, 38);
+    color: rgb(255, 255, 255);
 }

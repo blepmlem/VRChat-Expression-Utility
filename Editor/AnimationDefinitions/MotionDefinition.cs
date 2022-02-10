@@ -10,27 +10,31 @@ namespace ExpressionUtility
 		public MotionDefinition(IAnimationDefinition parent, bool isBlendTree, string name = null)
 		{
 			Name = name ?? parent.Name;
-			Parents.Add(parent);
-			IsBlendTree = isBlendTree;
+			Parent = parent;
+			Type = isBlendTree ? MotionType.BlendTree : MotionType.AnimationClip;
 			IsRealized = false;
 		}
 
 		public MotionDefinition(IAnimationDefinition parent, Motion motion)
 		{
 			Name = motion != null ? motion.name : "NULL";
-			Parents.Add(parent);
+			Parent = parent;
 			Motion = motion;
-			IsBlendTree = motion is BlendTree;
+			Type = motion is BlendTree ? MotionType.BlendTree : MotionType.AnimationClip;
 			IsRealized = true;
 			if (motion is BlendTree blendTree)
 			{
 				if (!string.IsNullOrEmpty(blendTree.blendParameter))
 				{
-					BlendParameters.Add(Children.AddChild(new ParameterDefinition(this, blendTree.blendParameter, ParameterDefinition.ParameterType.Float)));
+					BlendParameters.Add(
+						Children.AddChild(
+							new ParameterDefinition(this, blendTree.blendParameter, nameof(blendTree.blendParameter))));
 				}
 				if (!string.IsNullOrEmpty(blendTree.blendParameterY))
 				{
-					BlendParameters.Add(Children.AddChild(new ParameterDefinition(this, blendTree.blendParameterY, ParameterDefinition.ParameterType.Float)));
+					BlendParameters.Add(
+						Children.AddChild(
+							new ParameterDefinition(this, blendTree.blendParameterY, nameof(blendTree.blendParameterY))));
 				}
 				foreach (ChildMotion blendTreeChild in blendTree.children)
 				{
@@ -52,15 +56,29 @@ namespace ExpressionUtility
 
 		public DefaultAsset CreationFolder { get; set; }
 		
-		public bool IsBlendTree { get; }
+		public MotionType Type { get; }
 		public Motion Motion { get; }
 
 		public readonly List<ParameterDefinition> BlendParameters = new List<ParameterDefinition>();
 		public string Name { get; }
 		public bool IsRealized { get; set; }
+		public void DeleteSelf()
+		{
+			if(Motion != null)
+			{
+				Undo.DestroyObjectImmediate(Motion);
+			}
+		}
+
 		public List<IAnimationDefinition> Children { get; } = new List<IAnimationDefinition>();
-		public List<IAnimationDefinition> Parents { get; } = new List<IAnimationDefinition>();				
+		public IAnimationDefinition Parent { get; }	
 		
-		public override string ToString() => $"[{GetType().Name}] {Name}";
+		public override string ToString() => $"{Name} ({Type})";
+		
+		public enum MotionType
+		{
+			AnimationClip,
+			BlendTree,
+		}
 	}
 }

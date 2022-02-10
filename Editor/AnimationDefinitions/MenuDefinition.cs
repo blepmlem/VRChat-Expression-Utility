@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 using VRC.SDK3.Avatars.ScriptableObjects;
 
 namespace ExpressionUtility
@@ -10,7 +11,7 @@ namespace ExpressionUtility
 		public MenuDefinition(IAnimationDefinition parent, VRCExpressionsMenu menu)
 		{
 			Name = menu.name;
-			Parents.Add(parent);
+			Parent = parent;
 			Menu = menu;
 			foreach (VRCExpressionsMenu.Control menuControl in menu.controls)
 			{
@@ -21,7 +22,7 @@ namespace ExpressionUtility
 		public MenuDefinition(IAnimationDefinition parent, string name = null)
 		{
 			Name = name ?? parent.Name;
-			Parents.Add(parent);
+			Parent = parent;
 		}
 
 		public MenuControlDefinition AddControl(string name = null)
@@ -37,9 +38,17 @@ namespace ExpressionUtility
 		public VRCExpressionsMenu Menu { get; }
 		public string Name { get; }
 		public bool IsRealized => Menu != null;
+		public void DeleteSelf()
+		{
+			if (Menu != null)
+			{
+				Undo.DestroyObjectImmediate(Menu);
+			}
+		}
+
 		public List<IAnimationDefinition> Children { get; } = new List<IAnimationDefinition>();
-		public List<IAnimationDefinition> Parents { get; } = new List<IAnimationDefinition>();
+		public IAnimationDefinition Parent { get; }
 		
-		public override string ToString() => $"[{GetType().Name}] {Name}";
+		public override string ToString() => $"{Name} (Menu)";
 	}
 }

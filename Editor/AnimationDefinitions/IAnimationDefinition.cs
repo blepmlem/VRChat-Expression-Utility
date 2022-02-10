@@ -8,7 +8,9 @@ namespace ExpressionUtility
 		string Name { get; }
 		bool IsRealized { get; }
 
+		void DeleteSelf();
+		
 		List<IAnimationDefinition> Children { get; }
-		List<IAnimationDefinition> Parents { get; }
+		IAnimationDefinition Parent { get; }
 	}
 }

@@ -1,6 +1,6 @@
 ## Quick Install Guide
 Edit: It has come to my attention that Unity's Package manager, while supporting git, does not come with any embedded git install. I am looking into solutions ^^
-For now, if you cannot install the package, you probably need to install git manually.
+For now, if you cannot install the package, you probably need to install git manually from https://git-scm.com/download/win
 
 Open Unity's Package Manager and add the git url 
 

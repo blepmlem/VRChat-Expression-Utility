@@ -1,4 +1,7 @@
 ## Quick Install Guide
+Edit: It has come to my attention that Unity's Package manager, while supporting git, does not come with any embedded git install. I am looking into solutions ^^
+For now, if you cannot install the package, you probably need to install git manually.
+
 Open Unity's Package Manager and add the git url 
 
 ```https://github.com/blepmlem/VRChat-Expression-Utility.git#2.0.0```

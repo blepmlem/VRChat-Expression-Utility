@@ -4,7 +4,7 @@ For now, if you cannot install the package, you probably need to install git man
 
 Open Unity's Package Manager and add the git url 
 
-```https://github.com/blepmlem/VRChat-Expression-Utility.git#2.1.2```
+```https://github.com/blepmlem/VRChat-Expression-Utility.git#2.1.3```
 
 # VRChat Expression Utility
 This tool allows you to skip all of the tedious work when setting up new expressions in SDK3 Avatars.
@@ -30,7 +30,7 @@ Have fun! <3
 - ![image](https://user-images.githubusercontent.com/76069764/152813742-9b63e08f-6d83-41dd-a3c9-64c0d880da38.png)
 - Click the `+` button in the top left corner of the `Package Manager` and select the `Add package from git URL...` item
 - ![image](https://user-images.githubusercontent.com/76069764/152813696-9ffa6922-fa5d-45ad-a688-a1bb4d2f3696.png)
-- Copy/paste `https://github.com/blepmlem/VRChat-Expression-Utility.git#2.1.2` into the textbox
+- Copy/paste `https://github.com/blepmlem/VRChat-Expression-Utility.git#2.1.3` into the textbox
 - ![image](https://user-images.githubusercontent.com/76069764/152814677-30c5e20c-5c65-4117-b16a-05ee94432896.png)
 - Expression Utility is now installed!
 - After installation, Expression Utility can be opened from the `Expression Utility` menu bar in Unity's toolbar

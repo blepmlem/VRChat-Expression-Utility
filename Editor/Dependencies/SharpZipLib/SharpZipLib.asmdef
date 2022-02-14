@@ -1,9 +1,6 @@
 {
-    "name": "com.blep.vrc-expression-utility.Editor",
-    "references": [
-        "GUID:61e924f1343583b4c9788b628662f910",
-        "GUID:478a2357cc57436488a56e564b08d223"
-    ],
+    "name": "SharpZipLib",
+    "references": [],
     "includePlatforms": [
         "Editor"
     ],
@@ -11,7 +8,7 @@
     "allowUnsafeCode": false,
     "overrideReferences": false,
     "precompiledReferences": [],
-    "autoReferenced": true,
+    "autoReferenced": false,
     "defineConstraints": [],
     "versionDefines": [],
     "noEngineReferences": false

@@ -30,11 +30,6 @@ namespace ExpressionUtility
 		public PackageInfo LocalPackage { get; private set; }
 
 
-		private Updater()
-		{
-
-		}
-
 		public static async Task<Updater> GetUpdater()
 		{
 			var instance = new Updater();
@@ -46,7 +41,6 @@ namespace ExpressionUtility
 		{
 			get
 			{
-				// return true;
 				if (LocalPackage == null || LatestOnlineVersion == null || !Version.TryParse(LocalPackage.version, out var packageVersion))
 				{
 					return false;
@@ -65,8 +59,22 @@ namespace ExpressionUtility
 
 			if(LocalPackageSource == PackageSource.Embedded)
 			{
-				return InstallEmbeddedUpdate(OnComplete);
+				var packageDirectory = new DirectoryInfo(LocalPackage.resolvedPath);
+				if (!packageDirectory.Exists)
+				{
+					$"Can't find embedded package directory".LogError();
+				}
+				else if(packageDirectory.GetDirectories().Any(d => d.Name == ".git"))
+				{
+					$"You have manually cloned the repository into your package folder. Update through your own git client, or install as a regular package!".LogError();
+				}
+				else
+				{
+					return InstallEmbeddedUpdate(OnComplete);
+				}
 			}
+			
+			
 
 			return Task.CompletedTask;
 		}
@@ -91,9 +99,8 @@ namespace ExpressionUtility
 						if (data != null)
 						{
 							const string PACKAGES = "Packages";
-							var oldPath = LocalPackage.resolvedPath;
-							var oldDirectory = new DirectoryInfo(oldPath);
-							
+							var oldDirectory = new DirectoryInfo(LocalPackage.resolvedPath);
+
 							var stream = new MemoryStream(data);
 							var file = new FastZip();
 							var packagesDirectory = new DirectoryInfo(PACKAGES);
@@ -110,17 +117,14 @@ namespace ExpressionUtility
 								return;
 							}
 
-							try
+							if (!oldDirectory.DeleteDirectoryRecursive())
 							{
-								oldDirectory.DeleteDirectoryRecursive();
-							}
-							catch (Exception e)
-							{
-								$"Failed to delete old version. Reason:\n {e}".LogError();
+								$"Failed to delete old version".LogError();
 								newDirectory.DeleteDirectoryRecursive();
 							}
-							
+
 							AssetDatabase.Refresh();
+							EditorApplication.delayCall += AssetDatabase.Refresh;
 							tcs.TrySetResult(true);
 						}
 					}
@@ -136,7 +140,7 @@ namespace ExpressionUtility
 			await tcs.Task;
 			OnComplete?.Invoke();
 		}
-		
+
 		private async Task InstallUpmUpdate(Action OnComplete = null)
 		{
 			var gitString = $"{GIT_URL}#{LatestOnlineVersion}";
@@ -240,5 +244,7 @@ namespace ExpressionUtility
 
 			return tcs.Task;
 		}
+
+		private Updater() { }
 	}
 }

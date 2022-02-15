@@ -1,10 +1,14 @@
 ## Quick Install Guide
-Edit: It has come to my attention that Unity's Package manager, while supporting git, does not come with any embedded git install. I am looking into solutions ^^
-For now, if you cannot install the package, you probably need to install git manually from https://git-scm.com/download/win
+### If you have git installed
+Unity's Package manager, while supporting git, does not come with any embedded git install, so this will only work if you have [git](https://git-scm.com/download/win) installed beforehand.
+- Open Unity's Package Manager and add the git url:
 
-Open Unity's Package Manager and add the git url 
+```https://github.com/blepmlem/VRChat-Expression-Utility.git#2.2.0```
 
-```https://github.com/blepmlem/VRChat-Expression-Utility.git#2.1.3```
+### If you do not have git installed
+- Download [the latest zip file here](https://github.com/blepmlem/VRChat-Expression-Utility/archive/refs/tags/2.2.0.zip) and unzip into your *Packages* which is located in the *root* of your Unity project folder.
+
+Both versions come with built in auto update functionality.
 
 # VRChat Expression Utility
 This tool allows you to skip all of the tedious work when setting up new expressions in SDK3 Avatars.
@@ -24,13 +28,3 @@ Other features include the ability to view/delete each VRC parameter and relatio
 ![image](https://user-images.githubusercontent.com/76069764/153480559-25a77c2f-4c14-4205-9946-06588f8f742a.png)
 
 Have fun! <3
-
-# Installation and use
-- Open the `Package Manager`
-- ![image](https://user-images.githubusercontent.com/76069764/152813742-9b63e08f-6d83-41dd-a3c9-64c0d880da38.png)
-- Click the `+` button in the top left corner of the `Package Manager` and select the `Add package from git URL...` item
-- ![image](https://user-images.githubusercontent.com/76069764/152813696-9ffa6922-fa5d-45ad-a688-a1bb4d2f3696.png)
-- Copy/paste `https://github.com/blepmlem/VRChat-Expression-Utility.git#2.1.3` into the textbox
-- ![image](https://user-images.githubusercontent.com/76069764/152814677-30c5e20c-5c65-4117-b16a-05ee94432896.png)
-- Expression Utility is now installed!
-- After installation, Expression Utility can be opened from the `Expression Utility` menu bar in Unity's toolbar

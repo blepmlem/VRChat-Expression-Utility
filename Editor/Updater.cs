@@ -150,10 +150,10 @@ namespace ExpressionUtility
 
 		private async Task CheckForUpdates()
 		{
-			var latestOnlineVersionTask = GetLatestOnlineVersion();
+			var latestOnlineVersionTask = GetOnlineVersions();
 			var packageTask = GetPackage();
 			await Task.WhenAll(packageTask, latestOnlineVersionTask);
-			LatestOnlineVersion = latestOnlineVersionTask.Result.FirstOrDefault();
+			LatestOnlineVersion = latestOnlineVersionTask.Result.LastOrDefault();
 			LocalPackage = packageTask.Result;
 		}
 
@@ -201,7 +201,7 @@ namespace ExpressionUtility
 			return tcs.Task;
 		}
 
-		private Task<List<GitPackage>> GetLatestOnlineVersion()
+		private Task<List<GitPackage>> GetOnlineVersions()
 		{
 			var versions = new List<GitPackage>();
 			var tcs = new TaskCompletionSource<List<GitPackage>>();
@@ -236,7 +236,6 @@ namespace ExpressionUtility
 					}
 					
 					versions.Sort();
-					versions.Reverse();
 					tcs.TrySetResult(versions);
 				}
 				http.Dispose();

@@ -74,7 +74,7 @@ namespace ExpressionUtility.UI
 			var updateButton = _root.Q<Button>("update-button");
 			var versionLabel = _root.Q<Label>("version-label");
 			
-			versionLabel.text = $"Version {updater.CurrentVersion}";
+			versionLabel.text = $"Version {updater.LocalPackage.version}";
 			updateBox.Display(updater.HasNewerVersion);
 			updateText.text = $"There is a new update available!\nVersion {updater.LatestOnlineVersion} is out now.";
 

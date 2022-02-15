@@ -1,11 +1,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using ICSharpCodeRenamedToAvoidConflictWithOldSDKs.SharpZipLib.Zip;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Unity.EditorCoroutines.Editor;
+using UnityEditor;
 using UnityEditor.PackageManager;
 using UnityEngine.Networking;
 using PackageInfo = UnityEditor.PackageManager.PackageInfo;
@@ -20,18 +23,17 @@ namespace ExpressionUtility
 		private const string TAGS_URL = "https://api.github.com/repos/blepmlem/VRChat-Expression-Utility/tags";
 
 		private const string GIT_URL = "https://github.com/blepmlem/VRChat-Expression-Utility.git";
-
-		private TaskCompletionSource<Version> _latestVersionTcs;
 		
-		public Version LatestOnlineVersion { get; private set; }
+		public GitPackage? LatestOnlineVersion { get; private set; }
 
-		public Version CurrentVersion { get; private set; }
+		public PackageSource? LocalPackageSource => LocalPackage?.source;
 		
-		public PackageInfo PackageInfo { get; private set; }
+		public PackageInfo LocalPackage { get; private set; }
+
 
 		private Updater()
 		{
-			
+
 		}
 
 		public static async Task<Updater> GetUpdater()
@@ -45,19 +47,94 @@ namespace ExpressionUtility
 		{
 			get
 			{
-				if (CurrentVersion == null || LatestOnlineVersion == null)
+				return true;
+				if (LocalPackage == null || LatestOnlineVersion == null || !Version.TryParse(LocalPackage.version, out var packageVersion))
 				{
 					return false;
 				}
-
-				return LatestOnlineVersion > CurrentVersion;
+				
+				return LatestOnlineVersion?.Version > packageVersion;
 			}
 		}
 
-		public async Task InstallUpdate(Action OnComplete = null)
+		public Task InstallUpdate(Action OnComplete = null)
+		{
+			if (LocalPackageSource == PackageSource.Git)
+			{
+				return InstallUpmUpdate(OnComplete);
+			}
+
+			if(LocalPackageSource == PackageSource.Embedded)
+			{
+				return InstallEmbeddedUpdate(OnComplete);
+			}
+
+			return Task.CompletedTask;
+		}
+
+		private async Task InstallEmbeddedUpdate(Action OnComplete = null)
+		{
+			var tcs = new TaskCompletionSource<bool>();
+			var http = UnityWebRequest.Get(LatestOnlineVersion?.ZipURL ?? string.Empty);
+			var req = http.SendWebRequest();
+			req.completed += operation =>
+			{
+				if (http.isHttpError || http.isNetworkError)
+				{
+					tcs.TrySetResult(false);
+				}
+				else
+				{
+					try
+					{
+						var data = req.webRequest.downloadHandler.data;
+						
+						if (data != null)
+						{
+							const string PACKAGES = "Packages";
+							
+							var stream = new MemoryStream(data);
+							var file = new FastZip();
+							var packagesBefore = Directory.EnumerateDirectories(PACKAGES).ToList();
+							
+							
+							file.ExtractZip(stream, PACKAGES, FastZip.Overwrite.Always, null, null, null, true, true);
+
+							var newFolder = Directory.EnumerateDirectories(PACKAGES).Except(packagesBefore).FirstOrDefault();
+
+							if (newFolder == null)
+							{
+								tcs.TrySetResult(false);
+								return;
+							}
+
+							var oldPath = LocalPackage.resolvedPath;
+							var oldDir = new DirectoryInfo(oldPath);
+							oldDir.Delete(true);
+							
+							var newDir = new DirectoryInfo(newFolder);
+							newDir.MoveTo(oldPath);
+							
+							AssetDatabase.Refresh();
+							tcs.TrySetResult(true);
+						}
+					}
+					catch (Exception)
+					{
+						tcs.TrySetResult(false);
+					}
+				}
+				http.Dispose();
+			};
+
+			await tcs.Task;
+			OnComplete?.Invoke();
+		}
+		
+		private async Task InstallUpmUpdate(Action OnComplete = null)
 		{
 			var gitString = $"{GIT_URL}#{LatestOnlineVersion}";
-			await SetPackage(gitString);
+			await SetUpmPackage(gitString);
 			OnComplete?.Invoke();
 		}
 
@@ -66,9 +143,8 @@ namespace ExpressionUtility
 			var latestOnlineVersionTask = GetLatestOnlineVersion();
 			var packageTask = GetPackage();
 			await Task.WhenAll(packageTask, latestOnlineVersionTask);
-			LatestOnlineVersion = latestOnlineVersionTask.Result;
-			PackageInfo = packageTask.Result;
-			CurrentVersion = new Version(PackageInfo.version);
+			LatestOnlineVersion = latestOnlineVersionTask.Result.FirstOrDefault();
+			LocalPackage = packageTask.Result;
 		}
 
 		private Task<PackageInfo> GetPackage()
@@ -93,7 +169,7 @@ namespace ExpressionUtility
 			return tcs.Task;
 		}
 
-		private Task<bool> SetPackage(string packageId)
+		private Task<bool> SetUpmPackage(string packageId)
 		{
 			var tcs = new TaskCompletionSource<bool>();
 			var req = Client.Add(packageId);
@@ -115,22 +191,17 @@ namespace ExpressionUtility
 			return tcs.Task;
 		}
 
-		private Task<Version> GetLatestOnlineVersion()
+		private Task<List<GitPackage>> GetLatestOnlineVersion()
 		{
-			if (_latestVersionTcs != null)
-			{
-				return _latestVersionTcs.Task;
-			}
-
-			var versions = new List<Version>();
-			_latestVersionTcs = new TaskCompletionSource<Version>();
+			var versions = new List<GitPackage>();
+			var tcs = new TaskCompletionSource<List<GitPackage>>();
 			var http = UnityWebRequest.Get(TAGS_URL);
 			var req = http.SendWebRequest();
 			req.completed += operation =>
 			{
 				if (http.isHttpError || http.isNetworkError)
 				{
-					_latestVersionTcs.SetResult(null);
+					tcs.SetResult(null);
 				}
 				else
 				{
@@ -142,22 +213,9 @@ namespace ExpressionUtility
 						{
 							foreach (JToken jToken in assets)
 							{
-								try
+								if (GitPackage.TryCreate(jToken, out var package))
 								{
-									var o = jToken.FirstOrDefault(j => (j as JProperty)?.Name == "name");
-									if (o == null)
-									{
-										continue;
-									}
-
-									var result = o.First();
-									var versionString = result.Value<string>();
-									var version = new Version(versionString);
-									versions.Add(version);
-								}
-								catch (Exception)
-								{
-									// ignored
+									versions.Add(package);
 								}
 							}
 						}
@@ -169,13 +227,12 @@ namespace ExpressionUtility
 					
 					versions.Sort();
 					versions.Reverse();
-					var newest = versions.FirstOrDefault();
-					_latestVersionTcs.TrySetResult(newest);
+					tcs.TrySetResult(versions);
 				}
 				http.Dispose();
 			};
 
-			return _latestVersionTcs.Task;
+			return tcs.Task;
 		}
 	}
 }

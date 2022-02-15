@@ -58,5 +58,10 @@ namespace ExpressionUtility
 			Version = version;
 			ZipURL = zipURL;
 		}
+
+		public override string ToString()
+		{
+			return Version?.ToString() ?? "?";
+		}
 	}
 }

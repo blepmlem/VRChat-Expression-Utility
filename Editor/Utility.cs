@@ -107,10 +107,50 @@ namespace ExpressionUtility
 			e.style.borderRightColor = color;
 			e.style.borderTopColor = color;
 		}
-
+		
 		public static bool Contains(this string source, string toCheck, StringComparison comp)
 		{
 			return source?.IndexOf(toCheck, comp) >= 0;
+		}
+
+		public static bool DeleteDirectoryRecursive(this DirectoryInfo directoryInfo)
+		{
+			if (directoryInfo == null)
+			{
+				return false;
+			}
+
+			try
+			{
+				return DeleteDirectoryRecursive(directoryInfo.FullName);
+			}
+			catch (Exception e)
+			{
+				$"{e}".LogError();
+				return false;
+			}
+		}
+		
+		private static bool DeleteDirectoryRecursive(this string targetDir)
+		{
+			File.SetAttributes(targetDir, FileAttributes.Normal);
+
+			string[] files = Directory.GetFiles(targetDir);
+			string[] dirs = Directory.GetDirectories(targetDir);
+
+			foreach (string file in files)
+			{
+				File.SetAttributes(file, FileAttributes.Normal);
+				File.Delete(file);
+			}
+
+			foreach (string dir in dirs)
+			{
+				DeleteDirectoryRecursive(dir);
+			}
+
+			Directory.Delete(targetDir, false);
+			return true;
 		}
 		
 		public static async Task<IEnumerable<ApiAvatar>> GetAvatars()

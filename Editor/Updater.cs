@@ -46,6 +46,7 @@ namespace ExpressionUtility
 		{
 			get
 			{
+				// return true;
 				if (LocalPackage == null || LatestOnlineVersion == null || !Version.TryParse(LocalPackage.version, out var packageVersion))
 				{
 					return false;
@@ -111,15 +112,14 @@ namespace ExpressionUtility
 
 							try
 							{
-								oldDirectory.Delete(true);
+								oldDirectory.DeleteDirectoryRecursive();
 							}
-							catch (IOException e)
+							catch (Exception e)
 							{
 								$"Failed to delete old version. Reason:\n {e}".LogError();
-								newDirectory.Delete(true);
+								newDirectory.DeleteDirectoryRecursive();
 							}
-	
-							newDirectory.MoveTo(oldPath);
+							
 							AssetDatabase.Refresh();
 							tcs.TrySetResult(true);
 						}

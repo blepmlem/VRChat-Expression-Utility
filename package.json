@@ -2,7 +2,7 @@
   "name": "com.blep.vrc-expression-utility",
   "displayName": "VRC Expression Utility",
   "description": "Simplify creating multiple types of common VRC expressions! \nAllows for automatically adding and configuring new VRC parameters, animation clips, animator layers, and more!",
-  "version": "2.1.3",
+  "version": "2.2.0",
   "author": {
     "name": "blep",
     "url": "https://github.com/blepmlem/VRChat-Expression-Utility"

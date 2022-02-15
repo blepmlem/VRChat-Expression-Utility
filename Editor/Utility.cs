@@ -107,21 +107,10 @@ namespace ExpressionUtility
 			e.style.borderRightColor = color;
 			e.style.borderTopColor = color;
 		}
-		
-		public static void BorderWidth(this VisualElement e, float width)
+
+		public static bool Contains(this string source, string toCheck, StringComparison comp)
 		{
-			e.style.borderBottomWidth = width;
-			e.style.borderLeftWidth = width;
-			e.style.borderRightWidth = width;
-			e.style.borderTopWidth = width;
-		}
-		
-		public static void BorderRadius(this VisualElement e, float radius)
-		{
-			e.style.borderBottomLeftRadius = radius;
-			e.style.borderBottomRightRadius = radius;
-			e.style.borderTopLeftRadius = radius;
-			e.style.borderTopRightRadius = radius;
+			return source?.IndexOf(toCheck, comp) >= 0;
 		}
 		
 		public static async Task<IEnumerable<ApiAvatar>> GetAvatars()

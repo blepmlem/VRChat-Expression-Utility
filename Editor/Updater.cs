@@ -19,9 +19,8 @@ namespace ExpressionUtility
 	internal class Updater
 	{
 		private const string PACKAGE_NAME = "com.blep.vrc-expression-utility";
-		
+		private const string GENERIC_NAME = "expression-utility";
 		private const string TAGS_URL = "https://api.github.com/repos/blepmlem/VRChat-Expression-Utility/tags";
-
 		private const string GIT_URL = "https://github.com/blepmlem/VRChat-Expression-Utility.git";
 		
 		public GitPackage? LatestOnlineVersion { get; private set; }
@@ -47,7 +46,6 @@ namespace ExpressionUtility
 		{
 			get
 			{
-				return true;
 				if (LocalPackage == null || LatestOnlineVersion == null || !Version.TryParse(LocalPackage.version, out var packageVersion))
 				{
 					return false;
@@ -92,35 +90,43 @@ namespace ExpressionUtility
 						if (data != null)
 						{
 							const string PACKAGES = "Packages";
+							var oldPath = LocalPackage.resolvedPath;
+							var oldDirectory = new DirectoryInfo(oldPath);
 							
 							var stream = new MemoryStream(data);
 							var file = new FastZip();
-							var packagesBefore = Directory.EnumerateDirectories(PACKAGES).ToList();
-							
+							var packagesDirectory = new DirectoryInfo(PACKAGES);
+							var packagesBefore = packagesDirectory.EnumerateDirectories().ToList();
 							
 							file.ExtractZip(stream, PACKAGES, FastZip.Overwrite.Always, null, null, null, true, true);
 
-							var newFolder = Directory.EnumerateDirectories(PACKAGES).Except(packagesBefore).FirstOrDefault();
-
-							if (newFolder == null)
+							var directories = packagesDirectory.EnumerateDirectories().Except(packagesBefore).OrderBy(p => p.CreationTimeUtc);
+							var newDirectory = directories.LastOrDefault();
+							if (oldDirectory == newDirectory || (!newDirectory?.Name.Contains(GENERIC_NAME, StringComparison.InvariantCultureIgnoreCase) ?? false))
 							{
+								$"New folder null?".LogError();
 								tcs.TrySetResult(false);
 								return;
 							}
 
-							var oldPath = LocalPackage.resolvedPath;
-							var oldDir = new DirectoryInfo(oldPath);
-							oldDir.Delete(true);
-							
-							var newDir = new DirectoryInfo(newFolder);
-							newDir.MoveTo(oldPath);
-							
+							try
+							{
+								oldDirectory.Delete(true);
+							}
+							catch (IOException e)
+							{
+								$"Failed to delete old version. Reason:\n {e}".LogError();
+								newDirectory.Delete(true);
+							}
+	
+							newDirectory.MoveTo(oldPath);
 							AssetDatabase.Refresh();
 							tcs.TrySetResult(true);
 						}
 					}
-					catch (Exception)
+					catch (Exception e)
 					{
+						$"{e}".LogError();
 						tcs.TrySetResult(false);
 					}
 				}

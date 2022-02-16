@@ -14,7 +14,7 @@ Both versions come with built in auto update functionality.
 This tool allows you to skip all of the tedious work when setting up new expressions in SDK3 Avatars.
 With Expression Utility you can automatically generate every part of many common expressions based on presets; Quickly set up a new radial puppet for switching between outfits, a toggle for turning on a hat, and many more! 
 
-![image](https://user-images.githubusercontent.com/76069764/152813587-95786da5-23b9-4c6d-80a5-11f91f58f3c9.png)
+![1](https://user-images.githubusercontent.com/76069764/154315109-469405d8-64bd-4a7b-87de-13dfd915901b.png)
 
 Creating a new expression with the tool allows for the automatic generation of:
 - VRChat Menu Controllers
@@ -25,6 +25,6 @@ Creating a new expression with the tool allows for the automatic generation of:
 - Animation Clips
 
 Other features include the ability to view/delete each VRC parameter and relationships with associated objects such as Animation Clips, Animator Layers, Conditions, Menus, etc.
-![image](https://user-images.githubusercontent.com/76069764/153480559-25a77c2f-4c14-4205-9946-06588f8f742a.png)
+![2](https://user-images.githubusercontent.com/76069764/154315141-d1f58aae-6322-46a1-9607-f5ac7ab25dce.png)
 
 Have fun! <3

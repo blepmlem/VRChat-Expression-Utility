@@ -110,8 +110,8 @@ namespace ExpressionUtility.UI
 					continue;
 				}
 
-				IEnumerable<ParameterDefinition> usages = animDef.GetChildren<ParameterDefinition>(animatorParam.Name).Where(c => !(c is AnimatorParameterDefinition));
-				IEnumerable<ParameterDefinition> layerUsages = layer.GetChildren<ParameterDefinition>(animatorParam.Name);
+				IEnumerable<ParameterDefinition> usages = animDef.FindDescendants<ParameterDefinition>(animatorParam.Name).Where(c => !(c is AnimatorParameterDefinition));
+				IEnumerable<ParameterDefinition> layerUsages = layer.FindDescendants<ParameterDefinition>(animatorParam.Name);
 
 				if (!layerUsages.Except(usages).Any())
 				{
@@ -119,7 +119,7 @@ namespace ExpressionUtility.UI
 				}
 			}
 
-			IEnumerable<MotionDefinition> skip = delete.SelectMany(s => s.GetChildren<MotionDefinition>()).Except(delete.OfType<MotionDefinition>());
+			IEnumerable<MotionDefinition> skip = delete.SelectMany(s => s.FindDescendants<MotionDefinition>()).Except(delete.OfType<MotionDefinition>());
 
 			delete.Delete(skip);
 			_controller.SetFrame(this);
@@ -143,7 +143,7 @@ namespace ExpressionUtility.UI
 
 				foreach (AnimatorLayerDefinition l in GetLayers(def, parameter))
 				{
-					if (!l.TryGetFirstParent(out AnimatorDefinition _))
+					if (l.FindAncestor<AnimatorDefinition>() is null)
 					{
 						continue;
 					}
@@ -169,7 +169,7 @@ namespace ExpressionUtility.UI
 
 				foreach (MenuControlDefinition m in GetMenuControls(def, parameter))
 				{
-					if (!m.TryGetFirstParent(out MenuDefinition _))
+					if (m.FindAncestor<MenuDefinition>() is null)
 					{
 						continue;
 					}
@@ -181,22 +181,22 @@ namespace ExpressionUtility.UI
 
 		private IEnumerable<AnimatorLayerDefinition> GetLayers(AvatarDefinition avatarDefinition, string parameter)
 		{
-			return avatarDefinition.GetChildren<AnimatorLayerDefinition>().Where(a => a.GetChildren<ParameterDefinition>().Any(p => p.Name == parameter)).Distinct().ToList();
+			return avatarDefinition.FindDescendants<AnimatorLayerDefinition>().Where(a => a.FindDescendants<ParameterDefinition>().Any(p => p.Name == parameter)).Distinct().ToList();
 		}
 
 		private IEnumerable<MotionDefinition> GetMotions(AvatarDefinition avatarDefinition, string parameter)
 		{
-			return GetLayers(avatarDefinition, parameter).SelectMany(l => l.GetChildren<MotionDefinition>()).Distinct().ToList();
+			return GetLayers(avatarDefinition, parameter).SelectMany(l => l.FindDescendants<MotionDefinition>()).Distinct().ToList();
 		}
 
 		private IEnumerable<VrcParameterDriverDefinition> GetDrivers(AvatarDefinition avatarDefinition, string parameter)
 		{
-			return GetLayers(avatarDefinition, parameter).SelectMany(l => l.GetChildren<VrcParameterDriverDefinition>()).Where(v => v.GetChildren<ParameterDefinition>(parameter).Any()).Distinct().ToList();
+			return GetLayers(avatarDefinition, parameter).SelectMany(l => l.FindDescendants<VrcParameterDriverDefinition>()).Where(v => v.FindDescendants<ParameterDefinition>(parameter).Any()).Distinct().ToList();
 		}
 
 		private IEnumerable<MenuControlDefinition> GetMenuControls(AvatarDefinition avatarDefinition, string parameter)
 		{
-			return avatarDefinition.GetChildren<MenuControlDefinition>().Where(m => m.Children.Any(c => (c as ParameterDefinition)?.Name == parameter)).Distinct().ToList();
+			return avatarDefinition.FindDescendants<MenuControlDefinition>().Where(m => m.Children.Any(c => (c as ParameterDefinition)?.Name == parameter)).Distinct().ToList();
 		}
 	}
 }

@@ -52,7 +52,7 @@ namespace ExpressionUtility
 		public bool IsRealized => Control != null;
 		public void DeleteSelf()
 		{
-			if (Control != null && this.TryGetFirstParent<MenuDefinition>(out var menuDefinition) && menuDefinition.IsRealized)
+			if (Control != null && this.FindAncestor<MenuDefinition>() is var menuDefinition && (menuDefinition?.IsRealized ?? false))
 			{
 				var menu = menuDefinition.Menu;
 				Undo.RecordObject(menu, $"Remove menu control {Name}");

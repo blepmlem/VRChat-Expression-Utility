@@ -17,7 +17,12 @@ namespace ExpressionUtility
 		private ExpressionInfo _expressionInfo;
 		private readonly List<Object> _dirtyAssets = new List<Object>();
 		private bool _createAnimation = true;
-		
+
+		public override void BindControls(VisualElement root)
+		{
+			base.BindControls(root);
+		}
+
 		public override void OnEnter(UIController controller, ExpressionUI previousUI)
 		{
 			_dirtyAssets.Clear();
@@ -43,13 +48,19 @@ namespace ExpressionUtility
 			var expName = _expressionInfo.ExpressionName;
 			var controller = _expressionInfo.Controller;
 
-			AnimatorControllerLayer layer = AnimUtility.AddLayer(controller, expName, _dirtyAssets);
-			controller.AddParameter(expName, AnimatorControllerParameterType.Bool);
-			
-			AnimatorStateMachine stateMachine = layer.stateMachine;
-			var empty = AnimUtility.AddState(stateMachine, "Empty", true, _dirtyAssets);
-			
-			AnimatorState toggleState = AnimUtility.AddState(stateMachine, expName, false, _dirtyAssets);
+			var avatarDef = new AvatarDefinition(_expressionInfo.AvatarDescriptor);
+			var animatorDef = avatarDef.FindDescendant<AnimatorDefinition>(_expressionInfo.Controller.name);
+
+			animatorDef.AddParameter(expName, ParameterValueType.Bool);
+			var layerDef = animatorDef.AddLayer(expName);
+			var stateMachineDef = layerDef.AddStateMachine(expName);
+
+			stateMachineDef.AddState("Empty", isDefault: true);
+
+			var mainState = stateMachineDef.AddState(expName);
+
+			var motion = mainState.AddMotion(expName);
+			motion.
 
 			if (_createAnimation)
 			{

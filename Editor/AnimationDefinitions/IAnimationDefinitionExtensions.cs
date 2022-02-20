@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEditor;
 
 namespace ExpressionUtility
@@ -52,7 +51,7 @@ namespace ExpressionUtility
 		
 		public static bool IsDescendantOf(this IAnimationDefinition def, IAnimationDefinition parent)
 		{
-			return def.GetParents<IAnimationDefinition>().Contains(parent);
+			return def.FindAncestors<IAnimationDefinition>().Contains(parent);
 		}
 
 		public static IEnumerable<IAnimationDefinition> FilterOutDescendants(this IEnumerable<IAnimationDefinition> def)
@@ -69,55 +68,67 @@ namespace ExpressionUtility
 			}
 		}
 
-		public static IEnumerable<T> GetChildren<T>(this IAnimationDefinition instance, string name) where T : IAnimationDefinition
+		public static T FindDescendant<T>(this IAnimationDefinition instance, string name = null) where T : IAnimationDefinition
 		{
-			return instance.GetChildren<T>().Where(c => c.Name == name);
+			return instance.FindDescendants<T>(name).FirstOrDefault();
 		}
-		
-		public static IEnumerable<T> GetChildren<T>(this IAnimationDefinition instance) where T : IAnimationDefinition
+
+		public static T FindAncestor<T>(this IAnimationDefinition instance, string name = null) where T : IAnimationDefinition
 		{
-			foreach (var child in instance.Children)
+			return instance.FindAncestors<T>(name).FirstOrDefault();
+		}
+
+		public static IEnumerable<T> FindDescendants<T>(this IAnimationDefinition instance, string name = null) where T : IAnimationDefinition
+		{
+			IEnumerable<T> Traverse(IAnimationDefinition i)
 			{
-				if (child is T value)
+				foreach (var child in i.Children)
+				{
+					if (child is T value)
+					{
+						yield return value;
+					}
+
+					foreach (var t in Traverse(child))
+					{
+						yield return t;
+					}
+				}
+			}
+			
+			if (!string.IsNullOrEmpty(name))
+			{
+				return Traverse(instance).Where(c => c.Name == name);
+			}
+			return Traverse(instance);
+		}
+
+		public static IEnumerable<T> FindAncestors<T>(this IAnimationDefinition instance, string name = null) where T : IAnimationDefinition
+		{
+			IEnumerable<T> Traverse(IAnimationDefinition i)
+			{
+				if (instance.Parent == null)
+				{
+					yield break;
+				}
+
+				if (instance.Parent is T value)
 				{
 					yield return value;
 				}
 
-				foreach (var t in child.GetChildren<T>())
+				foreach (var t in Traverse(i.Parent))
 				{
 					yield return t;
 				}
 			}
-		}
-		
-		public static bool TryGetFirstParent<T>(this IAnimationDefinition instance, out T result) where T : IAnimationDefinition
-		{
-			result = default;
-			foreach (T parent in GetParents<T>(instance))
+			
+			if (!string.IsNullOrEmpty(name))
 			{
-				result = parent;
-				return true;
+				return Traverse(instance).Where(c => c.Name == name);
 			}
-
-			return false;
-		}
-		
-		public static IEnumerable<T> GetParents<T>(this IAnimationDefinition instance) where T : IAnimationDefinition
-		{
-			if (instance.Parent == null)
-			{
-				yield break;
-			}
-
-			if (instance.Parent is T value)
-			{
-				yield return value;
-			}
-
-			foreach (var t in instance.Parent.GetParents<T>())
-			{
-				yield return t;
-			}
+			
+			return Traverse(instance);
 		}
 
 		public static T AddChild<T>(this List<IAnimationDefinition> instance, T value) where T : IAnimationDefinition

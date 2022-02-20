@@ -32,7 +32,7 @@ namespace ExpressionUtility.UI
 
 		public static VisualElement CreateHolder(VrcParameterDefinition def, AvatarParameterData data)
 		{
-			def.TryGetFirstParent(out AvatarDefinition avatar);
+			var avatar = def.FindAncestor<AvatarDefinition>();
 			var fields = CreateHolder(() => Selection.activeObject = avatar.VrcExpressionParameters, $"{def.Name} ({def.Type})", def);
 			fields.SetupDeletion(fields.DeleteButton, fields.ObjectField, def, data);
 			
@@ -41,7 +41,7 @@ namespace ExpressionUtility.UI
 
 		public static VisualElement CreateHolder(AnimatorLayerDefinition def, AvatarParameterData data)
 		{
-			def.TryGetFirstParent(out AnimatorDefinition animDef);
+			var animDef = def.FindAncestor<AnimatorDefinition>();
 			var fields = CreateHolder(() => animDef.Animator.SelectAnimatorLayer(def.Layer), $"{animDef.Name}/{def.Layer.name}", def);
 			fields.SetupDeletion(fields.DeleteButton, fields.ObjectField, def, data);
 			return fields.Container;
@@ -51,8 +51,8 @@ namespace ExpressionUtility.UI
 		{
 			void Action()
 			{
-				var layer = def.GetParents<AnimatorLayerDefinition>().FirstOrDefault();
-				var animator = def.GetParents<AnimatorDefinition>().FirstOrDefault();
+				var layer = def.FindAncestors<AnimatorLayerDefinition>().FirstOrDefault();
+				var animator = def.FindAncestors<AnimatorDefinition>().FirstOrDefault();
 				if((layer?.IsRealized ?? false) && (animator?.IsRealized ?? false))
 				{
 					animator.Animator.SelectAnimatorLayer(layer.Layer);
@@ -69,8 +69,8 @@ namespace ExpressionUtility.UI
 		{
 			void Action()
 			{
-				var layer = def.GetParents<AnimatorLayerDefinition>().FirstOrDefault();
-				var animator = def.GetParents<AnimatorDefinition>().FirstOrDefault();
+				var layer = def.FindAncestors<AnimatorLayerDefinition>().FirstOrDefault();
+				var animator = def.FindAncestors<AnimatorDefinition>().FirstOrDefault();
 				if((layer?.IsRealized ?? false) && (animator?.IsRealized ?? false) && def.Parent is StateDefinition state)
 				{
 					animator.Animator.SelectAnimatorLayer(layer.Layer);
@@ -85,7 +85,7 @@ namespace ExpressionUtility.UI
 		
 		public static VisualElement CreateHolder(MenuControlDefinition def, AvatarParameterData data)
 		{
-			def.TryGetFirstParent(out MenuDefinition menu);
+			var menu = def.FindAncestor<MenuDefinition>();
 			var name = $"{menu.Menu.name}/{def.Name}";
 			var fields = CreateHolder(() => Selection.activeObject = menu.Menu, name, def);
 			fields.SetupDeletion(fields.DeleteButton, fields.ObjectField, def, data);

@@ -6,47 +6,32 @@ namespace ExpressionUtility
 {
 	internal class MenuControlDefinition : IAnimationDefinition
 	{
-		public MenuControlDefinition(IAnimationDefinition parent, VRCExpressionsMenu.Control control)
+		public MenuControlDefinition(string name, VRCExpressionsMenu.Control.ControlType type)
 		{
-			Name = control.name;
-			Parent = parent;
+			Name = name;
+			Type = type;
+		}
+		
+		public MenuControlDefinition(VRCExpressionsMenu.Control control) : this(control.name, control.type)
+		{
 			Control = control;
-			Type = control.type;
-
+			
 			if (Type == VRCExpressionsMenu.Control.ControlType.SubMenu)
 			{
-				AddMenu(control.subMenu);
+				this.AddChild(new MenuDefinition(control.subMenu));
 				return;
 			}
 
-			MainParameter = AddParameter(control.parameter);
+			MainParameter = this.AddChild(new ParameterDefinition(control.parameter.name, $"{nameof(MenuControlDefinition)}: Main Parameter"));
 			foreach (var controlSubParameter in control.subParameters)
 			{
-				SubParameters.Add(AddParameter(controlSubParameter));
+				SubParameters.Add(this.AddChild(new ParameterDefinition(controlSubParameter.name, $"{nameof(MenuControlDefinition)}: Sub-parameter")));
 			}
 		}
 		
 		public ParameterDefinition MainParameter { get; }
-		
 		public List<ParameterDefinition> SubParameters { get; } = new List<ParameterDefinition>();
 		public VRCExpressionsMenu.Control.ControlType Type { get; set; }
-
-		public MenuControlDefinition(IAnimationDefinition parent, string name = null)
-		{
-			Name = name ?? parent.Name;
-			Parent = parent;
-		}
-		
-		public MenuDefinition AddMenu(VRCExpressionsMenu menu)
-		{
-			return Children.AddChild(new MenuDefinition(this, menu));
-		}
-		
-		public ParameterDefinition AddParameter(VRCExpressionsMenu.Control.Parameter  parameter)
-		{
-			return Children.AddChild(new ParameterDefinition(this, parameter.name));
-		}
-		
 		public VRCExpressionsMenu.Control Control { get; }
 		public string Name { get; }
 		public bool IsRealized => Control != null;
@@ -62,7 +47,7 @@ namespace ExpressionUtility
 		}
 
 		public List<IAnimationDefinition> Children { get; } = new List<IAnimationDefinition>();
-		public IAnimationDefinition Parent { get; }
+		public IAnimationDefinition Parent { get; set; }
 				
 		public override string ToString() => $"{Name} [{ObjectNames.NicifyVariableName(Type.ToString())}] (Menu Control)";
 	}

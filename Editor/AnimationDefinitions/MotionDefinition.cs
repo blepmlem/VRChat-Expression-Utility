@@ -7,51 +7,36 @@ namespace ExpressionUtility
 {
 	internal class MotionDefinition : IAnimationDefinition
 	{
-		public MotionDefinition(IAnimationDefinition parent, bool isBlendTree, string name = null)
+		public MotionDefinition(string name, MotionType type)
 		{
-			Name = name ?? parent.Name;
-			Parent = parent;
-			Type = isBlendTree ? MotionType.BlendTree : MotionType.AnimationClip;
-			IsRealized = false;
+			Name = name;
+			Type = type;
 		}
 
-		public MotionDefinition(IAnimationDefinition parent, Motion motion)
+		public MotionDefinition(Motion motion) : this(motion.NotNull()?.name ?? "NULL", motion is BlendTree ? MotionType.BlendTree : MotionType.AnimationClip)
 		{
-			Name = motion != null ? motion.name : "NULL";
-			Parent = parent;
 			Motion = motion;
-			Type = motion is BlendTree ? MotionType.BlendTree : MotionType.AnimationClip;
-			IsRealized = true;
 			if (motion is BlendTree blendTree)
 			{
 				if (!string.IsNullOrEmpty(blendTree.blendParameter))
 				{
 					BlendParameters.Add(
-						Children.AddChild(
-							new ParameterDefinition(this, blendTree.blendParameter, nameof(blendTree.blendParameter))));
+						this.AddChild(
+							new ParameterDefinition(blendTree.blendParameter, nameof(blendTree.blendParameter))));
 				}
 				if (!string.IsNullOrEmpty(blendTree.blendParameterY))
 				{
 					BlendParameters.Add(
-						Children.AddChild(
-							new ParameterDefinition(this, blendTree.blendParameterY, nameof(blendTree.blendParameterY))));
+						this.AddChild(
+							new ParameterDefinition(blendTree.blendParameterY, nameof(blendTree.blendParameterY))));
 				}
 				foreach (ChildMotion blendTreeChild in blendTree.children)
 				{
-					AddMotion(blendTreeChild.motion);
+					this.AddChild(new MotionDefinition(blendTreeChild.motion));
+					
 				}
 				
 			}
-		}
-		
-		public MotionDefinition AddMotion(string name, bool isBlendTree)
-		{
-			return Children.AddChild(new MotionDefinition(this, isBlendTree, name));
-		}
-
-		public MotionDefinition AddMotion(Motion motion)
-		{
-			return Children.AddChild(new MotionDefinition(this, motion));
 		}
 
 		public DefaultAsset CreationFolder { get; set; }
@@ -61,7 +46,7 @@ namespace ExpressionUtility
 
 		public readonly List<ParameterDefinition> BlendParameters = new List<ParameterDefinition>();
 		public string Name { get; }
-		public bool IsRealized { get; set; }
+		public bool IsRealized => Parent?.IsRealized ?? false;
 		public void DeleteSelf()
 		{
 			if(Motion != null)
@@ -71,7 +56,7 @@ namespace ExpressionUtility
 		}
 
 		public List<IAnimationDefinition> Children { get; } = new List<IAnimationDefinition>();
-		public IAnimationDefinition Parent { get; }	
+		public IAnimationDefinition Parent { get; set; }
 		
 		public override string ToString() => $"{Name} ({Type})";
 		

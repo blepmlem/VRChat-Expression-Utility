@@ -10,30 +10,19 @@ namespace ExpressionUtility
 		public float Threshold { get; }
 		public AnimatorCondition? AnimatorCondition { get; }
 		
-		public ConditionDefinition(IAnimationDefinition parent, AnimatorConditionMode mode, float threshold, string name = null)
+		public ConditionDefinition(string parameter, AnimatorConditionMode mode, float threshold)
 		{
+			Name = parameter;
 			Mode = mode;
 			Threshold = threshold;
-			Name = name ?? parent.Name;
-			Parent = parent;
-			AddParameter(false, Name);
+			this.AddChild(new ParameterDefinition(parameter, nameof(ConditionDefinition)));
 		}
 
-		public ConditionDefinition(IAnimationDefinition parent, AnimatorCondition condition)
+		public ConditionDefinition(AnimatorCondition condition) : this(condition.parameter, condition.mode, condition.threshold)
 		{
 			AnimatorCondition = condition;
-			Name = condition.parameter;
-			Parent = parent;
-			Mode = condition.mode;
-			Threshold = condition.threshold;
-			AddParameter(true, Name);
 		}
 
-		public ParameterDefinition AddParameter(bool isRealized,  string name)
-		{
-			return Children.AddChild(new ParameterDefinition(this, name) {IsRealized = isRealized});
-		}
-		
 		public string Name { get; }
 		public bool IsRealized => AnimatorCondition != null;
 
@@ -43,7 +32,7 @@ namespace ExpressionUtility
 		}
 
 		public List<IAnimationDefinition> Children { get; } = new List<IAnimationDefinition>();
-		public IAnimationDefinition Parent { get; }
+		public IAnimationDefinition Parent { get; set; }
 		
 		public override string ToString() => $"{Name} (Condition)";
 	}

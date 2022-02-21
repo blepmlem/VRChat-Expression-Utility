@@ -17,13 +17,13 @@ namespace ExpressionUtility
 			{
 				foreach (var parameter in VrcExpressionParameters.parameters)
 				{
-					AddParameter(parameter);
+					this.AddChild(new VrcParameterDefinition(parameter));
 				}
 			}
 
 			if(descriptor.expressionsMenu != null)
 			{
-				AddMenu(descriptor.expressionsMenu);
+				this.AddChild(new MenuDefinition(descriptor.expressionsMenu));
 			}
 
 			var animators = descriptor.baseAnimationLayers;
@@ -44,26 +44,12 @@ namespace ExpressionUtility
 					case 3: type = AnimatorDefinition.AnimatorType.Gesture; break;
 					case 4: type = AnimatorDefinition.AnimatorType.FX; break;
 				}
-
-				AddAnimator(animLayer.animatorController as AnimatorController, type);
+				
+				var animator = animLayer.animatorController as AnimatorController;
+				this.AddChild(new AnimatorDefinition(animator, type));
 			}
 		}
 		
-		private AnimatorDefinition AddAnimator(AnimatorController animator, AnimatorDefinition.AnimatorType type)
-		{
-			return Children.AddChild(new AnimatorDefinition(this, animator, type));
-		}
-		
-		public VrcParameterDefinition AddParameter(VRCExpressionParameters.Parameter parameter)
-		{
-			return Children.AddChild(ParameterFactory.Create(this, parameter));
-		}
-
-		public MenuDefinition AddMenu(VRCExpressionsMenu menu)
-		{
-			return Children.AddChild(new MenuDefinition(this, menu));
-		}
-
 		public VRCAvatarDescriptor AvatarDescriptor { get; }
 		
 		public VRCExpressionParameters VrcExpressionParameters { get; }
@@ -71,15 +57,13 @@ namespace ExpressionUtility
 
 		public bool IsRealized => AvatarDescriptor != null;
 
-		private ParameterFactory ParameterFactory { get; } = new ParameterFactory();
-		
 		public void DeleteSelf()
 		{
 			$"That's a bit extreme isn't it?".Log();
 		}
 
 		public List<IAnimationDefinition> Children { get; } = new List<IAnimationDefinition>();
-		public IAnimationDefinition Parent { get; }		
+		public IAnimationDefinition Parent { get; set; }
 		
 		public override string ToString() => $"{Name} (Avatar)";
 	}

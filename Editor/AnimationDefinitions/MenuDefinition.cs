@@ -8,33 +8,20 @@ namespace ExpressionUtility
 {
 	internal class MenuDefinition : IAnimationDefinition
 	{
-		public MenuDefinition(IAnimationDefinition parent, VRCExpressionsMenu menu)
+		public MenuDefinition(VRCExpressionsMenu menu) : this(menu.name)
 		{
-			Name = menu.name;
-			Parent = parent;
 			Menu = menu;
 			foreach (VRCExpressionsMenu.Control menuControl in menu.controls)
 			{
-				AddControl(menuControl);
+				this.AddChild(new MenuControlDefinition(menuControl));
 			}
 		}
 
-		public MenuDefinition(IAnimationDefinition parent, string name = null)
+		public MenuDefinition(string name)
 		{
-			Name = name ?? parent.Name;
-			Parent = parent;
+			Name = name;
 		}
 
-		public MenuControlDefinition AddControl(string name = null)
-		{
-			return Children.AddChild(new MenuControlDefinition(this, name));
-		}
-		
-		public MenuControlDefinition AddControl(VRCExpressionsMenu.Control control)
-		{
-			return Children.AddChild(new MenuControlDefinition(this, control));
-		}
-		
 		public VRCExpressionsMenu Menu { get; }
 		public string Name { get; }
 		public bool IsRealized => Menu != null;
@@ -47,7 +34,7 @@ namespace ExpressionUtility
 		}
 
 		public List<IAnimationDefinition> Children { get; } = new List<IAnimationDefinition>();
-		public IAnimationDefinition Parent { get; }
+		public IAnimationDefinition Parent { get; set; }
 		
 		public override string ToString() => $"{Name} (Menu)";
 	}

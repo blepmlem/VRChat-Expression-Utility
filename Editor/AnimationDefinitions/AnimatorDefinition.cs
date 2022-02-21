@@ -10,48 +10,28 @@ namespace ExpressionUtility
 	{
 		public AnimatorController Animator { get; }
 
-		public AnimatorDefinition(IAnimationDefinition parent, AnimatorType type, string name = null)
+		public AnimatorDefinition(AnimatorType type, string name)
 		{
-			Name = name ?? type.ToString();
-			Parent = parent;
+			Name = name;
+			Type = type;
 		}
 
-		public AnimatorDefinition(IAnimationDefinition parent, AnimatorController animator, AnimatorType type)
+		public AnimatorDefinition(AnimatorController animator, AnimatorType type) : this(type, animator.name)
 		{
-			bool animatorIsNull = animator == null;
-			Parent = parent;
 			Animator = animator;
-			Name = animatorIsNull ? type.ToString() : animator.name;
-			Type = type;
-			
-			if (animatorIsNull)
-			{
-				return;
-			}
-			
 			foreach (AnimatorControllerLayer animatorControllerLayer in animator.layers)
 			{
-				AddLayer(animatorControllerLayer);
+				this.AddChild(new AnimatorLayerDefinition(animatorControllerLayer));
 			}
 			foreach (var parameter in animator.parameters)
 			{
-				AddParameter(parameter);
+				this.AddChild(new AnimatorParameterDefinition(parameter));
 			}
-		}
-		
-		public AnimatorLayerDefinition AddLayer(AnimatorControllerLayer controllerLayer)
-		{
-			return Children.AddChild(new AnimatorLayerDefinition(this, controllerLayer));
-		}
-		
-		public AnimatorParameterDefinition AddParameter(AnimatorControllerParameter parameter)
-		{
-			return Children.AddChild(new AnimatorParameterDefinition(this, parameter));
 		}
 
 		public string Name { get; }
 		public bool IsRealized => Animator != null;
-		public AnimatorType Type { get; set; }
+		public AnimatorType Type { get; }
 		public void DeleteSelf()
 		{
 			if (Animator != null)
@@ -63,7 +43,7 @@ namespace ExpressionUtility
 		public IEnumerable<AnimatorParameterDefinition> ParameterDefinitions => Children.OfType<AnimatorParameterDefinition>();
 
 		public List<IAnimationDefinition> Children { get; } = new List<IAnimationDefinition>();
-		public IAnimationDefinition Parent { get; }
+		public IAnimationDefinition Parent { get; set; }
 		
 		public enum AnimatorType
 		{

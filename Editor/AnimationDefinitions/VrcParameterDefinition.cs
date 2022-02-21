@@ -1,25 +1,25 @@
-using System.Collections.Generic;
+using System;
 using System.Linq;
 using UnityEditor;
 using VRC.SDK3.Avatars.ScriptableObjects;
 
 namespace ExpressionUtility
 {
-	internal class VrcParameterDefinition : ParameterDefinition, IAnimationDefinition
+	internal class VrcParameterDefinition : ParameterDefinition
 	{
-		public VrcParameterDefinition(AvatarDefinition parent, string name, ParameterValueType type) : base(parent, name)
+		public VrcParameterDefinition(string name, ParameterValueType type) : base(name, nameof(VrcParameterDefinition))
 		{
-			Parent = parent;
-			Parameters = parent.VrcExpressionParameters;
 			Type = type;
-			Name = name;
+		}
+
+		public VrcParameterDefinition(VRCExpressionParameters.Parameter parameter) : this(parameter.name, GetParameterType(parameter))
+		{
+			
 		}
 		
 		public ParameterValueType Type { get; }
 
-		public string Name { get; }
-
-		public bool IsRealized => Parameters.NotNull()?.parameters.Any(p => p.name == Name) ?? false;
+		public override bool IsRealized => Parameters.NotNull()?.parameters.Any(p => p.name == Name) ?? false;
 
 		public override void DeleteSelf()
 		{
@@ -34,11 +34,22 @@ namespace ExpressionUtility
 			}
 		}
 
-		public VRCExpressionParameters Parameters { get; }
-
-		public List<IAnimationDefinition> Children => new List<IAnimationDefinition>();
-
-		public IAnimationDefinition Parent { get; }
+		private static ParameterValueType GetParameterType(VRCExpressionParameters.Parameter parameter)
+		{
+			switch (parameter.valueType)
+			{
+				case VRCExpressionParameters.ValueType.Float:
+					return ParameterValueType.Float;
+				case VRCExpressionParameters.ValueType.Int:
+					return ParameterValueType.Int;
+				case VRCExpressionParameters.ValueType.Bool:
+					return ParameterValueType.Bool;
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
+		}
+		
+		public VRCExpressionParameters Parameters => (Parent as AvatarDefinition)?.VrcExpressionParameters;
 
 		public override string ToString() => $"{Name} [{Type}] (VRC Parameter)";
 	}

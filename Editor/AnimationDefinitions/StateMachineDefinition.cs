@@ -7,35 +7,28 @@ namespace ExpressionUtility
 {
 	internal class StateMachineDefinition : IAnimationDefinition
 	{
-		public StateMachineDefinition(IAnimationDefinition parent, string name = null)
+		public StateMachineDefinition(string name)
 		{
-			Name = name ?? parent.Name;
-			Parent = parent;
-			Entry = new StateDefinition(this, nameof(Entry)){Type = StateDefinition.StateType.Entry};
-			Exit = new StateDefinition(this, nameof(Exit)){Type = StateDefinition.StateType.Exit};
-			Any = new StateDefinition(this, nameof(Any)){Type = StateDefinition.StateType.Any};
+			Name = name;
+			Entry = new StateDefinition(nameof(Entry)){Type = StateDefinition.StateType.Entry};
+			Exit = new StateDefinition(nameof(Exit)){Type = StateDefinition.StateType.Exit};
+			Any = new StateDefinition(nameof(Any)){Type = StateDefinition.StateType.Any};
 		}
 		
-		public StateMachineDefinition(IAnimationDefinition parent, AnimatorStateMachine stateMachine)
+		public StateMachineDefinition(AnimatorStateMachine stateMachine) : this(stateMachine.name)
 		{
-			Parent = parent;
-			if (stateMachine == null)
-			{
-				$"StateMachine of parent {parent.Name} is null!".LogError();
-				return;
-			}
-			
 			StateMachine = stateMachine;
-			Name = stateMachine.name;
 
-			Entry = new StateDefinition(this, nameof(Entry)){Type = StateDefinition.StateType.Entry};
-			Exit = new StateDefinition(this, nameof(Exit)){Type = StateDefinition.StateType.Exit};
-			Any = new StateDefinition(this, nameof(Any)){Type = StateDefinition.StateType.Any};
+			foreach (ChildAnimatorStateMachine childAnimatorStateMachine in stateMachine.stateMachines)
+			{
+				this.AddChild(new StateMachineDefinition(childAnimatorStateMachine.stateMachine));
+			}
 			
 			foreach (ChildAnimatorState childAnimatorState in stateMachine.states)
 			{
 				var state = childAnimatorState.state;
-				var stateDefinition = AddState(state);
+				var stateDefinition = this.AddChild(new StateDefinition(state));
+	
 				if (stateMachine.defaultState == state)
 				{
 					DefaultState = stateDefinition;
@@ -45,7 +38,7 @@ namespace ExpressionUtility
 				{
 					if(transition.destinationState == state)
 					{
-						AddTransition(transition, Entry, stateDefinition);
+						this.AddChild(new TransitionDefinition(transition, Entry, stateDefinition));
 					}
 				}
 			
@@ -53,34 +46,36 @@ namespace ExpressionUtility
 				{
 					if(transition.destinationState == state)
 					{
-						AddTransition(transition, Any, stateDefinition);
+						this.AddChild(new TransitionDefinition(transition, Any, stateDefinition));
+					}
+				}
+			}
+			
+			foreach (var stateDefinition in Children.OfType<StateDefinition>())
+			{
+				AnimatorStateTransition[] animatorStateTransitions = stateDefinition.State.NotNull()?.transitions;
+				if (animatorStateTransitions != null)
+				{
+					foreach (var transition in animatorStateTransitions)
+					{
+						if (transition.destinationState == null)
+						{
+							continue;	
+						}
+
+						var to = GetState(transition.destinationState.name);
+						if (to == null)
+						{
+							continue;
+						}
+						
+						stateDefinition.AddChild(new TransitionDefinition(transition, stateDefinition, to));
 					}
 				}
 			}
 		}
 
 		public StateDefinition GetState(string name) => Children.OfType<StateDefinition>().FirstOrDefault(c => c.Name == name);
-
-		public StateDefinition AddState(string name = null)
-		{
-			return Children.AddChild(new StateDefinition(this, name));
-		}
-
-		private StateDefinition AddState(AnimatorState state)
-		{
-			return Children.AddChild(new StateDefinition(this, state));
-		}
-		
-		public TransitionDefinition AddTransition(AnimatorTransitionBase transition, StateDefinition from, StateDefinition to)
-		{
-			return Children.AddChild(new TransitionDefinition(this, transition, from, to));
-		}
-		
-		public TransitionDefinition AddTransition(StateDefinition from, StateDefinition to, string name = null)
-		{
-			return Children.AddChild(new TransitionDefinition(this, from, to, name));
-		}
-
 		public AnimatorStateMachine StateMachine { get; }
 
 		public StateDefinition DefaultState { get; set; }
@@ -103,7 +98,7 @@ namespace ExpressionUtility
 
 		public List<IAnimationDefinition> Children { get; } = new List<IAnimationDefinition>();
 
-		public IAnimationDefinition Parent { get; }
+		public IAnimationDefinition Parent { get; set; }
 
 		public override string ToString() => $"{Name} (Animator State Machine)";
 	}

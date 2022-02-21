@@ -17,72 +17,42 @@ namespace ExpressionUtility
 			Any,
 		}
 		
-		public StateDefinition(StateMachineDefinition parent, string name = null)
+		public StateDefinition(string name)
 		{
-			Name = name ?? parent.Name;
-			Parent = parent;
+			Name = name;
 		}
 		
-		public StateDefinition(StateMachineDefinition parent, AnimatorState state) : this(parent)
+		public StateDefinition(AnimatorState state) : this(state.name)
 		{
-			Name = state.name;
 			State = state;
-			AddMotion(state.motion);
+			this.AddChild(new MotionDefinition(state.motion));
 
 			foreach (VRCAvatarParameterDriver vrcAvatarParameterDriver in state.behaviours.OfType<VRCAvatarParameterDriver>())
 			{
-				AddParameterDriverDefinition(vrcAvatarParameterDriver);
+				this.AddChild(new VrcParameterDriverDefinition(vrcAvatarParameterDriver));
 			}
-			
-			foreach (var transition in state.transitions)
-			{
-				if (transition.destinationState == null)
-				{
-					
-					continue;
-				}
-				
-				var from = this;
-				var to = parent.GetState(transition.destinationState.name);
-				if (to == null)
-				{
-					continue;
-				}
-				
-				AddTransition(transition, from, to);
-			}
-			
+
 			if(state.speedParameterActive)
 			{
-				SpeedParameter = AddParameter(state.speedParameter, nameof(state.speedParameter), true);
+				this.AddChild(new ParameterDefinition(state.speedParameter, nameof(state.speedParameter)));
 			}
 
 			if(state.mirrorParameterActive)
 			{
-				MirrorParameter = AddParameter(state.mirrorParameter, nameof(state.mirrorParameter), true);
+				this.AddChild(new ParameterDefinition(state.mirrorParameter, nameof(state.mirrorParameter)));
 			}
 
 			if(state.timeParameterActive)
 			{
-				TimeParameter = AddParameter(state.timeParameter, nameof(state.timeParameter), true);
+				this.AddChild(new ParameterDefinition(state.timeParameter, nameof(state.timeParameter)));
 			}
 
 			if(state.cycleOffsetParameterActive)
 			{
-				CycleOffsetParameter = AddParameter(state.cycleOffsetParameter, nameof(state.cycleOffsetParameter), true);
+				this.AddChild(new ParameterDefinition(state.cycleOffsetParameter, nameof(state.cycleOffsetParameter)));
 			}
 		}
 
-		public VrcParameterDriverDefinition AddParameterDriverDefinition(VRCAvatarParameterDriver driver)
-		{
-			return Children.AddChild(new VrcParameterDriverDefinition(this, driver));
-		}
-		
-		public TransitionDefinition AddTransition(AnimatorTransitionBase transition, StateDefinition from, StateDefinition to)
-		{
-			return Children.AddChild(new TransitionDefinition(this, transition, from, to));
-		}
-		
 		public ParameterDefinition CycleOffsetParameter { get; private set; }
 
 		public ParameterDefinition TimeParameter { get; private set; }
@@ -90,16 +60,7 @@ namespace ExpressionUtility
 		public ParameterDefinition MirrorParameter { get; private set; }
 
 		public ParameterDefinition SpeedParameter { get; private set; }
-
-		public ParameterDefinition AddParameter(string parameter, string label, bool isRealized)
-		{
-			return Children.AddChild(new ParameterDefinition(this, parameter, label) {IsRealized = isRealized});
-		}
-
-		public MotionDefinition AddMotion(bool isBlendTree = false, string name = null) => Children.AddChild(new MotionDefinition(this, isBlendTree, name));
-
-		public MotionDefinition AddMotion(Motion motion) => Children.AddChild(new MotionDefinition(this, motion));
-
+		
 		public StateType Type { get; set; } = StateType.Normal;
 		public AnimatorState State { get; }
 		
@@ -112,7 +73,7 @@ namespace ExpressionUtility
 		}
 
 		public List<IAnimationDefinition> Children { get; } = new List<IAnimationDefinition>();
-		public IAnimationDefinition Parent { get; }
+		public IAnimationDefinition Parent { get; set; }
 						
 		public override string ToString() => $"{Name} (Animation State)";
 	}

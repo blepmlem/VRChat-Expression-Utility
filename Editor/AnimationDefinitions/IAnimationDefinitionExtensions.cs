@@ -107,12 +107,12 @@ namespace ExpressionUtility
 		{
 			IEnumerable<T> Traverse(IAnimationDefinition i)
 			{
-				if (instance.Parent == null)
+				if (i.Parent == null)
 				{
 					yield break;
 				}
 
-				if (instance.Parent is T value)
+				if (i.Parent is T value)
 				{
 					yield return value;
 				}
@@ -131,9 +131,10 @@ namespace ExpressionUtility
 			return Traverse(instance);
 		}
 
-		public static T AddChild<T>(this List<IAnimationDefinition> instance, T value) where T : IAnimationDefinition
+		public static T AddChild<T>(this IAnimationDefinition instance, T value) where T : IAnimationDefinition
 		{
-			instance?.Add(value);
+			value.Parent = instance;
+			instance.Children?.Add(value);
 			return value;
 		}
 	}

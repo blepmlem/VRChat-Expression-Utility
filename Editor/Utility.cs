@@ -253,6 +253,9 @@ namespace ExpressionUtility
 			root.Remove(oldElement);
 		}
 
+		/// <summary>
+		/// Is true null for native-null Unity Objects
+		/// </summary>
 		public static T NotNull<T>(this T obj) where T : Object => obj != null ? obj : null;
 
 		public static void Display(this VisualElement element, bool shouldDisplay)

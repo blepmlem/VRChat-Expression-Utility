@@ -6,24 +6,20 @@ using UnityEngine;
 
 namespace ExpressionUtility
 {
-	internal class AnimatorParameterDefinition : ParameterDefinition, IAnimationDefinition
+	internal class AnimatorParameterDefinition : ParameterDefinition
 	{
-		public AnimatorParameterDefinition(AnimatorDefinition parent, string name, ParameterValueType type) : base(parent, name)
+		public AnimatorParameterDefinition(string name, ParameterValueType type) : base(name)
 		{
-			Parent = parent;
 			Type = type;
-			Name = name;
 		}
 
-		public AnimatorParameterDefinition(AnimatorDefinition parent, AnimatorControllerParameter parameter) : this(parent, parameter.name, GetParameterType(parameter))
+		public AnimatorParameterDefinition(AnimatorControllerParameter parameter) : this(parameter.name, GetParameterType(parameter))
 		{
 		}
 
 		public ParameterValueType Type { get; }
 
-		public string Name { get; }
-
-		public bool IsRealized => Parameter != null;
+		public override bool IsRealized => Parameter != null;
 
 		private AnimatorControllerParameter Parameter => ParentAnimator?.Animator.parameters.FirstOrDefault(p => p.name == Name);
 		
@@ -55,10 +51,6 @@ namespace ExpressionUtility
 					throw new ArgumentOutOfRangeException();
 			}
 		}
-		
-		public List<IAnimationDefinition> Children => new List<IAnimationDefinition>();
-
-		public IAnimationDefinition Parent { get; }
 
 		public override string ToString() => $"{Name} [{Type}] (Animator Parameter)";
 	}

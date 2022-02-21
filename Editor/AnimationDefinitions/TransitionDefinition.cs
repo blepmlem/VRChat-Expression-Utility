@@ -6,38 +6,22 @@ namespace ExpressionUtility
 {
 	internal class TransitionDefinition : IAnimationDefinition
 	{
-		public TransitionDefinition(IAnimationDefinition parent, StateDefinition from, StateDefinition to, string name = null)
+		public TransitionDefinition(StateDefinition from, StateDefinition to)
 		{
-			Name = name ?? parent.Name;
-			Parent = parent;
+			Name = $"{from.Name} > {to.Name}";
 			From = from;
 			To = to;
 		}
 
-		public TransitionDefinition(IAnimationDefinition parent, AnimatorTransitionBase transition, StateDefinition from, StateDefinition to)
+		public TransitionDefinition(AnimatorTransitionBase transition, StateDefinition from, StateDefinition to) : this(to, from)
 		{
 			StateTransition = transition;
-			Name = string.IsNullOrEmpty(transition.name) ? parent.Name : transition.name;
-			Parent = parent;
-			From = from;
-			To = to;
-
 			foreach (AnimatorCondition condition in transition.conditions)
 			{
-				AddCondition(condition);
+				this.AddChild(new ConditionDefinition(condition));
 			}
 		}
 		
-		public ConditionDefinition AddCondition(AnimatorCondition condition)
-		{
-			return Children.AddChild(new ConditionDefinition(this, condition));
-		}
-
-		public ConditionDefinition AddCondition(ParameterDefinition parameter, bool whenTrue)
-		{
-			return Children.AddChild(new ConditionDefinition(this, whenTrue ? AnimatorConditionMode.If : AnimatorConditionMode.IfNot, 0, parameter.Name));
-		}
-
 		public StateDefinition To { get; set; }
 
 		public StateDefinition From { get; set; }
@@ -58,7 +42,7 @@ namespace ExpressionUtility
 
 		public List<IAnimationDefinition> Children { get; } = new List<IAnimationDefinition>();
 
-		public IAnimationDefinition Parent { get; }
+		public IAnimationDefinition Parent { get; set; }
 
 		public override string ToString() => $"{Name} (Animator Transition)";
 	}

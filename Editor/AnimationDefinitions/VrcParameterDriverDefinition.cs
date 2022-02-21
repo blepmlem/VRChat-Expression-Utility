@@ -7,25 +7,17 @@ namespace ExpressionUtility
 {
 	internal class VrcParameterDriverDefinition : IAnimationDefinition
 	{
-		public VrcParameterDriverDefinition(StateDefinition parent, VRCAvatarParameterDriver driver)
+		public VrcParameterDriverDefinition(VRCAvatarParameterDriver driver)
 		{
-			Name = parent.Name;
-			Parent = parent;
 			Behaviour = driver;
-			
 			foreach (var driverParameter in driver.parameters)
 			{
-				AddParameter(driverParameter.name, nameof(VRCAvatarParameterDriver), true);
+				this.AddChild(new ParameterDefinition(driverParameter.name, nameof(VrcParameterDriverDefinition)));
 			}
-		}
-
-		public ParameterDefinition AddParameter(string parameter, string label, bool isRealized)
-		{
-			return Children.AddChild(new ParameterDefinition(this, parameter, label) {IsRealized = isRealized});
 		}
 		
 		public VRCAvatarParameterDriver Behaviour { get; }
-		public string Name { get; }
+		public string Name => $"{Parent?.Name} (Parameter Driver)";
 		public bool IsRealized => Behaviour != null;
 		public void DeleteSelf()
 		{
@@ -41,10 +33,7 @@ namespace ExpressionUtility
 		}
 
 		public List<IAnimationDefinition> Children { get; } = new List<IAnimationDefinition>();
-		public IAnimationDefinition Parent { get; }
-		public override string ToString()
-		{
-			return $"{Name} (Parameter Driver)";
-		}
+		public IAnimationDefinition Parent { get; set; }
+		public override string ToString() => Name;
 	}
 }

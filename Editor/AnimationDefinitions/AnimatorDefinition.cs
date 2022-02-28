@@ -6,9 +6,9 @@ using UnityEngine;
 
 namespace ExpressionUtility
 {
-	internal class AnimatorDefinition : IAnimationDefinition
+	internal class AnimatorDefinition : IAnimationDefinition, IRealizable<AnimatorController>
 	{
-		public AnimatorController Animator { get; }
+		public AnimatorController Animator { get; private set; }
 
 		public AnimatorDefinition(AnimatorType type, string name)
 		{
@@ -30,7 +30,41 @@ namespace ExpressionUtility
 		}
 
 		public string Name { get; }
+		public AnimatorController RealizeSelf()
+		{
+			if (!IsRealized)
+			{
+				Animator = new AnimatorController();
+			}
+			
+			foreach (var realizable in Children.OfType<IRealizable<AnimatorControllerLayer>>())
+			{
+				var layer = realizable.RealizeSelf();
+				
+				if(Animator.layers.Any(l => l.name == layer.name))
+				{
+					continue;
+				}
+				
+				Animator.AddLayer(layer);
+			}
+
+			foreach (var realizable in Children.OfType<IRealizable<AnimatorControllerParameter>>())
+			{
+				var parameter = realizable.RealizeSelf();
+				if (Animator.parameters.Any(p => p.name == parameter.name))
+				{
+					continue;
+				}
+				
+				Animator.AddParameter(parameter);;
+			}
+			
+			return Animator;
+		}
+
 		public bool IsRealized => Animator != null;
+		public bool IsRealizedRecursive => this.IsRealizedRecursive();
 		public AnimatorType Type { get; }
 		public void DeleteSelf()
 		{

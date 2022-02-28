@@ -2,10 +2,11 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.Animations;
+using UnityEngine;
 
 namespace ExpressionUtility
 {
-	internal class StateMachineDefinition : IAnimationDefinition
+	internal class StateMachineDefinition : IAnimationDefinition, IRealizable<AnimatorStateMachine>
 	{
 		public StateMachineDefinition(string name)
 		{
@@ -76,7 +77,7 @@ namespace ExpressionUtility
 		}
 
 		public StateDefinition GetState(string name) => Children.OfType<StateDefinition>().FirstOrDefault(c => c.Name == name);
-		public AnimatorStateMachine StateMachine { get; }
+		public AnimatorStateMachine StateMachine { get; private set; }
 
 		public StateDefinition DefaultState { get; set; }
 
@@ -87,6 +88,7 @@ namespace ExpressionUtility
 		public string Name { get; }
 
 		public bool IsRealized => StateMachine != null;
+		public bool IsRealizedRecursive => this.IsRealizedRecursive();
 
 		public void DeleteSelf()
 		{
@@ -99,6 +101,46 @@ namespace ExpressionUtility
 		public List<IAnimationDefinition> Children { get; } = new List<IAnimationDefinition>();
 
 		public IAnimationDefinition Parent { get; set; }
+
+		public AnimatorStateMachine RealizeSelf()
+		{
+			if (!IsRealized)
+			{
+				StateMachine = new AnimatorStateMachine { name = Name };
+			}
+			
+			foreach (var realizable in Children.OfType<IRealizable<AnimatorStateMachine>>())
+			{
+				var stateMachine = realizable.RealizeSelf();
+				if (StateMachine.stateMachines.Any(sm => sm.stateMachine.NotNull()?.name == stateMachine.name))
+				{
+					continue;
+				}
+				
+				StateMachine.AddStateMachine(stateMachine, Vector3.zero);
+				StateMachine.AddObjectToAsset(stateMachine);
+			}
+			
+			foreach (var realizable in Children.OfType<IRealizable<AnimatorState>>())
+			{
+				var state = realizable.RealizeSelf();
+				if (StateMachine.states.Any(s => s.state.NotNull()?.name == state.name))
+				{
+					continue;
+				}
+				
+				StateMachine.AddState(state, Vector3.one);
+				StateMachine.AddObjectToAsset(state);
+			}
+			
+			foreach (var realizable in Children.OfType<IRealizable<AnimatorTransitionBase>>())
+			{
+				// var transitionBase = transitionDef.RealizeSelf();
+				// transitionBase.
+			}
+
+			return StateMachine;
+		}
 
 		public override string ToString() => $"{Name} (Animator State Machine)";
 	}

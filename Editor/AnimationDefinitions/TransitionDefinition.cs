@@ -4,7 +4,7 @@ using UnityEditor.Animations;
 
 namespace ExpressionUtility
 {
-	internal class TransitionDefinition : IAnimationDefinition
+	internal class TransitionDefinition : IAnimationDefinition, IRealizable<AnimatorTransitionBase>
 	{
 		public TransitionDefinition(StateDefinition from, StateDefinition to)
 		{
@@ -30,7 +30,13 @@ namespace ExpressionUtility
 
 		public string Name { get; }
 
+		public AnimatorTransitionBase RealizeSelf()
+		{
+			throw new System.NotImplementedException();
+		}
+
 		public bool IsRealized => StateTransition != null;
+		public bool IsRealizedRecursive => this.IsRealizedRecursive();
 
 		public void DeleteSelf()
 		{

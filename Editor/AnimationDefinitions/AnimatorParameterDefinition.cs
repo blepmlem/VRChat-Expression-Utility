@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace ExpressionUtility
 {
-	internal class AnimatorParameterDefinition : ParameterDefinition
+	internal class AnimatorParameterDefinition : ParameterDefinition, IRealizable<AnimatorControllerParameter>
 	{
 		public AnimatorParameterDefinition(string name, ParameterValueType type) : base(name)
 		{
@@ -19,7 +19,23 @@ namespace ExpressionUtility
 
 		public ParameterValueType Type { get; }
 
+		public AnimatorControllerParameter RealizeSelf()
+		{
+			if (IsRealized)
+			{
+				return Parameter;
+			}
+
+			return new AnimatorControllerParameter
+			{
+				name = Name,
+				type = GetParameterType(Type),
+			};
+		}
+
 		public override bool IsRealized => Parameter != null;
+
+		public bool IsRealizedRecursive => this.IsRealizedRecursive();
 
 		private AnimatorControllerParameter Parameter => ParentAnimator?.Animator.parameters.FirstOrDefault(p => p.name == Name);
 		
@@ -47,6 +63,21 @@ namespace ExpressionUtility
 				case AnimatorControllerParameterType.Bool:
 				case AnimatorControllerParameterType.Trigger:
 					return ParameterValueType.Bool;
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
+		}
+		
+		private static AnimatorControllerParameterType GetParameterType(ParameterValueType parameter)
+		{
+			switch (parameter)
+			{
+				case ParameterValueType.Float:
+					return AnimatorControllerParameterType.Float;
+				case ParameterValueType.Int:
+					return AnimatorControllerParameterType.Int;
+				case ParameterValueType.Bool:
+					return AnimatorControllerParameterType.Bool;
 				default:
 					throw new ArgumentOutOfRangeException();
 			}

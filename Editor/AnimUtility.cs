@@ -153,7 +153,10 @@ namespace ExpressionUtility
 			var keyframe = new Keyframe(0, value);
 			var curve = new AnimationCurve(keyframe);
 			var path = GetAnimationPath(target.transform);
-			animationClip.SetCurve(path, typeof(GameObject),attribute, curve);
+			// animationClip.SetCurve(path, typeof(GameObject),attribute, curve);
+			var binding = EditorCurveBinding.DiscreteCurve(path, typeof(GameObject), attribute);
+			AnimationUtility.SetEditorCurve(animationClip, binding, curve); 
+			
 			dirtyAssets.Add(target);
 			dirtyAssets.Add(animationClip);
 		}
@@ -162,6 +165,7 @@ namespace ExpressionUtility
 		{
 			var path = AnimUtility.GetAnimationPath(target.transform);
 			var type = target.GetType();
+	
 			var binding = EditorCurveBinding.PPtrCurve(path, type, $"{attribute}");
 			var keyframe = new ObjectReferenceKeyframe
 			{

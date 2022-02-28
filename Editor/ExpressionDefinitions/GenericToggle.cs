@@ -46,44 +46,36 @@ namespace ExpressionUtility
 		public void Build()
 		{
 			var expName = _expressionInfo.ExpressionName;
-			var controller = _expressionInfo.Controller;
+			
+			var avatar = new AvatarDefinition(_expressionInfo.AvatarDescriptor);
+			avatar.AddChild(new VrcParameterDefinition(expName, ParameterValueType.Bool));
+			
+			avatar.FindAncestor<MenuDefinition>(_expressionInfo.Menu.NotNull()?.name)?.AddChild(new MenuControlDefinition(expName, ControlType.Toggle));
 
-			var avatarDef = new AvatarDefinition(_expressionInfo.AvatarDescriptor);
-			var animatorDef = avatarDef.FindDescendant<AnimatorDefinition>(_expressionInfo.Controller.name);
+			var animator = avatar.FindDescendant<AnimatorDefinition>(_expressionInfo.Controller.name);
+			animator.AddChild(new AnimatorParameterDefinition(expName, ParameterValueType.Bool));
+			var stateMachine = animator.AddChild(new AnimatorLayerDefinition(expName))
+			                           .AddChild(new StateMachineDefinition(expName));
+			stateMachine.DefaultState = stateMachine.AddChild(new StateDefinition("Empty"));
+			var mainState = stateMachine.AddChild(new StateDefinition(expName));
+			var motion = mainState.AddChild(new MotionDefinition(expName, MotionDefinition.MotionType.AnimationClip));
 
-			animatorDef.AddParameter(expName, ParameterValueType.Bool);
-			var layerDef = animatorDef.AddLayer(expName);
-			var stateMachineDef = layerDef.AddStateMachine(expName);
-
-			stateMachineDef.AddState("Empty", isDefault: true);
-
-			var mainState = stateMachineDef.AddState(expName);
-
-			var motion = mainState.AddMotion(expName);
-			motion.
 
 			if (_createAnimation)
 			{
-				var animationClip = AnimUtility.CreateAnimation(_expressionInfo.AnimationsFolder.GetPath(), expName, _dirtyAssets);
-				toggleState.motion = animationClip;
+				// motion.AddChild(new KeyframeDefinition())
 			}
 			
-			AnimatorStateTransition anyStateTransition = stateMachine.AddAnyStateTransition(toggleState);
-			anyStateTransition.AddCondition(AnimatorConditionMode.If, 1, expName);
+			// if (_createAnimation)
+			// {
+				var animationClip = AnimUtility.CreateAnimation(_expressionInfo.AnimationsFolder.GetPath(), expName, _dirtyAssets);
+			// 	toggleState.motion = animationClip;
+			// }
 
-			AnimatorStateTransition exitTransition = toggleState.AddExitTransition(false);
-			exitTransition.AddCondition(AnimatorConditionMode.IfNot, 0, expName);
-
-			AnimUtility.AddVRCExpressionsParameter(_expressionInfo.AvatarDescriptor, ValueType.Bool, expName, _dirtyAssets);
-			if(_expressionInfo.Menu != null)
-			{
-				AnimUtility.AddVRCExpressionsMenuControl(_expressionInfo.Menu, ControlType.Toggle, expName, _dirtyAssets);
-			}
-
-			_dirtyAssets.SetDirty();
-			controller.AddObjectsToAsset(stateMachine, toggleState, anyStateTransition, exitTransition, empty);
-			AssetDatabase.SaveAssets();
-			AssetDatabase.Refresh();
+			stateMachine.AddChild(new TransitionDefinition(stateMachine.Any, mainState))
+			            .AddChild(new ConditionDefinition(expName, AnimatorConditionMode.If, 1));
+			stateMachine.AddChild(new TransitionDefinition(mainState, stateMachine.Exit))
+			            .AddChild(new ConditionDefinition(expName, AnimatorConditionMode.IfNot, 0));
 		}
 	}
 }

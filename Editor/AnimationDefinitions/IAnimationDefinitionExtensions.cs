@@ -54,6 +54,11 @@ namespace ExpressionUtility
 			return def.FindAncestors<IAnimationDefinition>().Contains(parent);
 		}
 
+		public static bool IsRealizedRecursive(this IAnimationDefinition instance)
+		{
+			return instance.FindDescendants<IAnimationDefinition>().Any(i => !i.IsRealized);
+		}
+
 		public static IEnumerable<IAnimationDefinition> FilterOutDescendants(this IEnumerable<IAnimationDefinition> def)
 		{
 			foreach (IAnimationDefinition outer in def)
@@ -68,17 +73,17 @@ namespace ExpressionUtility
 			}
 		}
 
-		public static T FindDescendant<T>(this IAnimationDefinition instance, string name = null) where T : IAnimationDefinition
+		public static T FindDescendant<T>(this IAnimationDefinition instance, string name = "") where T : IAnimationDefinition
 		{
 			return instance.FindDescendants<T>(name).FirstOrDefault();
 		}
 
-		public static T FindAncestor<T>(this IAnimationDefinition instance, string name = null) where T : IAnimationDefinition
+		public static T FindAncestor<T>(this IAnimationDefinition instance, string name = "") where T : IAnimationDefinition
 		{
 			return instance.FindAncestors<T>(name).FirstOrDefault();
 		}
 
-		public static IEnumerable<T> FindDescendants<T>(this IAnimationDefinition instance, string name = null) where T : IAnimationDefinition
+		public static IEnumerable<T> FindDescendants<T>(this IAnimationDefinition instance, string name = "") where T : IAnimationDefinition
 		{
 			IEnumerable<T> Traverse(IAnimationDefinition i)
 			{
@@ -95,15 +100,20 @@ namespace ExpressionUtility
 					}
 				}
 			}
+
+			if (name == null)
+			{
+				return Enumerable.Empty<T>();
+			}
 			
-			if (!string.IsNullOrEmpty(name))
+			if (name != string.Empty)
 			{
 				return Traverse(instance).Where(c => c.Name == name);
 			}
 			return Traverse(instance);
 		}
 
-		public static IEnumerable<T> FindAncestors<T>(this IAnimationDefinition instance, string name = null) where T : IAnimationDefinition
+		public static IEnumerable<T> FindAncestors<T>(this IAnimationDefinition instance, string name = "") where T : IAnimationDefinition
 		{
 			IEnumerable<T> Traverse(IAnimationDefinition i)
 			{
@@ -123,11 +133,15 @@ namespace ExpressionUtility
 				}
 			}
 			
-			if (!string.IsNullOrEmpty(name))
+			if (name == null)
+			{
+				return Enumerable.Empty<T>();
+			}
+			
+			if (name != string.Empty)
 			{
 				return Traverse(instance).Where(c => c.Name == name);
 			}
-			
 			return Traverse(instance);
 		}
 

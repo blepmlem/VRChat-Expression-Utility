@@ -1,11 +1,12 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
 
 namespace ExpressionUtility
 {
-	internal class MotionDefinition : IAnimationDefinition
+	internal class MotionDefinition : IAnimationDefinition, IRealizable<Motion>
 	{
 		public MotionDefinition(string name, MotionType type)
 		{
@@ -42,14 +43,26 @@ namespace ExpressionUtility
 		public DefaultAsset CreationFolder { get; set; }
 		
 		public MotionType Type { get; }
-		public Motion Motion { get; }
+		public Motion Motion { get; private set; }
 
 		public readonly List<ParameterDefinition> BlendParameters = new List<ParameterDefinition>();
 		public string Name { get; }
-		public bool IsRealized => Parent?.IsRealized ?? false;
+		
+		public Motion RealizeSelf()
+		{
+			if (!IsRealized)
+			{
+				Motion = Type == MotionType.AnimationClip ? (Motion) new AnimationClip() : new BlendTree();
+			}
+
+			return Motion;
+		}
+
+		public bool IsRealized => Motion != null;
+		public bool IsRealizedRecursive => this.IsRealizedRecursive();
 		public void DeleteSelf()
 		{
-			if(Motion != null)
+			if(IsRealized)
 			{
 				Undo.DestroyObjectImmediate(Motion);
 			}

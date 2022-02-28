@@ -329,6 +329,19 @@ namespace ExpressionUtility
 				yield return vrcExpressionsMenu;
 			}
 		}
+
+		public static void AddObjectToAsset(this Object asset, Object @object)
+		{
+			var path = AssetDatabase.GetAssetPath(asset);
+			if (path == "")
+			{
+				return;
+			}
+			
+			@object.hideFlags = HideFlags.HideInHierarchy;
+			EditorUtility.SetDirty(@object);
+			AssetDatabase.AddObjectToAsset(@object, path);
+		}
 		
 		public static void AddObjectsToAsset(this Object asset, params Object[] objs)
 		{

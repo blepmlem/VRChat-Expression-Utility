@@ -1,5 +1,6 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
     <ui:VisualElement name="objects" style="border-left-color: rgba(115, 115, 115, 0.61); border-right-color: rgba(115, 115, 115, 0.61); border-top-color: rgba(115, 115, 115, 0.61); border-bottom-color: rgba(115, 115, 115, 0.61); border-left-width: 1px; border-right-width: 1px; border-top-width: 1px; border-bottom-width: 1px;">
+        <Style src="/Packages/com.blep.vrc-expression-utility/Editor/Uxml/Styles.uss" />
         <uie:Toolbar style="justify-content: flex-end; border-top-width: 1px; border-right-width: 1px; border-left-width: 1px; margin-right: 1px; margin-left: 1px; flex-shrink: 0;">
             <ui:Label text="Objects to modify" style="-unity-text-align: middle-left; font-size: 10px;" />
             <uie:ToolbarSpacer style="flex-grow: 1;" />
@@ -8,6 +9,10 @@
         </uie:Toolbar>
         <ui:ScrollView name="objects-list" />
     </ui:VisualElement>
-    <ui:VisualElement name="padding" style="flex-grow: 1;" />
-    <ui:Button text="Build expression!" name="button-finish" />
+    <ui:VisualElement name="padding" style="flex-grow: 1;">
+        <Style src="/Packages/com.blep.vrc-expression-utility/Editor/Uxml/Styles.uss" />
+    </ui:VisualElement>
+    <ui:Button text="Build expression!" name="button-finish" class="button--big h2">
+        <Style src="/Packages/com.blep.vrc-expression-utility/Editor/Uxml/Styles.uss" />
+    </ui:Button>
 </ui:UXML>

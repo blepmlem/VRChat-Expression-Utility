@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7c6c17b3e094b50aa3bd1c64ae07ca5, type: 3}
   m_Name: Intro
   m_EditorClassIdentifier: 
-  _name: Intro
+  _name: Intro & Options
   _description: Intro
-  _layout: {fileID: 9197481963319205126, guid: fdda6f6dd8d2977479443f0469de06f9, type: 3}
   _icon: {fileID: 0}
+  _infoBox: 
+  _layout: {fileID: 9197481963319205126, guid: fdda6f6dd8d2977479443f0469de06f9, type: 3}

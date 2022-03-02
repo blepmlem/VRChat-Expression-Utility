@@ -1,7 +1,7 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
     <ui:VisualElement name="VisualElement" style="flex-grow: 1;">
         <Style src="/Packages/com.blep.vrc-expression-utility/Editor/Uxml/Styles.uss" />
-        <ui:Label text="Select avatar:" class="header--center" />
+        <ui:Label text="Select an avatar" class="h1" />
         <ui:VisualElement name="avatars" style="flex-grow: 1;" />
     </ui:VisualElement>
 </ui:UXML>

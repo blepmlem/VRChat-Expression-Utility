@@ -25,16 +25,18 @@ namespace ExpressionUtility.UI
 				_cachedAvatarInfo.Remove(info);
 			}
 			SetupAvatars(GetAvatarDescriptors());
-			EditorApplication.hierarchyChanged += OnHierarchyChanged;
+			EditorApplication.hierarchyChanged += Refresh;
 		}
 
 		private List<VRCAvatarDescriptor> GetAvatarDescriptors() => StageUtility.GetCurrentStageHandle().FindComponentsOfType<VRCAvatarDescriptor>().Where(d => d.gameObject.activeInHierarchy).ToList();
 
-		private void OnHierarchyChanged()
+		private void Refresh() => Refresh(false);
+
+		public void Refresh(bool force)
 		{
 			var descriptors = GetAvatarDescriptors();
 
-			if (_cachedAvatarInfo.Count == descriptors.Count)
+			if (_cachedAvatarInfo.Count == descriptors.Count && !force)
 			{
 				return;
 			}
@@ -153,7 +155,7 @@ namespace ExpressionUtility.UI
 		public void Dispose()
 		{
 			AvatarWasUpdated = null;
-			EditorApplication.hierarchyChanged -= OnHierarchyChanged;
+			EditorApplication.hierarchyChanged -= Refresh;
 		}
 	}
 }

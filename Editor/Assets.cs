@@ -10,13 +10,6 @@ namespace ExpressionUtility.UI
 	internal class Assets : ScriptableObject
 	{
 		[SerializeField]
-		private Texture2D _githubIconDark;
-
-		[SerializeField]
-		private Texture2D _githubIconLight;
-
-		
-		[SerializeField]
 		private List<Message> _messages;
 		
 		[SerializeField]
@@ -45,9 +38,6 @@ namespace ExpressionUtility.UI
 		public Texture2D InfoIcon => EditorGUIUtility.IconContent("console.infoicon@2x").image as Texture2D;
 		public Texture2D WarningIcon => EditorGUIUtility.IconContent("console.warnicon@2x").image as Texture2D;
 		public Texture2D ErrorIcon => EditorGUIUtility.IconContent("console.erroricon@2x").image as Texture2D;
-
-		public Texture2D GithubDark => _githubIconDark;
-		public Texture2D GithubLight => _githubIconLight;
 
 		public void Initialize()
 		{

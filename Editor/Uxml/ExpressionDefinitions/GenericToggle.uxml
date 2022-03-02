@@ -1,5 +1,11 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
-    <ui:Toggle label="Create Animation" name="create-animation" />
-    <ui:VisualElement name="padding" style="flex-grow: 1;" />
-    <ui:Button text="Build expression!" name="button-finish" />
+    <ui:Toggle label="Create Animation" name="create-animation" class="toggle">
+        <Style src="/Packages/com.blep.vrc-expression-utility/Editor/Uxml/Styles.uss" />
+    </ui:Toggle>
+    <ui:VisualElement name="padding" style="flex-grow: 1;">
+        <Style src="/Packages/com.blep.vrc-expression-utility/Editor/Uxml/Styles.uss" />
+    </ui:VisualElement>
+    <ui:Button text="Build expression!" name="button-finish" class="button--big h2">
+        <Style src="/Packages/com.blep.vrc-expression-utility/Editor/Uxml/Styles.uss" />
+    </ui:Button>
 </ui:UXML>

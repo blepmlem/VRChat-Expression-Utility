@@ -21,7 +21,7 @@ namespace ExpressionUtility
 		private static APIUser _user;
 		private static IEnumerable<ApiAvatar> _avatars;
 		private static TaskCompletionSource<IEnumerable<ApiAvatar>> _avatarTSC;
-		private static TaskCompletionSource<APIUser> _loginTSC;
+		private static TaskCompletionSource<bool> _loginSuccessTSC;
 		private static Dictionary<string, TaskCompletionSource<(string url, Texture2D image)>> _cachedTextureDownloads = new Dictionary<string, TaskCompletionSource<(string url, Texture2D image)>>();
 		
 		public static Task<(string url, Texture2D image)> DownloadImage(string imageUrl)
@@ -32,7 +32,6 @@ namespace ExpressionUtility
 				_cachedTextureDownloads[imageUrl] = tcs;
 				ImageDownloader.DownloadImage(imageUrl, 0, OnSuccess, OnFailure);
 			}
-			
 			
 			void OnSuccess(Texture2D texture2D)
 			{
@@ -59,15 +58,20 @@ namespace ExpressionUtility
 
 
 
-		private static async Task<APIUser> Login()
+		private static async Task<bool> Login()
 		{
-			if (_loginTSC != null)
+			if (!Settings.AllowConnectToVrcApi)
 			{
-				return await _loginTSC.Task;
+				return false;
 			}
 			
-			_loginTSC = new TaskCompletionSource<APIUser>();
-	
+			if (_loginSuccessTSC != null)
+			{
+				return await _loginSuccessTSC.Task;
+			}
+			
+			_loginSuccessTSC = new TaskCompletionSource<bool>();
+
 			bool loaded = ApiCredentials.IsLoaded();
 			if (!loaded)
 			{
@@ -80,24 +84,24 @@ namespace ExpressionUtility
 
 				void Success(ApiModelContainer<APIUser> c)
 				{
-					_loginTSC.TrySetResult(c.Model as APIUser);
+					_loginSuccessTSC.TrySetResult(true);
 				}
 
 				void Error(ApiModelContainer<APIUser> c)
 				{
-					_loginTSC.TrySetResult(c.Model as APIUser);
-					_loginTSC = null;
+					_loginSuccessTSC.TrySetResult(false);
+					_loginSuccessTSC = null;
 				}
 				
 				APIUser.InitialFetchCurrentUser(Success, Error);
 			}
 			else
 			{
-				_loginTSC.TrySetResult(APIUser.CurrentUser);
+				_loginSuccessTSC.TrySetResult(APIUser.CurrentUser != null);
 			}
 
 
-			return await _loginTSC.Task;
+			return await _loginSuccessTSC.Task;
 		}
 
 		public static void BorderColor(this VisualElement e, Color color)
@@ -155,19 +159,30 @@ namespace ExpressionUtility
 		
 		public static async Task<IEnumerable<ApiAvatar>> GetAvatars()
 		{
+			var emptyList = new List<ApiAvatar>();
+			if (!Settings.AllowConnectToVrcApi)
+			{
+				return emptyList;
+			}
+			
 			if (_avatarTSC != null)
 			{
 				return await _avatarTSC.Task;
 			}
-
-			await Login();
+			
+			bool loginSuccess = await Login();
+			if (!loginSuccess)
+			{
+				return emptyList;
+			}
+			
 			_avatarTSC = new TaskCompletionSource<IEnumerable<ApiAvatar>>();
 			void OnSuccess(IEnumerable<ApiAvatar> avs)
 			{
 				_avatarTSC.TrySetResult(avs);
 			}
 
-			ApiAvatar.FetchList(OnSuccess, s => _avatarTSC.SetResult(new List<ApiAvatar>()), 
+			ApiAvatar.FetchList(OnSuccess, s => _avatarTSC.SetResult(emptyList), 
 				ApiAvatar.Owner.Mine,
 				ApiAvatar.ReleaseStatus.All,
 				null,

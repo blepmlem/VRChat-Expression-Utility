@@ -205,6 +205,13 @@ namespace ExpressionUtility
 		{
 			var versions = new List<GitPackage>();
 			var tcs = new TaskCompletionSource<List<GitPackage>>();
+
+			if (!Settings.AllowCheckForUpdates)
+			{
+				tcs.TrySetResult(versions);
+				return tcs.Task;
+			}
+			
 			var http = UnityWebRequest.Get(TAGS_URL);
 			var req = http.SendWebRequest();
 			req.completed += operation =>

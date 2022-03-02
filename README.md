@@ -3,10 +3,10 @@
 Unity's Package manager, while supporting git, does not come with any embedded git install, so this will only work if you have [git](https://git-scm.com/download/win) installed beforehand.
 - Open Unity's Package Manager and add the git url:
 
-```https://github.com/blepmlem/VRChat-Expression-Utility.git#2.2.0```
+```https://github.com/blepmlem/VRChat-Expression-Utility.git#2.3.0```
 
 ### If you do not have git installed
-- Download [the latest zip file here](https://github.com/blepmlem/VRChat-Expression-Utility/archive/refs/tags/2.2.0.zip) and unzip into your *Packages* which is located in the *root* of your Unity project folder.
+- Download [the latest zip file here](https://github.com/blepmlem/VRChat-Expression-Utility/archive/refs/tags/2.3.0.zip) and unzip into your *Packages* which is located in the *root* of your Unity project folder.
 
 Both versions come with built in auto update functionality.
 

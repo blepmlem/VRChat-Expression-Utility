@@ -58,12 +58,18 @@ namespace ExpressionUtility.UI
 
 		private void SetupFooter()
 		{
-			var githubIcon = _root.Q("github-icon");
-			githubIcon.style.backgroundImage = EditorGUIUtility.isProSkin ? Assets.GithubLight : Assets.GithubDark;
+			bool isDarkMode = EditorGUIUtility.isProSkin;
+			
+			var changelogButton = _root.Q<Button>("changelog-button");
+			changelogButton.Q("icon")?.AddToClassList(isDarkMode ? "icon-changelog--light" : "icon-changelog--dark");
+			changelogButton.clicked += () => Application.OpenURL(@"https://github.com/blepmlem/VRChat-Expression-Utility/blob/master/CHANGELOG.md");
+			
 			var githubButton = _root.Q<Button>("github-button");
-			githubButton.clicked += () => Application.OpenURL("https://github.com/blepmlem/VRChat-Expression-Utility");
+			githubButton.Q("icon")?.AddToClassList(isDarkMode ? "icon-github--light" : "icon-github--dark");
+			githubButton.clicked += () => Application.OpenURL(@"https://github.com/blepmlem/VRChat-Expression-Utility");
+			
 			var donateButton = _root.Q<Button>("donate-button");
-			donateButton.clicked += () => Application.OpenURL("https://ko-fi.com/blepblem");
+			donateButton.clicked += () => Application.OpenURL(@"https://ko-fi.com/blepblem");
 		}
 
 		private async Task SetupUpdater()
@@ -183,9 +189,9 @@ namespace ExpressionUtility.UI
 			expAnimFolder.objectType = typeof(DefaultAsset);
 			
 			var expName = box.Q<Label>("expression-name");
-			expName.text = expressionInfo.ExpressionName;
+			expName.text = $"New expression \"{expressionInfo.ExpressionName}\"";
 			var expDefinitionName= box.Q<Label>("expression-definition-name");
-			expDefinitionName.text = instance.Name;
+			expDefinitionName.text = $"Parameters for {instance.Name}";
 			
 			expMenu.SetValueWithoutNotify(expressionInfo.Menu);
 			expAnimator.SetValueWithoutNotify(expressionInfo.Controller);

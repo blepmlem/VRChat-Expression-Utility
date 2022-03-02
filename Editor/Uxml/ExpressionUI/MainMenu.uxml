@@ -1,28 +1,28 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
-    <ui:Label text="Chose what to do:" class="header--center">
+    <ui:Label text="Chose what to do" class="h1">
         <Style src="/Packages/com.blep.vrc-expression-utility/Editor/Uxml/Styles.uss" />
     </ui:Label>
     <ui:VisualElement>
         <Style src="/Packages/com.blep.vrc-expression-utility/Editor/Uxml/Styles.uss" />
-        <ui:Button name="create-expression-button" class="button--big" style="flex-shrink: 1; border-top-left-radius: 12px; border-bottom-left-radius: 12px; border-top-right-radius: 12px; border-bottom-right-radius: 12px; border-left-width: 0; border-right-width: 0; border-top-width: 0; border-bottom-width: 0; flex-direction: row; background-image: none;">
+        <ui:Button name="create-expression-button" class="button--big" style="flex-shrink: 1; flex-direction: row; background-image: none;">
             <ui:VisualElement style="justify-content: center;">
                 <ui:VisualElement name="thumbnail" picking-mode="Ignore" style="background-color: rgba(29, 29, 29, 0); -unity-background-scale-mode: scale-and-crop; border-top-left-radius: 12px; border-bottom-left-radius: 12px; border-top-right-radius: 12px; border-bottom-right-radius: 12px; width: 64px; height: 64px; margin-left: 2px; margin-right: 2px; margin-top: 4px; margin-bottom: 4px; background-image: none; display: none;" />
             </ui:VisualElement>
             <ui:VisualElement picking-mode="Ignore" style="flex-grow: 1; padding-left: 5px; padding-right: 5px; padding-top: 2px; padding-bottom: 2px;">
-                <ui:Label text="Create an expression" name="header" picking-mode="Ignore" style="-unity-text-align: upper-left; -unity-font-style: bold; flex-wrap: wrap; white-space: normal; flex-grow: 0; font-size: 14px;" />
-                <ui:Label text="Build an expression from a list of presets!" name="description" picking-mode="Ignore" style="-unity-text-align: upper-left; display: flex; flex-grow: 1; flex-shrink: 1; white-space: normal;" />
+                <ui:Label text="Create an expression" name="header" picking-mode="Ignore" />
+                <ui:Label text="Build an expression from a list of presets!" name="description" picking-mode="Ignore" />
             </ui:VisualElement>
         </ui:Button>
     </ui:VisualElement>
     <ui:VisualElement>
         <Style src="/Packages/com.blep.vrc-expression-utility/Editor/Uxml/Styles.uss" />
-        <ui:Button name="avatar-parameter-data-button" class="button--big" style="flex-shrink: 1; border-top-left-radius: 12px; border-bottom-left-radius: 12px; border-top-right-radius: 12px; border-bottom-right-radius: 12px; border-left-width: 0; border-right-width: 0; border-top-width: 0; border-bottom-width: 0; flex-direction: row; background-image: none;">
+        <ui:Button name="avatar-parameter-data-button" class="button--big" style="flex-shrink: 1; flex-direction: row; background-image: none;">
             <ui:VisualElement style="justify-content: center;">
                 <ui:VisualElement name="thumbnail" picking-mode="Ignore" style="background-color: rgba(29, 29, 29, 0); -unity-background-scale-mode: scale-and-crop; border-top-left-radius: 12px; border-bottom-left-radius: 12px; border-top-right-radius: 12px; border-bottom-right-radius: 12px; width: 64px; height: 64px; margin-left: 2px; margin-right: 2px; margin-top: 4px; margin-bottom: 4px; background-image: none; display: none;" />
             </ui:VisualElement>
             <ui:VisualElement picking-mode="Ignore" style="flex-grow: 1; padding-left: 5px; padding-right: 5px; padding-top: 2px; padding-bottom: 2px;">
-                <ui:Label text="Avatar parameter data" name="header" picking-mode="Ignore" style="-unity-text-align: upper-left; -unity-font-style: bold; flex-wrap: wrap; white-space: normal; flex-grow: 0; font-size: 14px;" />
-                <ui:Label text="View the relationships between each parameter and any associated animations/layers/menus" name="description" picking-mode="Ignore" style="-unity-text-align: upper-left; display: flex; flex-grow: 1; flex-shrink: 1; white-space: normal;" />
+                <ui:Label text="Avatar parameter data" name="header" picking-mode="Ignore" />
+                <ui:Label text="View the relationships between each parameter and any associated animations/layers/menus" name="description" picking-mode="Ignore" />
             </ui:VisualElement>
         </ui:Button>
     </ui:VisualElement>

@@ -5,27 +5,40 @@ namespace ExpressionUtility.UI
 {
 	internal class Intro : ExpressionUI
 	{
-		private const string SKIP_PREF = "expression-ui-skip-intro";
 		private UIController _controller;
 		private bool _skipInto;
+		
+		private Toggle _skipIntroToggle;
+		private Toggle _connectToVrcToggle;
+		private Button _nextButton;
+
+		public override void BindControls(VisualElement root)
+		{
+			_skipIntroToggle = root.Q<Toggle>("skip-intro-toggle");
+			_connectToVrcToggle = root.Q<Toggle>("connect-vrc-api-toggle"); 
+			_nextButton = root.Q<Button>("footer-toolbar-next");
+		}
 
 		public override void OnEnter(UIController controller, ExpressionUI previousUI)
 		{
-			_skipInto = EditorPrefs.GetBool(SKIP_PREF, false);
-			
 			_controller = controller;
-			var toggle = _controller.ContentFrame.Q<Toggle>("skip-into-toggle");
-			toggle.value = _skipInto;
-			toggle.RegisterValueChangedCallback(evt => EditorPrefs.SetBool(SKIP_PREF, evt.newValue));
-			var nextButton = controller.ContentFrame.Q<Button>("footer-toolbar-next");
-			
-			if (previousUI is null && toggle.value)
+			_skipIntroToggle.value = Settings.SkipIntroPage;
+			_skipIntroToggle.RegisterValueChangedCallback(evt => Settings.SkipIntroPage = evt.newValue);
+
+			_connectToVrcToggle.value = Settings.AllowConnectToVrcApi;
+			_connectToVrcToggle.RegisterValueChangedCallback(evt =>
+			{
+				Settings.AllowConnectToVrcApi = evt.newValue;
+				controller.AvatarCache.Refresh(true);
+			});
+
+			if (previousUI is null && Settings.SkipIntroPage)
 			{
 				OnClicked();
 				return;
 			}
 			
-			nextButton.clickable = new Clickable(OnClicked);
+			_nextButton.clickable = new Clickable(OnClicked);
 		}
 
 		private void OnClicked()

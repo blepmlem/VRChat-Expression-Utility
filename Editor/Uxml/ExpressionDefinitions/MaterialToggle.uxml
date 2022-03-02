@@ -1,7 +1,17 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
-    <uie:ObjectField label="Target Renderer" name="target-renderer" />
-    <ui:VisualElement name="material-slot" />
-    <uie:ObjectField label="New material" name="toggle-material" />
-    <ui:VisualElement name="padding" style="flex-grow: 1;" />
-    <ui:Button text="Build expression!" name="button-finish" />
+    <uie:ObjectField label="Target Renderer" name="target-renderer">
+        <Style src="/Packages/com.blep.vrc-expression-utility/Editor/Uxml/Styles.uss" />
+    </uie:ObjectField>
+    <ui:VisualElement name="material-slot">
+        <Style src="/Packages/com.blep.vrc-expression-utility/Editor/Uxml/Styles.uss" />
+    </ui:VisualElement>
+    <uie:ObjectField label="New material" name="toggle-material">
+        <Style src="/Packages/com.blep.vrc-expression-utility/Editor/Uxml/Styles.uss" />
+    </uie:ObjectField>
+    <ui:VisualElement name="padding" style="flex-grow: 1;">
+        <Style src="/Packages/com.blep.vrc-expression-utility/Editor/Uxml/Styles.uss" />
+    </ui:VisualElement>
+    <ui:Button text="Build expression!" name="button-finish" class="button--big h2">
+        <Style src="/Packages/com.blep.vrc-expression-utility/Editor/Uxml/Styles.uss" />
+    </ui:Button>
 </ui:UXML>

@@ -183,9 +183,9 @@ namespace ExpressionUtility.UI
 			expAnimFolder.objectType = typeof(DefaultAsset);
 			
 			var expName = box.Q<Label>("expression-name");
-			expName.text = expressionInfo.ExpressionName;
+			expName.text = $"New expression \"{expressionInfo.ExpressionName}\"";
 			var expDefinitionName= box.Q<Label>("expression-definition-name");
-			expDefinitionName.text = instance.Name;
+			expDefinitionName.text = $"Parameters for {instance.Name}";
 			
 			expMenu.SetValueWithoutNotify(expressionInfo.Menu);
 			expAnimator.SetValueWithoutNotify(expressionInfo.Controller);

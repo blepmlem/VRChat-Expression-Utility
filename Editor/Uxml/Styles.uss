@@ -192,11 +192,19 @@
     border-top-left-radius: 0;
 }
 
-.button--danger:hover, .button--delete--big:hover {
+.button--danger:hover {
     background-color: crimson;
 }
 
-.button--danger:active, .button--delete--big:active {
+.button--delete--big:hover {
+    background-color: crimson;
+}
+
+.button--danger:active {
+    background-color: darkred;
+}
+
+.button--delete--big:active {
     background-color: darkred;
 }
 
@@ -217,4 +225,63 @@
     flex-grow: 0;
     background-color: rgb(128, 38, 38);
     color: rgb(255, 255, 255);
+}
+
+.h1 {
+    padding-bottom: 10;
+    padding-left: 4;
+    -unity-font-style: bold;
+}
+
+.h2 {
+    padding-bottom: 10;
+    padding-left: 4;
+    -unity-font-style: bold;
+}
+
+.h1 {
+    font-size: 24;
+}
+
+.h2 {
+    font-size: 18;
+}
+
+.toggle {
+    flex-direction: row-reverse;
+}
+
+.toggle .unity-toggle__label {
+    flex-grow: 1;
+    padding-left: 4;
+}
+
+.toggle .unity-toggle__input {
+    flex-grow: 0;
+}
+
+.button--big.unity-button {
+    -unity-text-align: middle-center;
+}
+
+.button--big #description {
+    -unity-text-align: upper-left;
+    -unity-font-style: normal;
+    display: flex;
+    flex-grow: 1;
+    flex-shrink: 1;
+    white-space: normal;
+}
+
+.button--big #header {
+    -unity-text-align: upper-left;
+    -unity-font-style: bold;
+    flex-wrap: wrap;
+    white-space: normal;
+    flex-grow: 0;
+    font-size: 14px;
+}
+
+.button--big.h2 {
+    padding: initial;
 }

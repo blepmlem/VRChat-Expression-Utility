@@ -6,8 +6,9 @@
         <ui:VisualElement style="flex-grow: 1;" />
         <ui:VisualElement name="options">
             <ui:Label text="Options" class="h1" />
-            <ui:Toggle label="Connect to VRC for avatar thumbnails and data" name="connect-vrc-api-toggle" value="true" class="toggle" />
-            <ui:Toggle label="Skip directly to next page in the future" name="skip-intro-toggle" class="toggle" />
+            <ui:Toggle label="Check for updates automatically" name="check-updates-toggle" value="true" class="toggle" />
+            <ui:Toggle label="Download avatar thumbnails and info from VRC API" name="connect-vrc-api-toggle" value="true" class="toggle" />
+            <ui:Toggle label="Skip directly to the next page in the future" name="skip-intro-toggle" class="toggle" />
         </ui:VisualElement>
         <ui:VisualElement style="padding-left: 2px; padding-right: 2px; padding-top: 2px; padding-bottom: 2px;" />
         <ui:VisualElement name="footer" style="flex-shrink: 0;">

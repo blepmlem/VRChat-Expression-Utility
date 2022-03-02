@@ -6,9 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.3.0] - 2022-03-02
 ### Added
-- Options in the introduction page
+- Options area in the introduction page
 - Changelog link in the footer
-- Option for toggling VRC API communication (avatar thumbnail, name, etc), defaults to off
+- Option for toggling VRC API downloads (avatar thumbnail, name, etc), defaults to off
+- Option for disabling update checks
 
 ### Changed
 - Restyle "Create Expression" buttons

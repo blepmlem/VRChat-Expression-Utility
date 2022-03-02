@@ -285,3 +285,24 @@
 .button--big.h2 {
     padding: initial;
 }
+
+.footer-icon {
+    height: 16px;
+    width: 16px;
+}
+
+.icon-github--light{
+    background-image: url('/Packages/com.blep.vrc-expression-utility/Editor/Textures/T_Github_Light.png');
+}
+
+.icon-github--dark{
+    background-image: url('/Packages/com.blep.vrc-expression-utility/Editor/Textures/T_Github_Dark.png');
+}
+
+.icon-changelog--light{
+    background-image: url('/Packages/com.blep.vrc-expression-utility/Editor/Textures/T_Changelog_Light.png');
+}
+
+.icon-changelog--dark{
+    background-image: url('/Packages/com.blep.vrc-expression-utility/Editor/Textures/T_Changelog_Dark.png');
+}

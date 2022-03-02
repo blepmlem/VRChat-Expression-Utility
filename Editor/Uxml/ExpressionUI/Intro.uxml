@@ -11,7 +11,7 @@
         </ui:VisualElement>
         <ui:VisualElement style="padding-left: 2px; padding-right: 2px; padding-top: 2px; padding-bottom: 2px;" />
         <ui:VisualElement name="footer" style="flex-shrink: 0;">
-            <uie:ToolbarButton text="►" name="footer-toolbar-next" tooltip="uwu" class="footer-toolbar-button" style="font-size: 24px; -unity-font-style: bold; border-top-width: 1px; border-bottom-width: 1px; padding-bottom: 2px; padding-top: 2px;" />
+            <uie:ToolbarButton text="►" name="footer-toolbar-next" class="footer-toolbar-button" style="font-size: 24px; -unity-font-style: bold; border-top-width: 1px; border-bottom-width: 1px; padding-bottom: 2px; padding-top: 2px;" />
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

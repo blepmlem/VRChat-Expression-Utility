@@ -7,10 +7,12 @@ Unity's Package manager, while supporting git, does not come with any embedded g
 
 ### If you do not have git installed
 - Download [the latest zip file here](https://github.com/blepmlem/VRChat-Expression-Utility/archive/refs/tags/2.3.0.zip) and unzip the folder (not just the content) into your *Packages* folder located in the *root* of your Unity project folder.
+
+
 ![1](https://user-images.githubusercontent.com/76069764/156886633-f714b614-9eac-4307-9227-46ff7a43138e.png)
 
 
-Both versions come with built in auto update functionality.
+Both versions come with built in update functionality.
 
 # VRChat Expression Utility
 This tool allows you to skip all of the tedious work when setting up new expressions in SDK3 Avatars.

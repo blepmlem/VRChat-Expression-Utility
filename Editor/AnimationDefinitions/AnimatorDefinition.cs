@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using Newtonsoft.Json;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
@@ -30,16 +32,17 @@ namespace ExpressionUtility
 		}
 
 		public string Name { get; }
-		public AnimatorController RealizeSelf()
+		public AnimatorController RealizeSelf(DirectoryInfo creationDirectory)
 		{
 			if (!IsRealized)
 			{
 				Animator = new AnimatorController();
+				AssetDatabase.CreateAsset(Animator, $"{creationDirectory.FullName}/ANIMATOR_{Name}.controller");
 			}
 			
 			foreach (var realizable in Children.OfType<IRealizable<AnimatorControllerLayer>>())
 			{
-				var layer = realizable.RealizeSelf();
+				var layer = realizable.RealizeSelf(creationDirectory);
 				
 				if(Animator.layers.Any(l => l.name == layer.name))
 				{
@@ -51,20 +54,19 @@ namespace ExpressionUtility
 
 			foreach (var realizable in Children.OfType<IRealizable<AnimatorControllerParameter>>())
 			{
-				var parameter = realizable.RealizeSelf();
+				var parameter = realizable.RealizeSelf(creationDirectory);
 				if (Animator.parameters.Any(p => p.name == parameter.name))
 				{
 					continue;
 				}
 				
-				Animator.AddParameter(parameter);;
+				Animator.AddParameter(parameter);
 			}
 			
 			return Animator;
 		}
 
 		public bool IsRealized => Animator != null;
-		public bool IsRealizedRecursive => this.IsRealizedRecursive();
 		public AnimatorType Type { get; }
 		public void DeleteSelf()
 		{

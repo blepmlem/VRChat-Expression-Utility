@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using ExpressionUtility.UI;
 using UnityEditor;
 using UnityEditor.Animations;
@@ -50,7 +51,7 @@ namespace ExpressionUtility
 			var avatar = new AvatarDefinition(_expressionInfo.AvatarDescriptor);
 			avatar.AddChild(new VrcParameterDefinition(expName, ParameterValueType.Bool));
 			
-			avatar.FindAncestor<MenuDefinition>(_expressionInfo.Menu.NotNull()?.name)?.AddChild(new MenuControlDefinition(expName, ControlType.Toggle));
+			avatar.FindDescendant<MenuDefinition>(_expressionInfo.Menu.NotNull()?.name)?.AddChild(new MenuControlDefinition(expName, ControlType.Toggle));
 
 			var animator = avatar.FindDescendant<AnimatorDefinition>(_expressionInfo.Controller.name);
 			animator.AddChild(new AnimatorParameterDefinition(expName, ParameterValueType.Bool));
@@ -60,22 +61,25 @@ namespace ExpressionUtility
 			var mainState = stateMachine.AddChild(new StateDefinition(expName));
 			var motion = mainState.AddChild(new MotionDefinition(expName, MotionDefinition.MotionType.AnimationClip));
 
-
-			if (_createAnimation)
-			{
-				// motion.AddChild(new KeyframeDefinition())
-			}
-			
-			// if (_createAnimation)
-			// {
-				var animationClip = AnimUtility.CreateAnimation(_expressionInfo.AnimationsFolder.GetPath(), expName, _dirtyAssets);
-			// 	toggleState.motion = animationClip;
-			// }
-
 			stateMachine.AddChild(new TransitionDefinition(stateMachine.Any, mainState))
 			            .AddChild(new ConditionDefinition(expName, AnimatorConditionMode.If, 1));
 			stateMachine.AddChild(new TransitionDefinition(mainState, stateMachine.Exit))
 			            .AddChild(new ConditionDefinition(expName, AnimatorConditionMode.IfNot, 0));
+			
+			// if (_createAnimation)
+			// {
+			// 	// motion.AddChild(new KeyframeDefinition())
+			// }
+			//
+			// // if (_createAnimation)
+			// // {
+			// 	var animationClip = AnimUtility.CreateAnimation(_expressionInfo.AnimationsFolder.GetPath(), expName, _dirtyAssets);
+			// // 	toggleState.motion = animationClip;
+			// // }
+			//
+			//
+
+			avatar.RealizeSelf(new DirectoryInfo(_expressionInfo.AnimationsFolder.GetPath()));
 		}
 	}
 }

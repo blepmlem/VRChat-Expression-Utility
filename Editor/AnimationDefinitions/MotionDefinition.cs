@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using Newtonsoft.Json;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
@@ -40,15 +42,14 @@ namespace ExpressionUtility
 			}
 		}
 
-		public DefaultAsset CreationFolder { get; set; }
-		
 		public MotionType Type { get; }
+		
 		public Motion Motion { get; private set; }
 
 		public readonly List<ParameterDefinition> BlendParameters = new List<ParameterDefinition>();
 		public string Name { get; }
 		
-		public Motion RealizeSelf()
+		public Motion RealizeSelf(DirectoryInfo creationDirectory)
 		{
 			if (!IsRealized)
 			{
@@ -59,7 +60,7 @@ namespace ExpressionUtility
 		}
 
 		public bool IsRealized => Motion != null;
-		public bool IsRealizedRecursive => this.IsRealizedRecursive();
+
 		public void DeleteSelf()
 		{
 			if(IsRealized)

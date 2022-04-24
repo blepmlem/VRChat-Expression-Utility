@@ -1,11 +1,14 @@
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using UnityEditor.Animations;
 using VRC.SDK3.Avatars.Components;
 using VRC.SDK3.Avatars.ScriptableObjects;
 
 namespace ExpressionUtility
 {
-	internal class AvatarDefinition : IAnimationDefinition
+	internal class AvatarDefinition : IAnimationDefinition, IRealizable<VRCAvatarDescriptor>
 	{
 		public AvatarDefinition(VRCAvatarDescriptor descriptor)
 		{
@@ -53,7 +56,7 @@ namespace ExpressionUtility
 		public VRCAvatarDescriptor AvatarDescriptor { get; }
 		
 		public VRCExpressionParameters VrcExpressionParameters { get; }
-		public string Name { get; }
+		public string Name { get; private set; }
 
 		public bool IsRealized => AvatarDescriptor != null;
 
@@ -66,5 +69,30 @@ namespace ExpressionUtility
 		public IAnimationDefinition Parent { get; set; }
 		
 		public override string ToString() => $"{Name} (Avatar)";
+
+		public VRCAvatarDescriptor RealizeSelf(DirectoryInfo creationDirectory)
+		{
+			if (!IsRealized)
+			{
+				throw new NullReferenceException("Missing VRC Avatar Descriptor!");
+			}
+			
+			foreach (var realizable in Children.OfType<IRealizable<VRCExpressionParameters.Parameter>>())
+			{
+				realizable.RealizeSelf(creationDirectory);
+			}
+			
+			foreach (var realizable in Children.OfType<IRealizable<VRCExpressionsMenu>>())
+			{
+				realizable.RealizeSelf(creationDirectory);
+			}
+			
+			foreach (var realizable in Children.OfType<IRealizable<AnimatorController>>())
+			{
+				realizable.RealizeSelf(creationDirectory);
+			}
+			
+			return AvatarDescriptor;
+		}
 	}
 }

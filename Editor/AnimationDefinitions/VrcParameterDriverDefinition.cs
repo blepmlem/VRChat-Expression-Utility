@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
 using UnityEditor;
 using VRC.SDK3.Avatars.Components;
 
@@ -16,6 +17,7 @@ namespace ExpressionUtility
 			}
 		}
 		
+		[JsonIgnore]
 		public VRCAvatarParameterDriver Behaviour { get; }
 		public string Name => $"{Parent?.Name} (Parameter Driver)";
 		public bool IsRealized => Behaviour != null;

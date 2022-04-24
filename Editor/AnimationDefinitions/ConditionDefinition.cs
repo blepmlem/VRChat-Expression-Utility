@@ -1,14 +1,15 @@
 using System.Collections.Generic;
+using System.IO;
 using UnityEditor;
 using UnityEditor.Animations;
 
 namespace ExpressionUtility
 {
-	internal class ConditionDefinition : IAnimationDefinition
+	internal class ConditionDefinition : IAnimationDefinition, IRealizable<AnimatorCondition>
 	{
 		public AnimatorConditionMode Mode { get; }
 		public float Threshold { get; }
-		public AnimatorCondition? AnimatorCondition { get; }
+		public AnimatorCondition? AnimatorCondition { get; private set; }
 		
 		public ConditionDefinition(string parameter, AnimatorConditionMode mode, float threshold)
 		{
@@ -23,7 +24,22 @@ namespace ExpressionUtility
 			AnimatorCondition = condition;
 		}
 
-		public string Name { get; }
+		public string Name { get; private set; }
+		public AnimatorCondition RealizeSelf(DirectoryInfo creationDirectory)
+		{
+			if (!IsRealized)
+			{
+				AnimatorCondition = new AnimatorCondition
+				{
+					mode = Mode,
+					parameter = Name,
+					threshold = Threshold,
+				};
+			}
+
+			return AnimatorCondition.Value;
+		}
+
 		public bool IsRealized => AnimatorCondition != null;
 
 		public void DeleteSelf()

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.Animations;
@@ -66,11 +67,12 @@ namespace ExpressionUtility
 		public ParameterDefinition SpeedParameter { get; private set; }
 		
 		public StateType Type { get; set; } = StateType.Normal;
+		
 		public AnimatorState State { get; private set; }
 		
 		public string Name { get; }
 		
-		public AnimatorState RealizeSelf()
+		public AnimatorState RealizeSelf(DirectoryInfo creationDirectory)
 		{
 			if (!IsRealized)
 			{
@@ -94,7 +96,6 @@ namespace ExpressionUtility
 		}
 
 		public bool IsRealized => State != null;
-		public bool IsRealizedRecursive => this.IsRealizedRecursive();
 
 		public void DeleteSelf()
 		{

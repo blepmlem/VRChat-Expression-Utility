@@ -1,10 +1,12 @@
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using UnityEditor;
 using UnityEditor.Animations;
 
 namespace ExpressionUtility
 {
-	internal class TransitionDefinition : IAnimationDefinition, IRealizable<AnimatorTransitionBase>
+	internal class TransitionDefinition : IAnimationDefinition, IRealizable<AnimatorTransition>,  IRealizable<AnimatorStateTransition>
 	{
 		public TransitionDefinition(StateDefinition from, StateDefinition to)
 		{
@@ -26,17 +28,35 @@ namespace ExpressionUtility
 
 		public StateDefinition From { get; set; }
 
-		public AnimatorTransitionBase StateTransition { get; }
+		public AnimatorTransitionBase StateTransition { get; private set; }
 
 		public string Name { get; }
 
-		public AnimatorTransitionBase RealizeSelf()
+		AnimatorTransition IRealizable<AnimatorTransition>.RealizeSelf(DirectoryInfo creationDirectory)
 		{
-			throw new System.NotImplementedException();
+			if (!IsRealized)
+			{
+				StateTransition = new AnimatorTransition();
+			}
+
+			StateTransition.conditions = Children.OfType<IRealizable<AnimatorCondition>>().Select(r => r.RealizeSelf(creationDirectory)).ToArray();
+			
+			return StateTransition as AnimatorTransition;
 		}
 
+		AnimatorStateTransition IRealizable<AnimatorStateTransition>.RealizeSelf(DirectoryInfo creationDirectory)
+		{
+			if (!IsRealized)
+			{
+				StateTransition = new AnimatorStateTransition();
+			}
+
+			StateTransition.conditions = Children.OfType<IRealizable<AnimatorCondition>>().Select(r => r.RealizeSelf(creationDirectory)).ToArray();
+			
+			return StateTransition as AnimatorStateTransition;
+		}
+		
 		public bool IsRealized => StateTransition != null;
-		public bool IsRealizedRecursive => this.IsRealizedRecursive();
 
 		public void DeleteSelf()
 		{

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -19,7 +20,7 @@ namespace ExpressionUtility
 
 		public ParameterValueType Type { get; }
 
-		public AnimatorControllerParameter RealizeSelf()
+		public AnimatorControllerParameter RealizeSelf(DirectoryInfo creationDirectory)
 		{
 			if (IsRealized)
 			{
@@ -34,8 +35,6 @@ namespace ExpressionUtility
 		}
 
 		public override bool IsRealized => Parameter != null;
-
-		public bool IsRealizedRecursive => this.IsRealizedRecursive();
 
 		private AnimatorControllerParameter Parameter => ParentAnimator?.Animator.parameters.FirstOrDefault(p => p.name == Name);
 		

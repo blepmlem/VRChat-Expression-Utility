@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.Animations;
@@ -77,6 +78,7 @@ namespace ExpressionUtility
 		}
 
 		public StateDefinition GetState(string name) => Children.OfType<StateDefinition>().FirstOrDefault(c => c.Name == name);
+		
 		public AnimatorStateMachine StateMachine { get; private set; }
 
 		public StateDefinition DefaultState { get; set; }
@@ -88,7 +90,6 @@ namespace ExpressionUtility
 		public string Name { get; }
 
 		public bool IsRealized => StateMachine != null;
-		public bool IsRealizedRecursive => this.IsRealizedRecursive();
 
 		public void DeleteSelf()
 		{
@@ -102,40 +103,41 @@ namespace ExpressionUtility
 
 		public IAnimationDefinition Parent { get; set; }
 
-		public AnimatorStateMachine RealizeSelf()
+		public AnimatorStateMachine RealizeSelf(DirectoryInfo creationDirectory)
 		{
 			if (!IsRealized)
 			{
 				StateMachine = new AnimatorStateMachine { name = Name };
+				// AssetDatabase.CreateAsset(StateMachine, $"{creationDirectory.FullName}/{Name}.controller");
 			}
 			
 			foreach (var realizable in Children.OfType<IRealizable<AnimatorStateMachine>>())
 			{
-				var stateMachine = realizable.RealizeSelf();
+				var stateMachine = realizable.RealizeSelf(creationDirectory);
 				if (StateMachine.stateMachines.Any(sm => sm.stateMachine.NotNull()?.name == stateMachine.name))
 				{
 					continue;
 				}
 				
 				StateMachine.AddStateMachine(stateMachine, Vector3.zero);
-				StateMachine.AddObjectToAsset(stateMachine);
+				StateMachine.AddSubObject(stateMachine);
 			}
 			
 			foreach (var realizable in Children.OfType<IRealizable<AnimatorState>>())
 			{
-				var state = realizable.RealizeSelf();
+				var state = realizable.RealizeSelf(creationDirectory);
 				if (StateMachine.states.Any(s => s.state.NotNull()?.name == state.name))
 				{
 					continue;
 				}
 				
 				StateMachine.AddState(state, Vector3.one);
-				StateMachine.AddObjectToAsset(state);
+				StateMachine.AddSubObject(state);
 			}
 			
 			foreach (var realizable in Children.OfType<IRealizable<AnimatorTransitionBase>>())
 			{
-				// var transitionBase = transitionDef.RealizeSelf();
+				var transitionBase = realizable.RealizeSelf(creationDirectory);
 				// transitionBase.
 			}
 

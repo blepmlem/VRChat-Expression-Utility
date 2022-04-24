@@ -331,8 +331,8 @@ namespace ExpressionUtility
 			}
 		}
 
-		public static void RemoveObjectSelector(this ObjectField field) => field.AddToClassList("object-field--no-selector");
-		public static void RemoveIcon(this ObjectField field) => field.AddToClassList("object-field--no-icon");
+		public static void RemoveObjectSelector(this ObjectField field) => field.AddToClassList("subObject-field--no-selector");
+		public static void RemoveIcon(this ObjectField field) => field.AddToClassList("subObject-field--no-icon");
 
 		public static IEnumerable<VRCExpressionsMenu> GetMenusRecursively(this VRCExpressionsMenu menu)
 		{
@@ -345,7 +345,7 @@ namespace ExpressionUtility
 			}
 		}
 
-		public static void AddObjectToAsset(this Object asset, Object @object)
+		public static void AddSubObject(this Object asset, Object subObject)
 		{
 			var path = AssetDatabase.GetAssetPath(asset);
 			if (path == "")
@@ -353,9 +353,9 @@ namespace ExpressionUtility
 				return;
 			}
 			
-			@object.hideFlags = HideFlags.HideInHierarchy;
-			EditorUtility.SetDirty(@object);
-			AssetDatabase.AddObjectToAsset(@object, path);
+			// subObject.hideFlags = HideFlags.HideInHierarchy;
+			EditorUtility.SetDirty(subObject);
+			AssetDatabase.AddObjectToAsset(subObject, path);
 		}
 		
 		public static void AddObjectsToAsset(this Object asset, params Object[] objs)

@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using Newtonsoft.Json;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
@@ -22,7 +24,6 @@ namespace ExpressionUtility
 		
 		public string Name { get; }
 		public bool IsRealized => Layer != null;
-		public bool IsRealizedRecursive => this.IsRealizedRecursive();
 
 		public void DeleteSelf()
 		{
@@ -35,7 +36,7 @@ namespace ExpressionUtility
 
 		public List<IAnimationDefinition> Children { get; } = new List<IAnimationDefinition>();
 		public IAnimationDefinition Parent { get; set; }
-		public AnimatorControllerLayer RealizeSelf()
+		public AnimatorControllerLayer RealizeSelf(DirectoryInfo creationDirectory)
 		{
 			if (!IsRealized)
 			{
@@ -46,7 +47,7 @@ namespace ExpressionUtility
 				};
 			}
 			
-			var stateMachine = Children.OfType<IRealizable<AnimatorStateMachine>>().FirstOrDefault()?.RealizeSelf();
+			var stateMachine = Children.OfType<IRealizable<AnimatorStateMachine>>().FirstOrDefault()?.RealizeSelf(creationDirectory);
 
 			Layer.stateMachine = stateMachine;
 			
@@ -54,6 +55,8 @@ namespace ExpressionUtility
 		}
 
 		public override string ToString() => $"{Name} (Animator Layer)";
+		
+		[JsonIgnore]
 		public AnimatorControllerLayer Layer { get; private set; }
 	}
 }

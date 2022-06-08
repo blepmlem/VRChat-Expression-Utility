@@ -45,16 +45,98 @@ namespace ExpressionUtility
 			ErrorValidate();
 		}
 
+		private void SetupListItem(VisualElement listItem)
+		{
+			var objectField = listItem.Q<ObjectField>("target-object");
+			objectField.RegisterValueChangedCallback(e =>
+			{
+				SetupListMaterialSlotPicker();
+				ErrorValidate();
+			});
+			objectField.allowSceneObjects = true;
+			var type = listItem.Q<EnumField>("target-type");
+
+			var materialField = listItem.Q<ObjectField>("target-material");
+			materialField.objectType = typeof(Material);
+			materialField.RegisterValueChangedCallback(e => ErrorValidate());
+			
+			type.RegisterValueChangedCallback(e => ShowTypeFields(e.newValue));
+			ShowTypeFields(type.value);
+			
+			void SetupListMaterialSlotPicker()
+			{
+				var holder = listItem.Q("material-slot");
+				holder.Clear();
+			
+				if (!(objectField.value is Renderer renderer))
+				{
+					return;
+				}
+
+				var materials = renderer.sharedMaterials.ToList();
+				var slots = new List<int>();
+				for (var i = 0; i < materials.Count; i++)
+				{
+					slots.Add(i);
+				}
+			
+				string PrettifyName(int arg) => $"{arg} ({materials[arg].name})";
+			
+				var selector = new PopupField<int>(slots, 0, PrettifyName, PrettifyName)
+				{
+					tooltip = "Material slot",
+				};
+
+				selector.RegisterValueChangedCallback(e => SetMaterial(e.newValue));
+				
+				void SetMaterial(int obj)
+				{
+					selector.SetValueWithoutNotify(obj);
+					ErrorValidate();
+				}
+
+				SetMaterial(selector.value);
+				holder.Add(selector);
+			}
+			
+			void ShowTypeFields(Enum enumValue)
+			{
+				var value = (AdvancedToggleObjectMode) enumValue;
+				var activeToggle = listItem.Q("target-active-state");
+				
+				activeToggle.Display(false);
+				materialField.Display(false);
+				
+				switch (value)
+				{
+					case AdvancedToggleObjectMode.GameObject:
+						objectField.label = "Target Object";
+						activeToggle.Display(true);
+						objectField.objectType = typeof(Transform);
+						objectField.value = null;
+						break;
+					case AdvancedToggleObjectMode.Material:
+						objectField.label = "Target Renderer";
+						materialField.Display(true);
+						objectField.objectType = typeof(Renderer);
+						objectField.value = null;
+						break;
+					default:
+						throw new ArgumentOutOfRangeException();
+				}
+				
+				ErrorValidate();
+			}
+		}
+
+
+
 		private void SetupTargetObjectsList(UIController controller)
 		{
 			void AddObject()
 			{
 				var obj = _targetObjectAsset.InstantiateTemplate(_targetObjectsScrollView.contentContainer);
-				var objectField = obj.Q<ObjectField>("target-object");
-				objectField.allowSceneObjects = true;
-				objectField.objectType = typeof(Transform);
-
-				objectField.RegisterValueChangedCallback(e => ErrorValidate());
+				SetupListItem(obj);
 				ErrorValidate();
 			}
 
@@ -81,14 +163,12 @@ namespace ExpressionUtility
 			AddObject();
 		}
 
-		public IEnumerable<(Transform transform, bool isActive)> GetObjects()
+		private IEnumerable<ObjectData> GetObjects()
 		{
 			var children = _targetObjectsScrollView.contentContainer.Children();
 			foreach (VisualElement e in children)
 			{
-				var obj = e.Q<ObjectField>("target-object").value as Transform;
-				var state = e.Q<Toggle>("target-active-state").value;
-				yield return (obj, state);
+				yield return new ObjectData(e);
 			}
 		}
 
@@ -110,7 +190,17 @@ namespace ExpressionUtility
 			
 			foreach (var obj in GetObjects())
 			{
-				AddToggleKeyframes(animationClip, obj.transform, obj.isActive, _dirtyAssets);
+				switch (obj.Type)
+				{
+					case AdvancedToggleObjectMode.GameObject:
+						AddToggleKeyframes(animationClip, obj.Target as Transform, obj.ToggleState, _dirtyAssets);
+						break;
+					case AdvancedToggleObjectMode.Material:
+						AnimUtility.SetObjectReferenceKeyframe(animationClip, obj.Target, $"m_Materials.Array.data[{obj.MaterialSlot}]", obj.NewMaterial, _dirtyAssets);
+						break;
+					default:
+						throw new ArgumentOutOfRangeException();
+				}
 			}
 			
 			AnimatorStateTransition anyStateTransition = stateMachine.AddAnyStateTransition(toggleState);
@@ -143,14 +233,35 @@ namespace ExpressionUtility
 			var ownerTransforms = _expressionInfo.AvatarDescriptor.GetComponentsInChildren<Transform>(true);
 			var children = GetObjects().ToList();
 
-			bool childNull = children.Any(c => c.transform == null);
-			bool isNotChild = children.Select(c => c.transform).Except(ownerTransforms).Any(t => t != null);
+			bool childNull = children.Any(c => c.Target == null);
+			bool isNotChild = children.Where(o => o.Target != null).Select(c => c.Target.transform).Except(ownerTransforms).Any(t => t != null);
 
+			bool materialChildrenNull = children.Any(o => o.Type == AdvancedToggleObjectMode.Material && o.NewMaterial == null);
+
+			_controller.Messages.SetActive(materialChildrenNull, "material-is-null");
 			_controller.Messages.SetActive(isNotChild, "item-not-child-of-avatar");
 			_controller.Messages.SetActive(true, "item-toggle-info");
 			
-			bool hasErrors = childNull || isNotChild;
+			bool hasErrors = childNull || isNotChild || materialChildrenNull;
 			finishButton.SetEnabled(!hasErrors);
+		}
+
+		private readonly struct ObjectData
+		{
+			public AdvancedToggleObjectMode Type { get; }
+			public Component Target { get; }
+			public bool ToggleState { get; }
+			public Material NewMaterial { get; }
+			public int MaterialSlot { get; }
+
+			public ObjectData(VisualElement element)
+			{
+				Type = (AdvancedToggleObjectMode) element.Q<EnumField>("target-type").value;
+				Target = element.Q<ObjectField>("target-object")?.value as Component;
+				NewMaterial = element.Q<ObjectField>("target-material")?.value as Material;
+				ToggleState = element.Q<Toggle>("target-active-state")?.value ?? false;
+				MaterialSlot = element.Q<PopupField<int>>()?.value ?? 0;
+			}
 		}
 	}
 }

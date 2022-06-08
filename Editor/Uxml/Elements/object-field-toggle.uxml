@@ -1,6 +1,12 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
-    <ui:VisualElement name="object-field-toggle" style="flex-direction: row;">
-        <uie:ObjectField name="target-object" style="flex-grow: 1;" />
-        <ui:Toggle name="target-active-state" value="true" />
+    <ui:VisualElement name="object-field-toggle" style="flex-direction: column; border-top-width: 1px; border-left-color: rgb(31, 31, 31); border-right-color: rgb(31, 31, 31); border-top-color: rgb(31, 31, 31); border-bottom-color: rgb(31, 31, 31); padding-top: 3px; padding-bottom: 3px;">
+        <Style src="/Packages/com.blep.vrc-expression-utility/Editor/Uxml/Styles.uss" />
+        <uie:EnumField label="Type" value="GameObject" type="ExpressionUtility.AdvancedToggleObjectMode, com.blep.vrc-expression-utility.Editor" name="target-type" />
+        <ui:VisualElement style="flex-direction: row;">
+            <uie:ObjectField name="target-object" label="Target Object" style="flex-grow: 1;" />
+            <ui:VisualElement name="material-slot" />
+        </ui:VisualElement>
+        <uie:ObjectField name="target-material" label="New Material" style="flex-grow: 1; display: flex;" />
+        <ui:Toggle name="target-active-state" value="true" label="State" />
     </ui:VisualElement>
 </ui:UXML>

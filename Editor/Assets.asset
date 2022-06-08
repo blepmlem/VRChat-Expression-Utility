@@ -65,7 +65,7 @@ MonoBehaviour:
       is toggled on
   - Identifier: material-is-null
     MessageType: 1
-    Text: Put in the materials you want to shift between
+    Text: Put in the materials you want to use
   - Identifier: renderer-is-not-owned
     MessageType: 3
     Text: The selected renderer is not part of the avatar! Move the renderer into

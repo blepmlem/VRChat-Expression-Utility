@@ -190,9 +190,9 @@ namespace ExpressionUtility
 
 			parameter = new VRC_AvatarParameterDriver.Parameter
 			{
+				type = VRC_AvatarParameterDriver.ChangeType.Set,
 				name = parameterName,
 				value = value,
-				destParam = parameterName,
 			};
 			
 			parameterDriver.parameters.Add(parameter);

@@ -12,8 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 190094eb54854032a64287f5ad450cf5, type: 3}
   m_Name: Assets
   m_EditorClassIdentifier: 
-  _githubIconDark: {fileID: 2800000, guid: 846629aba5d02ff4991936c3263880a2, type: 3}
-  _githubIconLight: {fileID: 2800000, guid: 8a55cb8cdee39994a82a1b97cb64fdb5, type: 3}
   _messages:
   - Identifier: give-expr-name
     MessageType: 1
@@ -82,6 +80,10 @@ MonoBehaviour:
     MessageType: 2
     Text: You've chosen not to use a menu. This will mean that you must create a
       menu control manually later before your toggle can be used.
+  - Identifier: modified-parameters
+    MessageType: 2
+    Text: You're modifying parameters. Currently the values will persist after untoggling
+      this expression.
   _miniAvatar: {fileID: 9197481963319205126, guid: a38f02644114c3e40ae93feea8f74473,
     type: 3}
   _avatarSelectorButton: {fileID: 9197481963319205126, guid: 3a6620e1239272c4aafcf3db86a956e1,

@@ -4,5 +4,6 @@ namespace ExpressionUtility
 	{
 		GameObject,
 		Material,
+		Parameter,
 	}
 }

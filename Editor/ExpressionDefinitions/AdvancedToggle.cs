@@ -14,12 +14,11 @@ using Object = UnityEngine.Object;
 
 namespace ExpressionUtility
 {
-	[CreateAssetMenu(fileName = nameof(ItemToggle), menuName = "Expression Utility/"+nameof(ItemToggle))]
-	internal class ItemToggle : ExpressionUI, IExpressionDefinition
+	[CreateAssetMenu(fileName = nameof(AdvancedToggle), menuName = "Expression Utility/"+nameof(AdvancedToggle))]
+	internal class AdvancedToggle : ExpressionUI, IExpressionDefinition
 	{
 		[SerializeField]
 		private VisualTreeAsset _targetObjectAsset;
-		
 		private UIController _controller;
 		private ExpressionInfo _expressionInfo;
 		private readonly List<Object> _dirtyAssets = new List<Object>();
@@ -54,14 +53,69 @@ namespace ExpressionUtility
 				ErrorValidate();
 			});
 			objectField.allowSceneObjects = true;
-			var type = listItem.Q<EnumField>("target-type");
+			var type = listItem.Q<EnumField>(_targetTypeName);
 
-			var materialField = listItem.Q<ObjectField>("target-material");
+			var materialField = listItem.Q<ObjectField>(_targetMaterialName);
 			materialField.objectType = typeof(Material);
 			materialField.RegisterValueChangedCallback(e => ErrorValidate());
 			
-			type.RegisterValueChangedCallback(e => ShowTypeFields(e.newValue));
+			type.RegisterValueChangedCallback(e =>
+			{
+				SetupListParameterField();
+				ShowTypeFields(e.newValue);
+			});
+			
 			ShowTypeFields(type.value);
+
+			void SetupListParameterField()
+			{
+				var pickerHolder = listItem.Q("parameters-picker");
+				var valueHolder = listItem.Q("parameters-value");
+				pickerHolder.Clear();
+
+				VRCExpressionParameters.Parameter[] parameters = _controller.ExpressionInfo.AvatarDescriptor.expressionParameters.parameters;
+				var slots = new List<VRCExpressionParameters.Parameter>();
+				slots.AddRange(parameters);
+			
+				string PrettifyName(VRCExpressionParameters.Parameter arg) => $"{arg.name} ({arg.valueType})";
+			
+				var selector = new PopupField<VRCExpressionParameters.Parameter>(slots, 0, PrettifyName, PrettifyName)
+				{
+					name = _vrcParameterName,
+					label = "VRC Parameter"
+				};
+
+				selector.RegisterValueChangedCallback(e => SetValue(e.newValue));
+				
+				void SetValue(VRCExpressionParameters.Parameter obj)
+				{
+					selector.SetValueWithoutNotify(obj);
+					valueHolder.Clear();
+
+					VisualElement valueElement;
+					switch (obj.valueType)
+					{
+						case VRCExpressionParameters.ValueType.Int:
+							valueElement = new IntegerField{label = "Toggled value"};
+							break;
+						case VRCExpressionParameters.ValueType.Float:
+							valueElement = new FloatField{label = "Toggled value"};
+							break;
+						case VRCExpressionParameters.ValueType.Bool:
+							valueElement = new Toggle{label = "Toggled state"};
+							break;
+						default:
+							throw new ArgumentOutOfRangeException();
+					}
+
+					valueElement.name = _parameterValueImplementationName;
+					valueHolder.Add(valueElement);
+					ErrorValidate();
+				}
+
+				SetValue(selector.value);
+				pickerHolder.Add(selector);
+			}
 			
 			void SetupListMaterialSlotPicker()
 			{
@@ -102,24 +156,32 @@ namespace ExpressionUtility
 			void ShowTypeFields(Enum enumValue)
 			{
 				var value = (AdvancedToggleObjectMode) enumValue;
-				var activeToggle = listItem.Q("target-active-state");
-				
+				var activeToggle = listItem.Q(_targetActiveStateName);
+				var parameter = listItem.Q("parameters");
+
 				activeToggle.Display(false);
 				materialField.Display(false);
+				objectField.Display(false);
+				parameter.Display(false);
 				
 				switch (value)
 				{
 					case AdvancedToggleObjectMode.GameObject:
 						objectField.label = "Target Object";
 						activeToggle.Display(true);
+						objectField.Display(true);
 						objectField.objectType = typeof(Transform);
 						objectField.value = null;
 						break;
 					case AdvancedToggleObjectMode.Material:
 						objectField.label = "Target Renderer";
 						materialField.Display(true);
+						objectField.Display(true);
 						objectField.objectType = typeof(Renderer);
 						objectField.value = null;
+						break;
+					case AdvancedToggleObjectMode.Parameter:
+						parameter.Display(true);
 						break;
 					default:
 						throw new ArgumentOutOfRangeException();
@@ -128,7 +190,6 @@ namespace ExpressionUtility
 				ErrorValidate();
 			}
 		}
-
 
 
 		private void SetupTargetObjectsList(UIController controller)
@@ -198,8 +259,6 @@ namespace ExpressionUtility
 					case AdvancedToggleObjectMode.Material:
 						AnimUtility.SetObjectReferenceKeyframe(animationClip, obj.Target, $"m_Materials.Array.data[{obj.MaterialSlot}]", obj.NewMaterial, _dirtyAssets);
 						break;
-					default:
-						throw new ArgumentOutOfRangeException();
 				}
 			}
 			
@@ -218,6 +277,14 @@ namespace ExpressionUtility
 			_dirtyAssets.SetDirty();
 			controller.AddObjectsToAsset(stateMachine, toggleState, anyStateTransition, exitTransition, empty);
 			AssetDatabase.SaveAssets();
+			
+			_dirtyAssets.Clear();
+			foreach (ObjectData obj in GetObjects().Where(o => o.Type == AdvancedToggleObjectMode.Parameter))
+			{
+				AnimUtility.AddVRCParameterDriver(toggleState, obj.ParameterName, obj.ParameterValue, _dirtyAssets);
+			}
+			_dirtyAssets.SetDirty();
+			AssetDatabase.SaveAssets();
 			AssetDatabase.Refresh();
 		}
 
@@ -233,12 +300,16 @@ namespace ExpressionUtility
 			var ownerTransforms = _expressionInfo.AvatarDescriptor.GetComponentsInChildren<Transform>(true);
 			var children = GetObjects().ToList();
 
-			bool childNull = children.Any(c => c.Target == null);
+			bool childNull = children.Any(c => c.Target == null && c.Type != AdvancedToggleObjectMode.Parameter);
 			bool isNotChild = children.Where(o => o.Target != null).Select(c => c.Target.transform).Except(ownerTransforms).Any(t => t != null);
 
 			bool materialChildrenNull = children.Any(o => o.Type == AdvancedToggleObjectMode.Material && o.NewMaterial == null);
-
-			_controller.Messages.SetActive(materialChildrenNull, "material-is-null");
+			bool rendererIsNull = children.Any(o => o.Type == AdvancedToggleObjectMode.Material && o.Target == null);
+			bool modifiedParameters = children.Any(o => o.Type == AdvancedToggleObjectMode.Parameter);
+			
+			_controller.Messages.SetActive(modifiedParameters, "modified-parameters");
+			_controller.Messages.SetActive(rendererIsNull, "renderer-is-null");
+			_controller.Messages.SetActive(!rendererIsNull && materialChildrenNull, "material-is-null");
 			_controller.Messages.SetActive(isNotChild, "item-not-child-of-avatar");
 			_controller.Messages.SetActive(true, "item-toggle-info");
 			
@@ -253,15 +324,47 @@ namespace ExpressionUtility
 			public bool ToggleState { get; }
 			public Material NewMaterial { get; }
 			public int MaterialSlot { get; }
+			
+			public string ParameterName { get; }
+			
+			public float ParameterValue { get; }
 
 			public ObjectData(VisualElement element)
 			{
-				Type = (AdvancedToggleObjectMode) element.Q<EnumField>("target-type").value;
-				Target = element.Q<ObjectField>("target-object")?.value as Component;
-				NewMaterial = element.Q<ObjectField>("target-material")?.value as Material;
-				ToggleState = element.Q<Toggle>("target-active-state")?.value ?? false;
+				Type = (AdvancedToggleObjectMode) element.Q<EnumField>(_targetTypeName).value;
+				Target = element.Q<ObjectField>(_targetObjectName)?.value as Component;
+				NewMaterial = element.Q<ObjectField>(_targetMaterialName)?.value as Material;
+				ToggleState = element.Q<Toggle>(_targetActiveStateName)?.value ?? false;
 				MaterialSlot = element.Q<PopupField<int>>()?.value ?? 0;
+				ParameterName = element.Q<PopupField<VRCExpressionParameters.Parameter>>(_vrcParameterName)?.value?.name;
+				ParameterValue = 0;
+				
+				var field = element.Q<BindableElement>(_parameterValueImplementationName);
+				switch (field)
+				{
+					case BaseField<int> intField:
+						ParameterValue = intField.value;
+						break;
+					case BaseField<float> floatField:
+						ParameterValue = floatField.value;
+						break;
+					case BaseField<bool> boolField:
+						ParameterValue = boolField.value ? 1 : 0;
+						break;
+				}
 			}
 		}
+
+		private const string _vrcParameterName = "vrc-parameter";
+
+		private const string _targetActiveStateName = "target-active-state";
+
+		private const string _targetMaterialName = "target-material";
+
+		private const string _targetTypeName = "target-type";
+			
+		private const string _parameterValueImplementationName = "parameter-value-implementation";
+			
+		private const string _targetObjectName = "target-object";
 	}
 }

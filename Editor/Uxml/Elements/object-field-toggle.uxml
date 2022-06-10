@@ -7,6 +7,10 @@
             <ui:VisualElement name="material-slot" />
         </ui:VisualElement>
         <uie:ObjectField name="target-material" label="New Material" style="flex-grow: 1; display: flex;" />
+        <ui:VisualElement name="parameters">
+            <ui:VisualElement name="parameters-picker" />
+            <ui:VisualElement name="parameters-value" />
+        </ui:VisualElement>
         <ui:Toggle name="target-active-state" value="true" label="State" />
     </ui:VisualElement>
 </ui:UXML>

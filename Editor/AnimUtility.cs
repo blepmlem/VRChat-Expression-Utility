@@ -7,6 +7,7 @@ using UnityEditor.Animations;
 using UnityEngine;
 using VRC.SDK3.Avatars.Components;
 using VRC.SDK3.Avatars.ScriptableObjects;
+using VRC.SDKBase;
 using static VRC.SDK3.Avatars.ScriptableObjects.VRCExpressionsMenu.Control;
 using Object = UnityEngine.Object;
 
@@ -171,6 +172,33 @@ namespace ExpressionUtility
 			AnimationUtility.SetObjectReferenceCurve(animationClip, binding, new[] { keyframe });
 			dirtyAssets.Add(target);
 			dirtyAssets.Add(animationClip);
+		}
+
+		public static VRCAvatarParameterDriver AddVRCParameterDriver(AnimatorState persistedAnimatorState, string parameterName, float value, List<Object> dirtyAssets)
+		{
+			VRCAvatarParameterDriver parameterDriver = persistedAnimatorState.behaviours.OfType<VRCAvatarParameterDriver>().FirstOrDefault();
+			if (parameterDriver == null)
+			{
+				parameterDriver = persistedAnimatorState.AddStateMachineBehaviour<VRCAvatarParameterDriver>();
+			}
+
+			var parameter = parameterDriver.parameters.FirstOrDefault(p => p.name == parameterName);
+			if (parameter != null)
+			{
+				parameterDriver.parameters.Remove(parameter);
+			}
+
+			parameter = new VRC_AvatarParameterDriver.Parameter
+			{
+				name = parameterName,
+				value = value,
+				destParam = parameterName,
+			};
+			
+			parameterDriver.parameters.Add(parameter);
+			dirtyAssets.Add(persistedAnimatorState);
+			dirtyAssets.Add(parameterDriver);
+			return parameterDriver;
 		}
 
 		public static string GetPath(this DefaultAsset asset) => AssetDatabase.GetAssetPath(asset);

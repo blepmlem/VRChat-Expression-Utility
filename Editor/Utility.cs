@@ -12,6 +12,7 @@ using UnityEngine.UIElements;
 using VRC.Core;
 using VRC.SDK3.Avatars.Components;
 using VRC.SDK3.Avatars.ScriptableObjects;
+using VRC.SDK3.Image;
 using Object = UnityEngine.Object;
 
 namespace ExpressionUtility
@@ -46,7 +47,7 @@ namespace ExpressionUtility
 				tcs.TrySetResult((imageUrl, result));
 			}	
 			
-			void OnFailure()
+			void OnFailure(ImageLoadError error)
 			{
 				_cachedTextureDownloads.Remove(imageUrl);
 				tcs.TrySetResult((imageUrl, null));

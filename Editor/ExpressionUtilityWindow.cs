@@ -44,7 +44,9 @@ namespace ExpressionUtility.UI
 				DateTime last = DateTime.Parse(lastString, CultureInfo.InvariantCulture);
 				
 				EditorPrefs.SetString(RELOAD_TIMESTAMP_KEY, nowString);
-				if (now - last > TimeSpan.FromSeconds(MIN_RELOAD_WAIT_TIME))
+				var minTime = TimeSpan.FromSeconds(MIN_RELOAD_WAIT_TIME);
+				var dif = now - last;
+				if (dif > minTime)
 				{
 					CompilationPipeline.RequestScriptCompilation();
 					var text = new Label("Please wait...");

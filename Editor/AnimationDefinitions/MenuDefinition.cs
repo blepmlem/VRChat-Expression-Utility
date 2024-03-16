@@ -10,12 +10,16 @@ namespace ExpressionUtility
 	{
 		public MenuDefinition(IAnimationDefinition parent, VRCExpressionsMenu menu)
 		{
-			Name = menu.name;
+			Name = menu?.name;
 			Parent = parent;
 			Menu = menu;
-			foreach (VRCExpressionsMenu.Control menuControl in menu.controls)
+
+			if (menu != null)
 			{
-				AddControl(menuControl);
+				foreach (VRCExpressionsMenu.Control menuControl in menu.controls)
+				{
+					AddControl(menuControl);
+				}
 			}
 		}
 
@@ -29,12 +33,12 @@ namespace ExpressionUtility
 		{
 			return Children.AddChild(new MenuControlDefinition(this, name));
 		}
-		
+
 		public MenuControlDefinition AddControl(VRCExpressionsMenu.Control control)
 		{
 			return Children.AddChild(new MenuControlDefinition(this, control));
 		}
-		
+
 		public VRCExpressionsMenu Menu { get; }
 		public string Name { get; }
 		public bool IsRealized => Menu != null;
@@ -48,7 +52,7 @@ namespace ExpressionUtility
 
 		public List<IAnimationDefinition> Children { get; } = new List<IAnimationDefinition>();
 		public IAnimationDefinition Parent { get; }
-		
+
 		public override string ToString() => $"{Name} (Menu)";
 	}
 }

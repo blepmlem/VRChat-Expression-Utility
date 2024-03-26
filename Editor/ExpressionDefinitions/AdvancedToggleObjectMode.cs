@@ -5,5 +5,6 @@ namespace ExpressionUtility
 		GameObject,
 		Material,
 		Parameter,
+		BlendShape,
 	}
 }

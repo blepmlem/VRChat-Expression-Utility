@@ -91,10 +91,15 @@ MonoBehaviour:
     MessageType: 1
     Text: Select the renderer(s) you want to animate BlendShapes on.
   - Identifier: blend-shape-slider
-    MessageType: 0
+    MessageType: 1
     Text: The BlendShapes you animate here will be controlled by a 1D puppet slider.
       The "Max Value" for each animation decides how far the BlendShape is animated
       when the puppet slider is maxed-out.
+  - Identifier: blend-shape-parameters-active
+    MessageType: 1
+    Text: You are setting a BlendShape to be a specific value when this toggle is
+      on. Select which renderer and BlendShape, then which value it will be locked
+      to.
   _miniAvatar: {fileID: 9197481963319205126, guid: a38f02644114c3e40ae93feea8f74473,
     type: 3}
   _avatarSelectorButton: {fileID: 9197481963319205126, guid: 3a6620e1239272c4aafcf3db86a956e1,

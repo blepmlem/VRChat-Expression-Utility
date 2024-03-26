@@ -1,6 +1,6 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="True">
+    <Style src="project://database/Packages/com.blep.vrc-expression-utility/Editor/Uxml/Styles.uss?fileID=7433441132597879392&amp;guid=7c42eb3d6f46ca14ab23aa6a9abd90a0&amp;type=3#Styles" />
     <ui:VisualElement name="object-field-toggle" style="flex-direction: column; border-top-width: 1px; border-left-color: rgb(31, 31, 31); border-right-color: rgb(31, 31, 31); border-top-color: rgb(31, 31, 31); border-bottom-color: rgb(31, 31, 31); padding-top: 3px; padding-bottom: 3px;">
-        <Style src="/Packages/com.blep.vrc-expression-utility/Editor/Uxml/Styles.uss" />
         <uie:EnumField label="Type" value="GameObject" type="ExpressionUtility.AdvancedToggleObjectMode, com.blep.vrc-expression-utility.Editor" name="target-type" />
         <ui:VisualElement style="flex-direction: row;">
             <uie:ObjectField name="target-object" label="Target Object" style="flex-grow: 1;" />
@@ -8,6 +8,10 @@
         </ui:VisualElement>
         <uie:ObjectField name="target-material" label="New Material" style="flex-grow: 1; display: flex;" />
         <ui:VisualElement name="parameters">
+            <ui:VisualElement name="parameters-picker" />
+            <ui:VisualElement name="parameters-value" />
+        </ui:VisualElement>
+        <ui:VisualElement name="blend-shape-parameters">
             <ui:VisualElement name="parameters-picker" />
             <ui:VisualElement name="parameters-value" />
         </ui:VisualElement>

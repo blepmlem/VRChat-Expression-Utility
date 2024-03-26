@@ -49,6 +49,7 @@ namespace ExpressionUtility
 			objectField.RegisterValueChangedCallback(e =>
 			{
 				SetupListMaterialSlotPicker();
+				SetupBlendShapeParameterField();
 				ErrorValidate();
 			});
 			objectField.allowSceneObjects = true;
@@ -60,16 +61,56 @@ namespace ExpressionUtility
 			
 			type.RegisterValueChangedCallback(e =>
 			{
-				SetupListParameterField();
+				SetupVRCParameterField();
+				SetupBlendShapeParameterField();
 				ShowTypeFields(e.newValue);
 			});
 			
 			ShowTypeFields(type.value);
 
-			void SetupListParameterField()
+			void SetupBlendShapeParameterField()
 			{
-				var pickerHolder = listItem.Q("parameters-picker");
-				var valueHolder = listItem.Q("parameters-value");
+				var pickerHolder = listItem.Q("blend-shape-parameters").Q("parameters-picker");
+				var valueSlider = listItem.Q<Slider>(_blendShapeParameterValueImplementationName);
+				
+				pickerHolder.Clear();
+
+				var selector = new PopupField<int>
+				{
+					name = _blendShapeParameterName,
+					label = "Blend Shape",
+				};
+				pickerHolder.Add(selector);
+
+				if(objectField.value is not SkinnedMeshRenderer renderer)
+				{
+					valueSlider.Display(false);
+					selector.Display(false);
+					return;
+				}
+				
+				valueSlider.Display(true);
+				selector.Display(true);
+				var mesh = renderer.sharedMesh;
+				var count = mesh.blendShapeCount;
+				var slots = Enumerable.Range(0, count).ToList();
+				
+				string PrettifyName(int arg) => $"{arg} ({mesh.GetBlendShapeName(arg)})";
+				 
+				selector.formatListItemCallback = PrettifyName;
+				selector.formatSelectedValueCallback = PrettifyName;
+				
+				selector.choices = slots;
+				selector.RegisterValueChangedCallback(e =>
+				{
+					ErrorValidate();
+				});
+			}
+
+			void SetupVRCParameterField()
+			{
+				var pickerHolder = listItem.Q("parameters").Q("parameters-picker");
+				var valueHolder = listItem.Q("parameters").Q("parameters-value");
 				pickerHolder.Clear();
 
 				VRCExpressionParameters.Parameter[] parameters = _controller.ExpressionInfo.AvatarDescriptor.expressionParameters.parameters;
@@ -107,7 +148,7 @@ namespace ExpressionUtility
 							throw new ArgumentOutOfRangeException();
 					}
 
-					valueElement.name = _parameterValueImplementationName;
+					valueElement.name = _vrcParameterValueImplementationName;
 					valueHolder.Add(valueElement);
 					ErrorValidate();
 				}
@@ -115,13 +156,13 @@ namespace ExpressionUtility
 				SetValue(selector.value);
 				pickerHolder.Add(selector);
 			}
-			
+
 			void SetupListMaterialSlotPicker()
 			{
-				var holder = listItem.Q("material-slot");
+				var holder = listItem.Q(_materialSlotName);
 				holder.Clear();
 			
-				if (!(objectField.value is Renderer renderer))
+				if (objectField.value is not Renderer renderer || renderer is SkinnedMeshRenderer)
 				{
 					return;
 				}
@@ -156,12 +197,14 @@ namespace ExpressionUtility
 			{
 				var value = (AdvancedToggleObjectMode) enumValue;
 				var activeToggle = listItem.Q(_targetActiveStateName);
-				var parameter = listItem.Q("parameters");
+				var vrcParameter = listItem.Q("parameters");
+				var blendShapeParameter = listItem.Q("blend-shape-parameters");
 
 				activeToggle.Display(false);
 				materialField.Display(false);
 				objectField.Display(false);
-				parameter.Display(false);
+				vrcParameter.Display(false);
+				blendShapeParameter.Display(false);
 				
 				switch (value)
 				{
@@ -180,7 +223,12 @@ namespace ExpressionUtility
 						objectField.value = null;
 						break;
 					case AdvancedToggleObjectMode.Parameter:
-						parameter.Display(true);
+						vrcParameter.Display(true);
+						break;
+					case AdvancedToggleObjectMode.BlendShape:
+						objectField.Display(true);
+						objectField.objectType = typeof(SkinnedMeshRenderer);
+						blendShapeParameter.Display(true);
 						break;
 					default:
 						throw new ArgumentOutOfRangeException();
@@ -189,7 +237,6 @@ namespace ExpressionUtility
 				ErrorValidate();
 			}
 		}
-
 
 		private void SetupTargetObjectsList(UIController controller)
 		{
@@ -258,6 +305,9 @@ namespace ExpressionUtility
 					case AdvancedToggleObjectMode.Material:
 						AnimUtility.SetObjectReferenceKeyframe(animationClip, obj.Target, $"m_Materials.Array.data[{obj.MaterialSlot}]", obj.NewMaterial, _dirtyAssets);
 						break;
+					case AdvancedToggleObjectMode.BlendShape:
+						AnimUtility.SetBlendShapeKeyframe(animationClip, obj.Target, obj.BlendShapeAttributeName, obj.BlendShapeParameterValue, _dirtyAssets);
+						break;
 				}
 			}
 			
@@ -280,7 +330,7 @@ namespace ExpressionUtility
 			_dirtyAssets.Clear();
 			foreach (ObjectData obj in GetObjects().Where(o => o.Type == AdvancedToggleObjectMode.Parameter))
 			{
-				AnimUtility.AddVRCParameterDriver(toggleState, obj.ParameterName, obj.ParameterValue, _dirtyAssets);
+				AnimUtility.AddVRCParameterDriver(toggleState, obj.VRCParameterName, obj.VRCParameterValue, _dirtyAssets);
 			}
 			_dirtyAssets.SetDirty();
 			AssetDatabase.SaveAssets();
@@ -305,7 +355,9 @@ namespace ExpressionUtility
 			bool materialChildrenNull = children.Any(o => o.Type == AdvancedToggleObjectMode.Material && o.NewMaterial == null);
 			bool rendererIsNull = children.Any(o => o.Type == AdvancedToggleObjectMode.Material && o.Target == null);
 			bool modifiedParameters = children.Any(o => o.Type == AdvancedToggleObjectMode.Parameter);
+			bool blendShapeParameters = children.Any(o => o.Type == AdvancedToggleObjectMode.BlendShape);
 			
+			_controller.Messages.SetActive(blendShapeParameters, "blend-shape-parameters-active");
 			_controller.Messages.SetActive(modifiedParameters, "modified-parameters");
 			_controller.Messages.SetActive(rendererIsNull, "renderer-is-null");
 			_controller.Messages.SetActive(!rendererIsNull && materialChildrenNull, "material-is-null");
@@ -324,9 +376,11 @@ namespace ExpressionUtility
 			public Material NewMaterial { get; }
 			public int MaterialSlot { get; }
 			
-			public string ParameterName { get; }
+			public string VRCParameterName { get; }
+			public float VRCParameterValue { get; }
 			
-			public float ParameterValue { get; }
+			public string BlendShapeAttributeName { get; }
+			public float BlendShapeParameterValue { get; }
 
 			public ObjectData(VisualElement element)
 			{
@@ -334,26 +388,42 @@ namespace ExpressionUtility
 				Target = element.Q<ObjectField>(_targetObjectName)?.value as Component;
 				NewMaterial = element.Q<ObjectField>(_targetMaterialName)?.value as Material;
 				ToggleState = element.Q<Toggle>(_targetActiveStateName)?.value ?? false;
-				MaterialSlot = element.Q<PopupField<int>>()?.value ?? 0;
-				ParameterName = element.Q<PopupField<VRCExpressionParameters.Parameter>>(_vrcParameterName)?.value?.name;
-				ParameterValue = 0;
+				MaterialSlot = element.Q<PopupField<int>>(_materialSlotName)?.value ?? 0;
+				VRCParameterName = element.Q<PopupField<VRCExpressionParameters.Parameter>>(_vrcParameterName)?.value?.name;
+				VRCParameterValue = 0;
 				
-				var field = element.Q<BindableElement>(_parameterValueImplementationName);
+				var field = element.Q<BindableElement>(_vrcParameterValueImplementationName);
 				switch (field)
 				{
 					case BaseField<int> intField:
-						ParameterValue = intField.value;
+						VRCParameterValue = intField.value;
 						break;
 					case BaseField<float> floatField:
-						ParameterValue = floatField.value;
+						VRCParameterValue = floatField.value;
 						break;
 					case BaseField<bool> boolField:
-						ParameterValue = boolField.value ? 1 : 0;
+						VRCParameterValue = boolField.value ? 1 : 0;
 						break;
 				}
+
+				BlendShapeAttributeName = string.Empty;
+				BlendShapeParameterValue = 0;
+				
+				var blendShapeIndex = element.Q<PopupField<int>>(_blendShapeParameterName)?.value;
+				var renderer = element.Q<ObjectField>(_targetObjectName)?.value as SkinnedMeshRenderer;
+				if(renderer != null && blendShapeIndex.HasValue)
+				{
+					BlendShapeAttributeName = $"blendShape.{renderer.sharedMesh.GetBlendShapeName(blendShapeIndex.Value)}";
+					BlendShapeParameterValue = element.Q<Slider>(_blendShapeParameterValueImplementationName)?.value ?? 0;
+				}
+
 			}
 		}
+		
+		private const string _materialSlotName = "material-slot";
 
+		private const string _blendShapeParameterName = "blend-shape-parameter";
+		
 		private const string _vrcParameterName = "vrc-parameter";
 
 		private const string _targetActiveStateName = "target-active-state";
@@ -362,7 +432,9 @@ namespace ExpressionUtility
 
 		private const string _targetTypeName = "target-type";
 			
-		private const string _parameterValueImplementationName = "parameter-value-implementation";
+		private const string _vrcParameterValueImplementationName = "parameter-value-implementation";
+		
+		private const string _blendShapeParameterValueImplementationName = "blend-shape-slider";
 			
 		private const string _targetObjectName = "target-object";
 	}

@@ -159,6 +159,16 @@ namespace ExpressionUtility
 			dirtyAssets.Add(animationClip);
 		}
 		
+		public static void SetBlendShapeKeyframe(AnimationClip animationClip, Component target, string attribute, float value, List<Object> dirtyAssets)
+		{
+			var keyframe = new Keyframe(0, value);
+			var curve = new AnimationCurve(keyframe);
+			var path = GetAnimationPath(target.transform);
+			animationClip.SetCurve(path, typeof(SkinnedMeshRenderer),attribute, curve);
+			dirtyAssets.Add(target);
+			dirtyAssets.Add(animationClip);
+		}
+		
 		public static void SetObjectReferenceKeyframe(AnimationClip animationClip, Component target, string attribute, Object reference, List<Object> dirtyAssets)
 		{
 			var path = AnimUtility.GetAnimationPath(target.transform);

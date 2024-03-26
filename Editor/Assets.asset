@@ -84,6 +84,17 @@ MonoBehaviour:
     MessageType: 2
     Text: You're modifying parameters. Currently the values will persist after untoggling
       this expression.
+  - Identifier: multiple-same-blend-shape-slots-used
+    MessageType: 3
+    Text: You are modifying the same BlendShape slot more than once!
+  - Identifier: blend-shape-renderer-is-null
+    MessageType: 1
+    Text: Select the renderer(s) you want to animate BlendShapes on.
+  - Identifier: blend-shape-slider
+    MessageType: 0
+    Text: The BlendShapes you animate here will be controlled by a 1D puppet slider.
+      The "Max Value" for each animation decides how far the BlendShape is animated
+      when the puppet slider is maxed-out.
   _miniAvatar: {fileID: 9197481963319205126, guid: a38f02644114c3e40ae93feea8f74473,
     type: 3}
   _avatarSelectorButton: {fileID: 9197481963319205126, guid: 3a6620e1239272c4aafcf3db86a956e1,

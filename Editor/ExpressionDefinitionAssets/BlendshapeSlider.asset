@@ -13,7 +13,9 @@ MonoBehaviour:
   m_Name: BlendshapeSlider
   m_EditorClassIdentifier: 
   _name: Blendshape Slider
-  _description: Create a 1D slider for quickly changing materials on a target object.
-  _icon: {fileID: 2800000, guid: a32c1a7e60bdbd74ea10ec0816ec144b, type: 3}
+  _description: Create a 1D slider that will animate a BlendShape on your avatar.
+  _icon: {fileID: 2800000, guid: 6bb768e1098c02b45a1ee041867fa95b, type: 3}
   _infoBox: 
-  _layout: {fileID: 9197481963319205126, guid: ccd3eda869271f249988871679f902e1, type: 3}
+  _layout: {fileID: 9197481963319205126, guid: c7b0e9e6239920c48bf20757ab69a267, type: 3}
+  _sliderAsset: {fileID: 9197481963319205126, guid: 487077284c93fa949a3bb9bb08a66ea8,
+    type: 3}

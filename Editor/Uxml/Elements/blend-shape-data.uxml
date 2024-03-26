@@ -1,0 +1,9 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="True">
+    <Style src="project://database/Packages/com.blep.vrc-expression-utility/Editor/Uxml/Styles.uss?fileID=7433441132597879392&amp;guid=7c42eb3d6f46ca14ab23aa6a9abd90a0&amp;type=3#Styles" />
+    <ui:VisualElement style="flex-grow: 1;">
+        <uie:ObjectField label="Target Renderer" name="target-renderer" />
+        <ui:FloatField label="Max Value" value="100" name="max-range" />
+        <ui:VisualElement name="blend-shape-picker-container" style="flex-grow: 1;" />
+        <ui:MinMaxSlider picking-mode="Ignore" label="Map Values" min-value="0" max-value="1" low-limit="0" high-limit="1" name="min-max-slider" style="display: none;" />
+    </ui:VisualElement>
+</ui:UXML>

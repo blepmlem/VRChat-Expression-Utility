@@ -3,12 +3,12 @@
 Unity's Package manager, while supporting git, does not come with any embedded git install, so this will only work if you have [git](https://git-scm.com/download/win) installed beforehand.
 - Open Unity's Package Manager and add the git url:
 
-```https://github.com/blepmlem/VRChat-Expression-Utility.git#2.5.0```
+```https://github.com/blepmlem/VRChat-Expression-Utility.git#2.5.1```
 
 All versions come with built in update functionality.
 
 ### If you do not have git installed
-- Grab the latest [Unity Package release here](https://github.com/blepmlem/VRChat-Expression-Utility/releases/download/2.5.0/VRC_Expression_Utility_2.5.0.unitypackage)
+- Grab the latest [Unity Package release here](https://github.com/blepmlem/VRChat-Expression-Utility/releases/download/2.5.1/VRC_Expression_Utility_2.5.1.unitypackage)
 
 # VRChat Expression Utility
 This tool allows you to skip all of the tedious work when setting up new expressions in SDK3 Avatars.

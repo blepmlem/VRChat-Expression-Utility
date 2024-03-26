@@ -13,7 +13,7 @@
         </ui:VisualElement>
         <ui:VisualElement name="blend-shape-parameters">
             <ui:VisualElement name="parameters-picker" />
-            <ui:VisualElement name="parameters-value" />
+            <ui:Slider picking-mode="Ignore" label="Value" value="42" high-value="100" name="blend-shape-slider" show-input-field="true" />
         </ui:VisualElement>
         <ui:Toggle name="target-active-state" value="true" label="State" />
     </ui:VisualElement>

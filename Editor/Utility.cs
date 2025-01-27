@@ -178,7 +178,7 @@ namespace ExpressionUtility
 			}
 			
 			_avatarTSC = new TaskCompletionSource<IEnumerable<ApiAvatar>>();
-			void OnSuccess(IEnumerable<ApiAvatar> avs)
+			void OnSuccess(IEnumerable<ApiAvatar> avs, bool success)
 			{
 				_avatarTSC.TrySetResult(avs);
 			}
